@@ -272,6 +272,7 @@ public class Review
     public RegisteredUser Reviewed { get; set; }
 }
 
+
 public class Report
 {
     [Key]
@@ -288,3 +289,4 @@ public class Report
     [ForeignKey("ReporterId")]
     public RegisteredUser Reporter { get; set; }
 }
+
