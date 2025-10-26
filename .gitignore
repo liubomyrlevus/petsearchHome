@@ -1,0 +1,74 @@
+# ----------------------------
+# Build artifacts
+# ----------------------------
+bin/
+obj/
+out/
+publish/
+TestResults/
+
+# ----------------------------
+# IDE & tools
+# ----------------------------
+.vs/
+.idea/
+.vscode/
+
+# ----------------------------
+# User-specific files
+# ----------------------------
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# ----------------------------
+# System files
+# ----------------------------
+Thumbs.db
+ehthumbs.db
+.DS_Store
+Icon?
+
+# ----------------------------
+# Logs & temp
+# ----------------------------
+*.log
+*.tmp
+*.bak
+*.swp
+
+# ----------------------------
+# Database & secrets
+# ----------------------------
+*.db
+appsettings.Development.json
+secrets.json
+
+# ----------------------------
+# Entity Framework migrations
+# ----------------------------
+Migrations/
+
+# ----------------------------
+# Publish artifacts
+# ----------------------------
+wwwroot/dist/
+*.publishsettings
+*.Publish.xml
+
+# ----------------------------
+# JetBrains Rider
+# ----------------------------
+.idea/
+*.iml
+
+# ----------------------------
+# macOS
+# ----------------------------
+*.DS_Store
+
+# ----------------------------
+# Other
+# ----------------------------
+structure.txt
