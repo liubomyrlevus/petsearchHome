@@ -59,6 +59,8 @@
 
         <!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
         <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+
+        <ProjectReference Include="..\PetSearchHome.BLL\PetSearchHome.BLL.csproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -74,7 +76,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\PetSearchHome.BLL\PetSearchHome.BLL.csproj" />
-      <ProjectReference Include="..\PetSearchHome.DAL\PetSearchHome.DAL.csproj" />
+  <!--    <ProjectReference Include="..\PetSearchHome.DAL\PetSearchHome.DAL.csproj" /> -->
     </ItemGroup>
 
 </Project>

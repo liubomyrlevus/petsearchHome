@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using MediatR; // 📍 БУДЕ ЧЕРВОНИМ (поки що)
 using PetSearchHome.ViewModels; // 📍 Стане нормальним після Кроку 3
-using PetSearchHome.BLL.Commands; // 📍 БУДЕ ЧЕРВОНИМ (поки що)
+using PetSearchHome.BLL.Features.Auth.Commands.Login; // 📍 БУДЕ ЧЕРВОНИМ (поки що)
 
 namespace PetSearchHome.Pages
 {
