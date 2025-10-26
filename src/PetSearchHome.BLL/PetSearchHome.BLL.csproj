@@ -4,11 +4,20 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    
+    <RootNamespace>PetSearchHome.BLL</RootNamespace>
+    
     <RestoreSources>https://api.nuget.org/v3/index.json</RestoreSources>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.1.0" />
+    <PackageReference Include="MediatR" Version="13.1.0" />
+    
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.1.0" /> 
+    </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PetSearchHome.DAL\PetSearchHome.DAL.csproj" />
   </ItemGroup>
 
 </Project>
