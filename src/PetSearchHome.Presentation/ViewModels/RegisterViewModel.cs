@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace PetSearchHome.ViewModels
+namespace PetSearchHome.ViewModels // ❗ Namespace PetSearchHome.ViewModels
 {
     // Цей enum потрібен для перемикача "Притулок" / "Приватна особа"
     public enum UserType
@@ -16,39 +16,34 @@ namespace PetSearchHome.ViewModels
 
         [Required(ErrorMessage = "Email є обов'язковим")]
         [EmailAddress(ErrorMessage = "Неправильний формат email")]
-        public string Email { get; set; }
+        public string Email { get; set; } = ""; // 👈 Додано
 
         [Required(ErrorMessage = "Пароль є обов'язковим")]
         [MinLength(6, ErrorMessage = "Пароль має бути щонайменше 6 символів")]
-        public string Password { get; set; }
+        public string Password { get; set; } = ""; // 👈 Додано
 
-        [cite_start]// --- Поля для "Приватна особа" [cite: 164-169] ---
-        // Використовуй 'Required' для полів, які є обов'язковими
+        // --- Поля для "Приватна особа" ---
         [Required(ErrorMessage = "Введіть ім'я та прізвище")]
-        public string FullName { get; set; }
-        
+        public string FullName { get; set; } = ""; // 👈 Додано
+
         [Required(ErrorMessage = "Введіть телефон")]
         [Phone(ErrorMessage = "Неправильний формат телефону")]
-        public string Phone { get; set; }
+        public string Phone { get; set; } = ""; // 👈 Додано
 
         [Required(ErrorMessage = "Введіть адресу (місто + район)")]
-        public string Address { get; set; } // [cite: 168]
+        public string Address { get; set; } = ""; // 👈 Додано
 
-        public string AdditionalInfo { get; set; } // [cite: 169]
+        public string AdditionalInfo { get; set; } = ""; // 👈 Додано
 
-        [cite_start]// --- Поля для "Притулок" [cite: 156-163] ---
-        // Тут логіка буде складнішою: ці поля будуть
-        // обов'язковими, ТІЛЬКИ ЯКЩО AccountType == UserType.Shelter.
-        // Для початку просто додай їх.
-        
+        // --- Поля для "Притулок" ---
         [Required(ErrorMessage = "Введіть назву притулку")]
-        public string ShelterName { get; set; } // [cite: 157]
+        public string ShelterName { get; set; } = ""; // 👈 Додано
 
         [Required(ErrorMessage = "Введіть контактну особу")]
-        public string ContactPerson { get; set; } // [cite: 158]
+        public string ContactPerson { get; set; } = ""; // 👈 Додано
 
-        public string ShelterAddress { get; set; } // [cite: 161]
-        public string Description { get; set; } // [cite: 162]
-        public string SocialLinks { get; set; } // [cite: 163]
+        public string ShelterAddress { get; set; } = ""; // 👈 Додано
+        public string Description { get; set; } = ""; // 👈 Додано
+        public string SocialLinks { get; set; } = ""; // 👈 Додано
     }
 }

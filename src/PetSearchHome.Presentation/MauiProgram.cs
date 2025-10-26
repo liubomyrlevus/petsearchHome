@@ -1,15 +1,9 @@
-﻿
-using MediatR;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Components.WebView.Maui;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-// Додано using для сервісів MudBlazor
 using MudBlazor.Services;
 using PetSearchHome.BLL;
-//using PetSearchHome.BLL.Services;
-using PetSearchHome.DAL;
-//using PetSearchHome.DAL.Repositories;
-using System;
 
 namespace PetSearchHome.Presentation;
 
@@ -18,44 +12,46 @@ public static class MauiProgram
     public static MauiApp CreateMauiApp()
     {
         var builder = MauiApp.CreateBuilder();
-        builder
-            .UseMauiApp<App>()
-            .ConfigureFonts(fonts => fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular"));
+        builder.UseMauiApp<App>();
+        ConfigureFonts(builder);
+        ConfigureConfiguration(builder);
+        ConfigureServices(builder);
+        ConfigureLogging(builder);
 
-        var config = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json", optional: true)
-            .Build();
+        return builder.Build();
+    }
 
-        var connString = config.GetConnectionString("DefaultConnection");
+    private static void ConfigureFonts(MauiAppBuilder builder)
+    {
+        builder.ConfigureFonts(fonts =>
+        {
+            fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+        });
+    }
 
-        //// PostgreSQL
-        //builder.Services.AddDbContext<AppDbContext>(options =>
-        //    options.UseNpgsql(connString));
+    private static void ConfigureConfiguration(MauiAppBuilder builder)
+    {
+        builder.Configuration.AddJsonFile(
+            path: "appsettings.json",
+            optional: false,
+            reloadOnChange: true);
+    }
 
-        //// DAL
-        //builder.Services.AddScoped<IUserRepository, UserRepository>();
-        //builder.Services.AddScoped<IListingRepository, ListingRepository>();
-
-        //// BLL
-        //builder.Services.AddMediatR(cfg =>
-        //    cfg.RegisterServicesFromAssembly(typeof(SomeHandler).Assembly));
-        //builder.Services.AddScoped<IUserService, UserService>();
-        //builder.Services.AddScoped<IListingService, ListingService>();
-
-        // --- Додано сервіси для Blazor та MudBlazor ---
-
-        // 1. Потрібно для запуску Blazor всередині MAUI
+    private static void ConfigureServices(MauiAppBuilder builder)
+    {
         builder.Services.AddMauiBlazorWebView();
-
-        // 2. Потрібно для роботи компонентів MudBlazor
         builder.Services.AddMudServices();
+        builder.Services.AddBllServices();
 
-        // ------------------------------------------------
+#if DEBUG
+        builder.Services.AddBlazorWebViewDeveloperTools();
+#endif
+    }
 
+    private static void ConfigureLogging(MauiAppBuilder builder)
+    {
 #if DEBUG
         builder.Logging.AddDebug();
 #endif
-
-        return builder.Build();
     }
 }
