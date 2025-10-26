@@ -1,0 +1,40 @@
+﻿@page "/login"
+@page "/"
+@inherits LoginPage
+
+<EditForm Model="LoginViewModel" OnValidSubmit="HandleLoginSubmit">
+
+    <DataAnnotationsValidator />
+
+    <h3>Реєстрація/авторизація</h3> [cite: 1]
+
+    <div>
+        <label>Email</label> [cite: 2]
+        <InputText @bind-Value="LoginViewModel.Email" />
+        <ValidationMessage For="@(() => LoginViewModel.Email)" />
+    </div>
+
+    <div>
+        <label>Password</label> [cite: 3]
+        <InputText @bind-Value="LoginViewModel.Password" type="password" />
+        <ValidationMessage For="@(() => LoginViewModel.Password)" />
+    </div>
+
+    @if (!string.IsNullOrEmpty(ErrorMessage))
+
+    {
+        <div class="error-message">@ErrorMessage</div>
+    }
+
+    <button type="submit">Увійти</button>
+    <button type="button" @onclick="GoToRegister">Зареєструватися</button>
+    <button type="button" @onclick="ContinueAsGuest">Продовжити як гість</button>
+
+</EditForm>
+
+
+@code {
+    // Цей блок залишається порожнім.
+    // Вся C#-логіка (LoginViewModel, HandleLoginSubmit, GoToRegister, ContinueAsGuest)
+    // знаходиться у файлі LoginPage.razor.cs, який пише Учасник 4.
+}
