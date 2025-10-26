@@ -4,14 +4,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PetSearchHome.DAL;
 
-// Для registered_users.user_type
 public enum UserType
 {
     individual,
     shelter
 }
 
-// Для listings.animal_type
 public enum AnimalType
 {
     dog,
@@ -20,7 +18,6 @@ public enum AnimalType
     other
 }
 
-// Для listings.sex
 public enum AnimalSex
 {
     male,
@@ -28,7 +25,6 @@ public enum AnimalSex
     unknown
 }
 
-// Для listings.size
 public enum AnimalSize
 {
     small,
@@ -36,7 +32,6 @@ public enum AnimalSize
     large
 }
 
-// Для listings.status
 public enum ListingStatus
 {
     draft,
@@ -46,7 +41,6 @@ public enum ListingStatus
     archived
 }
 
-// Для reports.reported_type
 public enum ReportType
 {
     listing,
@@ -54,7 +48,6 @@ public enum ReportType
     message
 }
 
-// Для reports.status
 public enum ReportStatus
 {
     pending,
@@ -62,10 +55,7 @@ public enum ReportStatus
     rejected
 }
 
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-// Таблиця: registered_users
 public class RegisteredUser
 {
     [Key]
@@ -78,41 +68,28 @@ public class RegisteredUser
     public bool IsActive { get; set; }
     public bool IsAdmin { get; set; }
 
-    // Навігаційні властивості (зв'язки)
-
-    // 1-до-1 з Individual
     public Individual Individual { get; set; }
 
-    // 1-до-1 з Shelter
     public Shelter Shelter { get; set; }
 
-    // 1-до-багатьох з Sessions
     public ICollection<Session> Sessions { get; set; } = new List<Session>();
 
-    // 1-до-багатьох з Listings
     public ICollection<Listing> Listings { get; set; } = new List<Listing>();
 
-    // 1-до-багатьох з Favorites
     public ICollection<Favorite> Favorites { get; set; } = new List<Favorite>();
 
-    // 1-до-багатьох з Reviews (як рецензент)
     public ICollection<Review> ReviewsGiven { get; set; } = new List<Review>();
 
-    // 1-до-багатьох з Reviews (як той, кого рецензують)
     public ICollection<Review> ReviewsReceived { get; set; } = new List<Review>();
 
-    // 1-до-багатьох з Reports (як той, хто скаржиться)
     public ICollection<Report> ReportsSent { get; set; } = new List<Report>();
 
-    // 1-до-багатьох з Messages (як відправник)
     public ICollection<Message> MessagesSent { get; set; } = new List<Message>();
 
-    // Зв'язки для Conversations
     public ICollection<Conversation> ConversationsAsUser1 { get; set; } = new List<Conversation>();
     public ICollection<Conversation> ConversationsAsUser2 { get; set; } = new List<Conversation>();
 }
 
-// Таблиця: sessions
 public class Session
 {
     [Key]
@@ -124,12 +101,10 @@ public class Session
     public DateTime LastActivity { get; set; }
     public bool IsValid { get; set; }
 
-    // Зв'язок "багато-до-одного"
     [ForeignKey("UserId")]
     public RegisteredUser User { get; set; }
 }
 
-// Таблиця: individuals
 public class Individual
 {
     [Key]
@@ -143,12 +118,10 @@ public class Individual
     public string? AdditionalInfo { get; set; }
     public string? PhotoUrl { get; set; }
 
-    // Зв'язок "один-до-одного"
     [ForeignKey("UserId")]
     public RegisteredUser User { get; set; }
 }
 
-// Таблиця: shelters
 public class Shelter
 {
     [Key]
@@ -165,12 +138,10 @@ public class Shelter
     public string? WebsiteUrl { get; set; }
     public string? LogoUrl { get; set; }
 
-    // Зв'язок "один-до-одного"
     [ForeignKey("UserId")]
     public RegisteredUser User { get; set; }
 }
 
-// Таблиця: listings
 public class Listing
 {
     [Key]
@@ -192,24 +163,18 @@ public class Listing
     public DateTime UpdatedAt { get; set; }
     public string? ModerationComment { get; set; }
 
-    // Зв'язок "багато-до-одного"
     [ForeignKey("UserId")]
     public RegisteredUser User { get; set; }
 
-    // 1-до-багатьох з Photos
     public ICollection<Photo> Photos { get; set; } = new List<Photo>();
 
-    // 1-до-1 з HealthInfo
     public HealthInfo HealthInfo { get; set; }
 
-    // 1-до-багатьох з Favorites
     public ICollection<Favorite> Favorites { get; set; } = new List<Favorite>();
 
-    // 1-до-багатьох з Conversations
     public ICollection<Conversation> Conversations { get; set; } = new List<Conversation>();
 }
 
-// Таблиця: photos
 public class Photo
 {
     [Key]
@@ -218,12 +183,10 @@ public class Photo
     public string Url { get; set; }
     public bool IsPrimary { get; set; }
 
-    // Зв'язок "багато-до-одного"
     [ForeignKey("ListingId")]
     public Listing Listing { get; set; }
 }
 
-// Таблиця: health_info
 public class HealthInfo
 {
     [Key]
@@ -234,12 +197,10 @@ public class HealthInfo
     public string? ChronicDiseases { get; set; }
     public string? TreatmentHistory { get; set; }
 
-    // Зв'язок "один-до-одного"
     [ForeignKey("ListingId")]
     public Listing Listing { get; set; }
 }
 
-// Таблиця: favorites
 public class Favorite
 {
     [Key]
@@ -248,7 +209,6 @@ public class Favorite
     public int ListingId { get; set; }
     public DateTime CreatedAt { get; set; }
 
-    // Зв'язки "багато-до-одного"
     [ForeignKey("UserId")]
     public RegisteredUser User { get; set; }
 
@@ -256,7 +216,6 @@ public class Favorite
     public Listing Listing { get; set; }
 }
 
-// Таблиця: conversations
 public class Conversation
 {
     [Key]
@@ -266,7 +225,6 @@ public class Conversation
     public int? ListingId { get; set; }
     public DateTime LastMessageAt { get; set; }
 
-    // Зв'язки "багато-до-одного"
     [ForeignKey("User1Id")]
     public RegisteredUser User1 { get; set; }
 
@@ -276,11 +234,9 @@ public class Conversation
     [ForeignKey("ListingId")]
     public Listing? Listing { get; set; }
 
-    // 1-до-багатьох з Messages
     public ICollection<Message> Messages { get; set; } = new List<Message>();
 }
 
-// Таблиця: messages
 public class Message
 {
     [Key]
@@ -291,7 +247,6 @@ public class Message
     public bool IsRead { get; set; }
     public DateTime CreatedAt { get; set; }
 
-    // Зв'язки "багато-до-одного"
     [ForeignKey("ConversationId")]
     public Conversation Conversation { get; set; }
 
@@ -299,7 +254,6 @@ public class Message
     public RegisteredUser Sender { get; set; }
 }
 
-// Таблиця: reviews
 public class Review
 {
     [Key]
@@ -311,7 +265,6 @@ public class Review
     public DateTime CreatedAt { get; set; }
     public bool IsModerated { get; set; }
 
-    // Зв'язки "багато-до-одного"
     [ForeignKey("ReviewerId")]
     public RegisteredUser Reviewer { get; set; }
 
@@ -319,21 +272,19 @@ public class Review
     public RegisteredUser Reviewed { get; set; }
 }
 
-// Таблиця: reports
 public class Report
 {
     [Key]
     public int ReportId { get; set; }
     public int ReporterId { get; set; }
     public ReportType ReportedType { get; set; }
-    public int ReportedId { get; set; } // ID оголошення, юзера або повідомлення
+    public int ReportedId { get; set; }
     public string? Reason { get; set; }
     public string? Description { get; set; }
     public ReportStatus Status { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? ResolvedAt { get; set; }
 
-    // Зв'язок "багато-до-одного"
     [ForeignKey("ReporterId")]
     public RegisteredUser Reporter { get; set; }
 }
