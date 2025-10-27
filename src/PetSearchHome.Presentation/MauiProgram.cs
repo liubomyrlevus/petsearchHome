@@ -3,12 +3,11 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-// Додано using для сервісів MudBlazor
 using MudBlazor.Services;
 using PetSearchHome.BLL;
-//using PetSearchHome.BLL.Services;
+using PetSearchHome.BLL.Services;
 using PetSearchHome.DAL;
-//using PetSearchHome.DAL.Repositories;
+using PetSearchHome.DAL.Repositories;
 using System;
 
 namespace PetSearchHome.Presentation;
@@ -28,19 +27,18 @@ public static class MauiProgram
 
         var connString = config.GetConnectionString("DefaultConnection");
 
-        //// PostgreSQL
-        //builder.Services.AddDbContext<AppDbContext>(options =>
-        //    options.UseNpgsql(connString));
+        // PostgreSQL
+        builder.Services.AddDbContext<AppDbContext>(options =>
+           options.UseNpgsql(connString));
 
-        //// DAL
-        //builder.Services.AddScoped<IUserRepository, UserRepository>();
-        //builder.Services.AddScoped<IListingRepository, ListingRepository>();
+        // DAL
+        builder.Services.AddScoped<IUserRepository, UserRepository>();
+        builder.Services.AddScoped<IListingRepository, ListingRepository>();
 
-        //// BLL
-        //builder.Services.AddMediatR(cfg =>
-        //    cfg.RegisterServicesFromAssembly(typeof(SomeHandler).Assembly));
-        //builder.Services.AddScoped<IUserService, UserService>();
-        //builder.Services.AddScoped<IListingService, ListingService>();
+        // BLL - register services (including MediatR handlers) from BLL assembly
+        builder.Services.AddBllServices();
+        builder.Services.AddScoped<IUserService, UserService>();
+        builder.Services.AddScoped<IListingService, ListingService>();
 
         // --- Додано сервіси для Blazor та MudBlazor ---
 

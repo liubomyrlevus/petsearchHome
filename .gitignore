@@ -6,6 +6,9 @@ obj/
 out/
 publish/
 TestResults/
+*.cache/
+*.coverage
+*.coveragexml
 
 # ----------------------------
 # IDE & tools
@@ -13,6 +16,7 @@ TestResults/
 .vs/
 .idea/
 .vscode/
+*.sln.docstates
 
 # ----------------------------
 # User-specific files
@@ -20,7 +24,7 @@ TestResults/
 *.user
 *.suo
 *.userosscache
-*.sln.docstates
+*.userprefs
 
 # ----------------------------
 # System files
@@ -29,6 +33,7 @@ Thumbs.db
 ehthumbs.db
 .DS_Store
 Icon?
+desktop.ini
 
 # ----------------------------
 # Logs & temp
@@ -37,36 +42,76 @@ Icon?
 *.tmp
 *.bak
 *.swp
+*.temp
+logs/
+temp/
 
 # ----------------------------
 # Database & secrets
 # ----------------------------
 *.db
+*.sqlite
 appsettings.Development.json
+appsettings.Local.json
 secrets.json
+.env
+.env.*
 
 # ----------------------------
 # Entity Framework migrations
 # ----------------------------
 Migrations/
+Migrations/*
+*.sql
 
 # ----------------------------
 # Publish artifacts
 # ----------------------------
 wwwroot/dist/
+wwwroot/node_modules/
 *.publishsettings
 *.Publish.xml
+publish/
+artifacts/
+build/
+_build/
 
 # ----------------------------
-# JetBrains Rider
+# JetBrains Rider / ReSharper
 # ----------------------------
 .idea/
 *.iml
+_ReSharper*/
+*.DotSettings.user
 
 # ----------------------------
 # macOS
 # ----------------------------
 *.DS_Store
+.AppleDouble
+.LSOverride
+
+# ----------------------------
+# Node / npm (if used in Blazor)
+# ----------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+pnpm-lock.yaml
+
+# ----------------------------
+# Tests & coverage
+# ----------------------------
+.coverage/
+*.trx
+*.TestResult.xml
+*.nunit.xml
+test-results/
+coverage/
+coverage*.json
+lcov.info
 
 # ----------------------------
 # Other
