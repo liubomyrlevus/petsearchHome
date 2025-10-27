@@ -1,7 +1,6 @@
-﻿
-using MediatR;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Components.WebView.Maui;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MudBlazor.Services;
 using PetSearchHome.BLL;
@@ -17,9 +16,11 @@ public static class MauiProgram
     public static MauiApp CreateMauiApp()
     {
         var builder = MauiApp.CreateBuilder();
-        builder
-            .UseMauiApp<App>()
-            .ConfigureFonts(fonts => fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular"));
+        builder.UseMauiApp<App>();
+        ConfigureFonts(builder);
+        ConfigureConfiguration(builder);
+        ConfigureServices(builder);
+        ConfigureLogging(builder);
 
         var config = new ConfigurationBuilder()
             .AddJsonFile("appsettings.json", optional: true)
@@ -41,20 +42,29 @@ public static class MauiProgram
         // builder.Services.AddScoped<IUserService, UserService>();
         // builder.Services.AddScoped<IListingService, ListingService>();
 
-        // --- Додано сервіси для Blazor та MudBlazor ---
+    private static void ConfigureConfiguration(MauiAppBuilder builder)
+    {
+        builder.Configuration.AddJsonFile(
+            path: "appsettings.json",
+            optional: false,
+            reloadOnChange: true);
+    }
 
-        // 1. Потрібно для запуску Blazor всередині MAUI
+    private static void ConfigureServices(MauiAppBuilder builder)
+    {
         builder.Services.AddMauiBlazorWebView();
-
-        // 2. Потрібно для роботи компонентів MudBlazor
         builder.Services.AddMudServices();
+        builder.Services.AddBllServices();
 
-        // ------------------------------------------------
+#if DEBUG
+        builder.Services.AddBlazorWebViewDeveloperTools();
+#endif
+    }
 
+    private static void ConfigureLogging(MauiAppBuilder builder)
+    {
 #if DEBUG
         builder.Logging.AddDebug();
 #endif
-
-        return builder.Build();
     }
 }

@@ -1,26 +1,26 @@
 ﻿@page "/login"
 @page "/"
 
-<EditForm Model="LoginViewModel" OnValidSubmit="HandleLoginSubmit">
+<EditForm Model="LoginModel" OnValidSubmit="HandleLoginSubmit">
+    @* ❗ Змінено на LoginModel *@
 
     <DataAnnotationsValidator />
 
-    <h3>Реєстрація/авторизація</h3> [cite: 1]
+    <h3>Реєстрація/авторизація</h3> @* ❌ видалено *@
 
     <div>
-        <label>Email</label> [cite: 2]
-        <InputText @bind-Value="LoginViewModel.Email" />
-        <ValidationMessage For="@(() => LoginViewModel.Email)" />
+        <label>Email</label> @* ❌ видалено *@
+        <InputText @bind-Value="LoginModel.Email" /> @* ❗ Змінено на LoginModel *@
+        <ValidationMessage For="@(() => LoginModel.Email)" />
     </div>
 
     <div>
-        <label>Password</label> [cite: 3]
-        <InputText @bind-Value="LoginViewModel.Password" type="password" />
-        <ValidationMessage For="@(() => LoginViewModel.Password)" />
+        <label>Password</label> @* ❌ видалено *@
+        <InputText @bind-Value="LoginModel.Password" type="password" /> @* ❗ Змінено на LoginModel *@
+        <ValidationMessage For="@(() => LoginModel.Password)" />
     </div>
 
     @if (!string.IsNullOrEmpty(ErrorMessage))
-
     {
         <div class="error-message">@ErrorMessage</div>
     }
@@ -34,6 +34,6 @@
 
 @code {
     // Цей блок залишається порожнім.
-    // Вся C#-логіка (LoginViewModel, HandleLoginSubmit, GoToRegister, ContinueAsGuest)
-    // знаходиться у файлі LoginPage.razor.cs, який пише Учасник 4.
+    // Вся C#-логіка (LoginModel, HandleLoginSubmit, GoToRegister, ContinueAsGuest)
+    // знаходиться у файлі LoginPage.razor.cs.
 }
