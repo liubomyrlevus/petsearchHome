@@ -34,11 +34,14 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
+      - name: Verify .NET version
+        run: dotnet --info
+
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore ./PetSearchHome.sln
 
       - name: Build solution
-        run: dotnet build --no-restore --configuration Release
+        run: dotnet build ./PetSearchHome.sln --no-restore --configuration Release
 
       - name: Run tests
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test ./tests/PetSearchHome.BLL.Tests/PetSearchHome.BLL.Tests.csproj --no-build --verbosity normal
