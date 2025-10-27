@@ -1,34 +1,30 @@
 using Microsoft.AspNetCore.Components;
 using MediatR; // 📍 БУДЕ ЧЕРВОНИМ (поки що)
 using PetSearchHome.ViewModels; // 📍 Стане нормальним після Кроку 3
-using PetSearchHome.BLL.Commands; // 📍 БУДЕ ЧЕРВОНИМ (поки що)
+using PetSearchHome.BLL.Features.Auth.Commands.Login; // 📍 БУДЕ ЧЕРВОНИМ (поки що)
 
-namespace PetSearchHome.Pages
+namespace PetSearchHome.Presentation.Components.Pages
 {
     // Клас 'LoginPage', як очікує Учасник 5
     public partial class LoginPage : ComponentBase
     {
         [Inject]
-        private IMediator Mediator { get; set; } // 📍 БУДЕ ЧЕРВОНИМ
+        private IMediator Mediator { get; set; } = default!; // injected by framework
 
         [Inject]
-        private NavigationManager NavManager { get; set; }
+        private NavigationManager NavManager { get; set; } = default!;
 
         // Властивість 'LoginViewModel', як очікує Учасник 5
-        protected LoginViewModel LoginModel { get; set; } = new LoginViewModel();
-        
+        protected LoginViewModel LoginViewModel { get; set; } = new LoginViewModel();
+
         // Властивість 'ErrorMessage', як очікує Учасник 5
-        protected string ErrorMessage { get; set; }
+        protected string? ErrorMessage { get; set; }
 
         // Метод 'HandleLoginSubmit', як очікує Учасник 5
         protected async Task HandleLoginSubmit()
         {
-            ErrorMessage = null; 
-            var command = new LoginUserCommand // 📍 БУДЕ ЧЕРВОНИМ
-            { 
-                Email = LoginModel.Email, 
-                Password = LoginModel.Password 
-            };
+            ErrorMessage = null;
+            var command = new LoginUserCommand(LoginViewModel.Email, LoginViewModel.Password);
 
             var result = await Mediator.Send(command); // 📍 БУДЕ ЧЕРВОНИМ
 
