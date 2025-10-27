@@ -7,7 +7,7 @@ using MudBlazor.Services;
 using PetSearchHome.BLL;
 using PetSearchHome.BLL.Services;
 using PetSearchHome.DAL;
-using PetSearchHome.DAL.Repositories;
+// using PetSearchHome.DAL.Repositories;
 using System;
 
 namespace PetSearchHome.Presentation;
@@ -27,18 +27,19 @@ public static class MauiProgram
 
         var connString = config.GetConnectionString("DefaultConnection");
 
-        // PostgreSQL
-        builder.Services.AddDbContext<AppDbContext>(options =>
-           options.UseNpgsql(connString));
-
-        // DAL
-        builder.Services.AddScoped<IUserRepository, UserRepository>();
-        builder.Services.AddScoped<IListingRepository, ListingRepository>();
+        // PostgreSQL and DAL registrations
+        // NOTE: AppDbContext, UserRepository and ListingRepository implementations are not present in the DAL project yet.
+        // When those are implemented in the DAL, register them here. Example:
+        // builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connString));
+        // builder.Services.AddScoped<IUserRepository, UserRepository>();
+        // builder.Services.AddScoped<IListingRepository, ListingRepository>();
 
         // BLL - register services (including MediatR handlers) from BLL assembly
         builder.Services.AddBllServices();
-        builder.Services.AddScoped<IUserService, UserService>();
-        builder.Services.AddScoped<IListingService, ListingService>();
+        // NOTE: IUserService / IListingService implementations are not present in BLL yet.
+        // If/when you add them, register here like:
+        // builder.Services.AddScoped<IUserService, UserService>();
+        // builder.Services.AddScoped<IListingService, ListingService>();
 
         // --- Додано сервіси для Blazor та MudBlazor ---
 
