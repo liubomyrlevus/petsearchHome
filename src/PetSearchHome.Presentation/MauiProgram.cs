@@ -2,12 +2,9 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Maui.Hosting;
 using MudBlazor.Services;
 using PetSearchHome.BLL;
-using PetSearchHome.BLL.Services;
-using PetSearchHome.DAL;
-// using PetSearchHome.DAL.Repositories;
-using System;
 
 namespace PetSearchHome.Presentation;
 
@@ -41,6 +38,7 @@ public static class MauiProgram
         // If/when you add them, register here like:
         // builder.Services.AddScoped<IUserService, UserService>();
         // builder.Services.AddScoped<IListingService, ListingService>();
+    }
 
     private static void ConfigureConfiguration(MauiAppBuilder builder)
     {
