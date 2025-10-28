@@ -22,6 +22,8 @@
   <ItemGroup>
     <!-- Зв’язок із DAL -->
     <ProjectReference Include="..\PetSearchHome.DAL\PetSearchHome.DAL.csproj" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.1.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.35.0" />
   </ItemGroup>
 
 </Project>

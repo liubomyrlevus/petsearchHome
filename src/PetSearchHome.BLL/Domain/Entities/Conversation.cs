@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 namespace PetSearchHome.BLL.Domain.Entities;
 
 public class Conversation
@@ -12,5 +14,6 @@ public class Conversation
 
     public DateTime LastMessageAt { get; set; } = DateTime.UtcNow;
 
-    public List<Message> Messages { get; set; } = [];
+ 
+    public List<Message> Messages { get; set; } = new List<Message>();
 }
