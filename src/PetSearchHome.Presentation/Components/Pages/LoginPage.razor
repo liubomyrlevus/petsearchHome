@@ -2,21 +2,20 @@
 @page "/"
 
 <EditForm Model="LoginModel" OnValidSubmit="HandleLoginSubmit">
-    @* ❗ Змінено на LoginModel *@
-
     <DataAnnotationsValidator />
+    <ValidationSummary />
 
-    <h3>Реєстрація/авторизація</h3> @* ❌ видалено *@
+    <h3>Вхід до системи</h3>
 
     <div>
-        <label>Email</label> @* ❌ видалено *@
-        <InputText @bind-Value="LoginModel.Email" /> @* ❗ Змінено на LoginModel *@
+        <label for="emailInput">Email</label>
+        <InputText id="emailInput" @bind-Value="LoginModel.Email" type="email" />
         <ValidationMessage For="@(() => LoginModel.Email)" />
     </div>
 
     <div>
-        <label>Password</label> @* ❌ видалено *@
-        <InputText @bind-Value="LoginModel.Password" type="password" /> @* ❗ Змінено на LoginModel *@
+        <label for="passwordInput">Пароль</label>
+        <InputText id="passwordInput" @bind-Value="LoginModel.Password" type="password" />
         <ValidationMessage For="@(() => LoginModel.Password)" />
     </div>
 

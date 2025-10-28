@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using PetSearchHome.DAL;
+
+namespace PetSearchHome.DAL;
 
 public class ApplicationDbContext : DbContext
 {

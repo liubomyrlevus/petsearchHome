@@ -60,17 +60,17 @@ public class RegisteredUser
 {
     [Key]
     public int UserId { get; set; }
-    public string Email { get; set; }
-    public string PasswordHash { get; set; }
+    public string Email { get; set; } = null!;
+    public string PasswordHash { get; set; } = null!;
     public UserType UserType { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? LastLogin { get; set; }
     public bool IsActive { get; set; }
     public bool IsAdmin { get; set; }
 
-    public Individual Individual { get; set; }
+    public Individual Individual { get; set; } = null!;
 
-    public Shelter Shelter { get; set; }
+    public Shelter Shelter { get; set; } = null!;
 
     public ICollection<Session> Sessions { get; set; } = new List<Session>();
 
@@ -95,14 +95,14 @@ public class Session
     [Key]
     public Guid SessionId { get; set; }
     public int UserId { get; set; }
-    public string SessionToken { get; set; }
+    public string SessionToken { get; set; } = null!;
     public DateTime CreatedAt { get; set; }
     public DateTime? ExpiresAt { get; set; }
     public DateTime LastActivity { get; set; }
     public bool IsValid { get; set; }
 
     [ForeignKey("UserId")]
-    public RegisteredUser User { get; set; }
+    public RegisteredUser User { get; set; } = null!;
 }
 
 public class Individual
@@ -110,8 +110,8 @@ public class Individual
     [Key]
     public int IndividualId { get; set; }
     public int UserId { get; set; }
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
+    public string FirstName { get; set; } = null!;
+    public string LastName { get; set; } = null!;
     public string? Phone { get; set; }
     public string? City { get; set; }
     public string? District { get; set; }
@@ -119,7 +119,7 @@ public class Individual
     public string? PhotoUrl { get; set; }
 
     [ForeignKey("UserId")]
-    public RegisteredUser User { get; set; }
+    public RegisteredUser User { get; set; } = null!;
 }
 
 public class Shelter
@@ -127,7 +127,7 @@ public class Shelter
     [Key]
     public int ShelterId { get; set; }
     public int UserId { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
     public string? ContactPerson { get; set; }
     public string? Phone { get; set; }
     public string? AdditionalPhone { get; set; }
@@ -139,7 +139,7 @@ public class Shelter
     public string? LogoUrl { get; set; }
 
     [ForeignKey("UserId")]
-    public RegisteredUser User { get; set; }
+    public RegisteredUser User { get; set; } = null!;
 }
 
 public class Listing
@@ -164,11 +164,11 @@ public class Listing
     public string? ModerationComment { get; set; }
 
     [ForeignKey("UserId")]
-    public RegisteredUser User { get; set; }
+    public RegisteredUser User { get; set; } = null!;
 
     public ICollection<Photo> Photos { get; set; } = new List<Photo>();
 
-    public HealthInfo HealthInfo { get; set; }
+    public HealthInfo HealthInfo { get; set; } = null!;
 
     public ICollection<Favorite> Favorites { get; set; } = new List<Favorite>();
 
@@ -180,11 +180,11 @@ public class Photo
     [Key]
     public int PhotoId { get; set; }
     public int ListingId { get; set; }
-    public string Url { get; set; }
+    public string Url { get; set; } = null!;
     public bool IsPrimary { get; set; }
 
     [ForeignKey("ListingId")]
-    public Listing Listing { get; set; }
+    public Listing Listing { get; set; } = null!;
 }
 
 public class HealthInfo
@@ -198,7 +198,7 @@ public class HealthInfo
     public string? TreatmentHistory { get; set; }
 
     [ForeignKey("ListingId")]
-    public Listing Listing { get; set; }
+    public Listing Listing { get; set; } = null!;
 }
 
 public class Favorite
@@ -210,10 +210,10 @@ public class Favorite
     public DateTime CreatedAt { get; set; }
 
     [ForeignKey("UserId")]
-    public RegisteredUser User { get; set; }
+    public RegisteredUser User { get; set; } = null!;
 
     [ForeignKey("ListingId")]
-    public Listing Listing { get; set; }
+    public Listing Listing { get; set; } = null!;
 }
 
 public class Conversation
@@ -226,10 +226,10 @@ public class Conversation
     public DateTime LastMessageAt { get; set; }
 
     [ForeignKey("User1Id")]
-    public RegisteredUser User1 { get; set; }
+    public RegisteredUser User1 { get; set; } = null!;
 
     [ForeignKey("User2Id")]
-    public RegisteredUser User2 { get; set; }
+    public RegisteredUser User2 { get; set; } = null!;
 
     [ForeignKey("ListingId")]
     public Listing? Listing { get; set; }
@@ -243,15 +243,15 @@ public class Message
     public int MessageId { get; set; }
     public int ConversationId { get; set; }
     public int SenderId { get; set; }
-    public string Content { get; set; }
+    public string Content { get; set; } = null!;
     public bool IsRead { get; set; }
     public DateTime CreatedAt { get; set; }
 
     [ForeignKey("ConversationId")]
-    public Conversation Conversation { get; set; }
+    public Conversation Conversation { get; set; } = null!;
 
     [ForeignKey("SenderId")]
-    public RegisteredUser Sender { get; set; }
+    public RegisteredUser Sender { get; set; } = null!;
 }
 
 public class Review
@@ -266,10 +266,10 @@ public class Review
     public bool IsModerated { get; set; }
 
     [ForeignKey("ReviewerId")]
-    public RegisteredUser Reviewer { get; set; }
+    public RegisteredUser Reviewer { get; set; } = null!;
 
     [ForeignKey("ReviewedId")]
-    public RegisteredUser Reviewed { get; set; }
+    public RegisteredUser Reviewed { get; set; } = null!;
 }
 
 
@@ -287,6 +287,6 @@ public class Report
     public DateTime? ResolvedAt { get; set; }
 
     [ForeignKey("ReporterId")]
-    public RegisteredUser Reporter { get; set; }
+    public RegisteredUser Reporter { get; set; } = null!;
 }
 
