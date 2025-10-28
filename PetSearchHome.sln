@@ -1,7 +1,12 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+<<<<<<< Updated upstream
 # Visual Studio Version 18
 VisualStudioVersion = 18.0.11121.172 d18.0
+=======
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+>>>>>>> Stashed changes
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{827E0CD3-B72D-47B6-A68D-7590B98EB39B}"
 EndProject
@@ -14,15 +19,20 @@ EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+<<<<<<< Updated upstream
 		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
 		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
+=======
+		Release|Any CPU = Release|Any CPU
+>>>>>>> Stashed changes
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{6ECCD57F-17DE-4FA7-BBFE-094A49E12B46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6ECCD57F-17DE-4FA7-BBFE-094A49E12B46}.Debug|Any CPU.Build.0 = Debug|Any CPU
+<<<<<<< Updated upstream
 		{6ECCD57F-17DE-4FA7-BBFE-094A49E12B46}.Debug|x64.ActiveCfg = Debug|Any CPU
 		{6ECCD57F-17DE-4FA7-BBFE-094A49E12B46}.Debug|x64.Build.0 = Debug|Any CPU
 		{6ECCD57F-17DE-4FA7-BBFE-094A49E12B46}.Debug|x86.ActiveCfg = Debug|Any CPU
@@ -58,6 +68,18 @@ Global
 		{20C33C15-6DD0-4CEC-895E-33261D61BB32}.Release|x64.Build.0 = Release|Any CPU
 		{20C33C15-6DD0-4CEC-895E-33261D61BB32}.Release|x86.ActiveCfg = Release|Any CPU
 		{20C33C15-6DD0-4CEC-895E-33261D61BB32}.Release|x86.Build.0 = Release|Any CPU
+=======
+		{6ECCD57F-17DE-4FA7-BBFE-094A49E12B46}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6ECCD57F-17DE-4FA7-BBFE-094A49E12B46}.Release|Any CPU.Build.0 = Release|Any CPU
+		{61E51020-2028-4CC9-8299-F55FDCE31020}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{61E51020-2028-4CC9-8299-F55FDCE31020}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{61E51020-2028-4CC9-8299-F55FDCE31020}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{61E51020-2028-4CC9-8299-F55FDCE31020}.Release|Any CPU.Build.0 = Release|Any CPU
+		{20C33C15-6DD0-4CEC-895E-33261D61BB32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20C33C15-6DD0-4CEC-895E-33261D61BB32}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20C33C15-6DD0-4CEC-895E-33261D61BB32}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20C33C15-6DD0-4CEC-895E-33261D61BB32}.Release|Any CPU.Build.0 = Release|Any CPU
+>>>>>>> Stashed changes
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -67,7 +89,10 @@ Global
 		{61E51020-2028-4CC9-8299-F55FDCE31020} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{20C33C15-6DD0-4CEC-895E-33261D61BB32} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 	EndGlobalSection
+<<<<<<< Updated upstream
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8E71EFBC-0314-464B-B7FA-CF2242131A80}
 	EndGlobalSection
+=======
+>>>>>>> Stashed changes
 EndGlobal
