@@ -1,4 +1,6 @@
 using PetSearchHome.BLL.Domain.Enums;
+using System;
+using System.Collections.Generic;
 
 namespace PetSearchHome.BLL.Domain.Entities;
 
@@ -40,5 +42,5 @@ public class Listing
 
     public HealthInfo? HealthInfo { get; set; }
 
-    public List<ListingPhoto> Photos { get; set; } = [];
+    public List<ListingPhoto> Photos { get; set; } = new List<ListingPhoto>();
 }
