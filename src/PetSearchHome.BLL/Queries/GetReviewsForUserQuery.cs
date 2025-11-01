@@ -1,6 +1,11 @@
-using MediatR;
-using PetSearchHome.BLL.Domain.Entities;
+﻿using MediatR;
+using PetSearchHome.BLL.DTOs;
 
 namespace PetSearchHome.BLL.Queries;
 
-public sealed record GetReviewsForUserQuery(Guid ReviewedUserId) : IRequest<IReadOnlyList<Review>>;
+//список усіх відгуків для вказаного профілю
+
+public class GetReviewsForUserQuery : IRequest<IReadOnlyList<ReviewDto>>
+{
+    public Guid ReviewedUserId { get; set; }
+}

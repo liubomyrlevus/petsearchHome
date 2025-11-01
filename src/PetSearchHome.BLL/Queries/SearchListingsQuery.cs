@@ -1,11 +1,18 @@
-using MediatR;
-using PetSearchHome.BLL.Domain.Entities;
+﻿using MediatR;
 using PetSearchHome.BLL.Domain.Enums;
+using PetSearchHome.BLL.DTOs;
 
 namespace PetSearchHome.BLL.Queries;
 
-public sealed record SearchListingsQuery(
-    string? SearchQuery,
-    AnimalType? AnimalType,
-    string? City,
-    ListingStatus? Status) : IRequest<IReadOnlyList<Listing>>;
+// Запит на пошук та фільтрацію оголошень для відображення в каталозі.
+public class SearchListingsQuery : IRequest<IReadOnlyList<ListingCardDto>>
+{
+    public string? SearchQuery { get; set; }
+
+    // Фільтр за типом тварини
+    public AnimalType? AnimalType { get; set; }
+
+    public string? City { get; set; }
+
+    // інші фільтри: вік, стать, розмір...
+}

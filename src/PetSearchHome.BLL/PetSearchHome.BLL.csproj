@@ -21,7 +21,6 @@
 
   <ItemGroup>
     <!-- Зв’язок із DAL -->
-    <ProjectReference Include="..\PetSearchHome.DAL\PetSearchHome.DAL.csproj" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.35.0" />
   </ItemGroup>
 

@@ -4,10 +4,11 @@ using PetSearchHome.BLL.DTOs;
 
 namespace PetSearchHome.BLL.Commands;
 
-// Команда для створення оголошення. Повертає ID створеного оголошення.
-public class CreateListingCommand : IRequest<int>
+// Команда для оновлення існуючого оголошення.
+public class UpdateListingCommand : IRequest
 {
-    public Guid UserId { get; set; }
+    public int Id { get; set; } // ID оголошення, яке редагується
+    public Guid UserId { get; set; } // ID користувача, який редагує
     public AnimalType AnimalType { get; set; }
     public string Breed { get; set; } = string.Empty;
     public int AgeMonths { get; set; }
@@ -19,6 +20,5 @@ public class CreateListingCommand : IRequest<int>
     public string Description { get; set; } = string.Empty;
     public string? SpecialNeeds { get; set; }
     public HealthInfoDto? HealthInfo { get; set; }
-    // !!!! UI повинен передати сюди URL-и вже завантажених фото !!!!
     public List<string> PhotoUrls { get; set; } = new List<string>();
 }

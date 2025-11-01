@@ -1,0 +1,46 @@
+﻿using MediatR;
+using PetSearchHome.BLL.Commands;
+using PetSearchHome.BLL.Contracts.Persistence;
+
+namespace PetSearchHome.BLL.Handlers;
+
+public class UpdateReportStatusCommandHandler : IRequestHandler<UpdateReportStatusCommand>
+{
+    private readonly IReportRepository _reportRepository;
+    private readonly IUserRepository _userRepository;
+    private readonly IUnitOfWork _unitOfWork;
+
+    public UpdateReportStatusCommandHandler(IReportRepository reportRepository, IUserRepository userRepository, IUnitOfWork unitOfWork)
+    {
+        _reportRepository = reportRepository;
+        _userRepository = userRepository;
+        _unitOfWork = unitOfWork;
+    }
+
+    public async Task<Unit> Handle(UpdateReportStatusCommand request, CancellationToken cancellationToken)
+    {
+        var moderator = await _userRepository.GetByIdAsync(request.ModeratorId, cancellationToken);
+        if (moderator == null || !moderator.IsAdmin)
+        {
+            throw new Exception("User is not authorized to moderate reports.");
+        }
+
+        var report = await _reportRepository.GetByIdAsync(request.ReportId, cancellationToken);
+        if (report == null)
+        {
+            throw new Exception("Report not found.");
+        }
+
+        //Оновлюємо статус
+        report.Status = request.NewStatus;
+        if (request.NewStatus == Domain.Enums.ReportStatus.Confirmed || request.NewStatus == Domain.Enums.ReportStatus.Rejected)
+        {
+            report.ResolvedAt = DateTime.UtcNow;
+        }
+
+        await _reportRepository.UpdateAsync(report, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return Unit.Value;
+    }
+}

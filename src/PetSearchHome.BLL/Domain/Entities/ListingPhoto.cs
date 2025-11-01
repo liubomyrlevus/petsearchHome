@@ -9,4 +9,6 @@ public class ListingPhoto
     public string Url { get; set; } = string.Empty;
 
     public bool IsPrimary { get; set; }
+
+    public Listing Listing { get; set; } = null!;
 }

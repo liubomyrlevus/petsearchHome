@@ -1,6 +1,12 @@
-using MediatR;
-using PetSearchHome.BLL.Domain.Entities;
+﻿using MediatR;
+using PetSearchHome.BLL.DTOs;
 
 namespace PetSearchHome.BLL.Commands;
 
-public sealed record CreateReviewCommand(Guid ReviewerId, Guid ReviewedId, int Rating, string? Comment) : IRequest<Review>;
+public class CreateReviewCommand : IRequest<ReviewDto>
+{
+    public Guid ReviewerId { get; set; }  // Хто залишає відгук
+    public Guid ReviewedId { get; set; }  // Про кого залишають відгук
+    public int Rating { get; set; }       // Оцінка (наприклад, 1-5)
+    public string? Comment { get; set; }
+}

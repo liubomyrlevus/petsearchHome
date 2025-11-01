@@ -25,4 +25,6 @@ public class ShelterProfile
     public string? WebsiteUrl { get; set; }
 
     public string? LogoUrl { get; set; }
+
+    public RegisteredUser User { get; set; } = null!;
 }

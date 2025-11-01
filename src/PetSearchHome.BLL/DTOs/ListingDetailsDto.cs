@@ -1,13 +1,13 @@
-﻿using MediatR;
-using PetSearchHome.BLL.Domain.Enums;
-using PetSearchHome.BLL.DTOs;
+﻿using PetSearchHome.BLL.Domain.Enums;
 
-namespace PetSearchHome.BLL.Commands;
+namespace PetSearchHome.BLL.DTOs;
 
-// Команда для створення оголошення. Повертає ID створеного оголошення.
-public class CreateListingCommand : IRequest<int>
+// DTO для повної, детальної сторінки оголошення.
+public class ListingDetailsDto
 {
+    public int Id { get; set; }
     public Guid UserId { get; set; }
+    public string OwnerName { get; set; } = string.Empty;
     public AnimalType AnimalType { get; set; }
     public string Breed { get; set; } = string.Empty;
     public int AgeMonths { get; set; }
@@ -18,7 +18,8 @@ public class CreateListingCommand : IRequest<int>
     public string District { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public string? SpecialNeeds { get; set; }
+    public int ViewsCount { get; set; }
+    public DateTime CreatedAt { get; set; }
     public HealthInfoDto? HealthInfo { get; set; }
-    // !!!! UI повинен передати сюди URL-и вже завантажених фото !!!!
     public List<string> PhotoUrls { get; set; } = new List<string>();
 }
