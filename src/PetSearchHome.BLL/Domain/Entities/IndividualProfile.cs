@@ -19,4 +19,6 @@ public class IndividualProfile
     public string? AdditionalInfo { get; set; }
 
     public string? PhotoUrl { get; set; }
+
+    public RegisteredUser User { get; set; } = null!;
 }

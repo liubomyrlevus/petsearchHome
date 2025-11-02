@@ -13,4 +13,6 @@ public class HealthInfo
     public string? ChronicDiseases { get; set; }
 
     public string? TreatmentHistory { get; set; }
+
+    public Listing Listing { get; set; } = null!;
 }
