@@ -8,6 +8,7 @@ public class ApplicationDbContext : DbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
+
     public DbSet<RegisteredUser> Users { get; set; }
     public DbSet<Session> Sessions { get; set; }
     public DbSet<IndividualProfile> IndividualProfiles { get; set; }
