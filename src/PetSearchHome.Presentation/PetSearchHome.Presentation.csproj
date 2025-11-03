@@ -1,7 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFramework>net9.0-windows10.0.19041.0</TargetFramework>
+    <TargetFrameworks>net9.0-maccatalyst</TargetFrameworks>
+    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">
+        $(TargetFrameworks);net9.0-windows10.0.19041.0
+    </TargetFrameworks>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <OutputType>Exe</OutputType>
     <UseMaui>true</UseMaui>
     <SingleProject>true</SingleProject>
@@ -12,8 +16,6 @@
     <RestoreSources>https://api.nuget.org/v3/index.json</RestoreSources>
 
     <WindowsPackageType>None</WindowsPackageType>
-    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
-    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
 
     <ApplicationTitle>PetSearchHome</ApplicationTitle>
     <ApplicationId>com.petsearchhome.desktop</ApplicationId>
@@ -32,6 +34,10 @@
     <MauiFont Include="Resources\Fonts\*" />
     <MauiAsset Include="Resources\Raw\**"
                LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+    <Content Remove="appsettings.json" />
+    <None Remove="appsettings.json" />
+
+    <MauiAsset Include="appsettings.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -47,5 +53,10 @@
   <ItemGroup>
     <ProjectReference Include="..\PetSearchHome.BLL\PetSearchHome.BLL.csproj" />
   </ItemGroup>
+
+  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('windows'))">
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
+    <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+  </PropertyGroup>
 
 </Project>
