@@ -1,5 +1,175 @@
 ﻿@page "/home"
 
-<h1>Hello, world!</h1>
+<MudContainer Class="home-container" MaxWidth="MaxWidth.False">
+    <MudText Typo="Typo.h3" GutterBottom="true">Головне вікно</MudText>
+    <MudText Typo="Typo.subtitle1" Class="mb-6">
+        Тут зібрано ключові сутності бази даних Pet Search Home та їх призначення.
+    </MudText>
 
-Welcome to your new app.
+    <MudGrid GutterSize="3">
+        @foreach (var module in Modules)
+        {
+            <MudItem xs="12" md="6" lg="4">
+                <MudPaper Class="pa-4 module-card" Elevation="2">
+                    <div id="@module.Anchor" class="module-heading">
+                        <MudText Typo="Typo.h5">@module.Title</MudText>
+                    </div>
+                    <MudText Typo="Typo.body2" Class="mb-4">@module.Description</MudText>
+
+                    <MudExpansionPanels Dense="true" Class="module-panels">
+                        @foreach (var table in module.Tables)
+                        {
+                            <MudExpansionPanel Text="@table.Name" DisableRipple="true">
+                                <MudText Typo="Typo.caption" Class="mb-3">@table.Description</MudText>
+                                <MudList Dense="true" T="string">
+                                    @foreach (var column in table.Columns)
+                                    {
+                                        <MudListItem T="string">
+                                            <MudText Typo="Typo.body2">@column</MudText>
+                                        </MudListItem>
+                                    }
+                                </MudList>
+                            </MudExpansionPanel>
+                        }
+                    </MudExpansionPanels>
+                </MudPaper>
+            </MudItem>
+        }
+    </MudGrid>
+</MudContainer>
+
+@code {
+    private static readonly ModuleDefinition[] Modules = new[]
+    {
+        new ModuleDefinition(
+            "Користувачі",
+            "users",
+            "Управління обліковими записами, профілями та чинними сесіями.",
+            new[]
+            {
+                new TableDefinition(
+                    "RegisteredUser",
+                    "Базова інформація про користувачів та їхні права.",
+                    new[]
+                    {
+                        "Id (Guid)", "Email", "PasswordHash", "UserType", "CreatedAt",
+                        "LastLogin", "IsActive", "IsAdmin"
+                    }),
+                new TableDefinition(
+                    "Session",
+                    "Поточні авторизаційні сесії та маркери доступу.",
+                    new[]
+                    {
+                        "Id (Guid)", "UserId", "SessionToken", "CreatedAt",
+                        "ExpiresAt", "LastActivity", "IsValid"
+                    }),
+                new TableDefinition(
+                    "IndividualProfile",
+                    "Особисті дані індивідуальних користувачів.",
+                    new[]
+                    {
+                        "Id (Guid)", "UserId", "FirstName", "LastName", "Phone",
+                        "City", "District", "AdditionalInfo", "PhotoUrl"
+                    }),
+                new TableDefinition(
+                    "ShelterProfile",
+                    "Розширені дані для притулків та організацій.",
+                    new[]
+                    {
+                        "Id (Guid)", "UserId", "Name", "ContactPerson", "Phone",
+                        "AdditionalPhone", "Address", "Description",
+                        "FacebookUrl", "InstagramUrl", "WebsiteUrl", "LogoUrl"
+                    })
+            }),
+        new ModuleDefinition(
+            "Оголошення",
+            "listings",
+            "Структура оголошень про тварин та пов'язану з ними інформацію.",
+            new[]
+            {
+                new TableDefinition(
+                    "Listing",
+                    "Основні характеристики оголошення та його стан.",
+                    new[]
+                    {
+                        "Id (int)", "UserId", "AnimalType", "Breed", "AgeMonths",
+                        "Sex", "Size", "Color", "City", "District",
+                        "Description", "SpecialNeeds", "Status",
+                        "ViewsCount", "CreatedAt", "UpdatedAt", "ModerationComment"
+                    }),
+                new TableDefinition(
+                    "ListingPhoto",
+                    "Фото, що ілюструють конкретне оголошення.",
+                    new[]
+                    {
+                        "Id (Guid)", "ListingId", "Url", "IsPrimary"
+                    }),
+                new TableDefinition(
+                    "HealthInfo",
+                    "Медичні відомості про тварину.",
+                    new[]
+                    {
+                        "Id (Guid)", "ListingId", "Vaccinations",
+                        "Sterilized", "ChronicDiseases", "TreatmentHistory"
+                    })
+            }),
+        new ModuleDefinition(
+            "Взаємодії",
+            "interactions",
+            "Комунікація та активність користувачів у сервісі.",
+            new[]
+            {
+                new TableDefinition(
+                    "Favorite",
+                    "Вподобані оголошення для швидкого доступу.",
+                    new[]
+                    {
+                        "Id (Guid)", "UserId", "ListingId", "CreatedAt"
+                    }),
+                new TableDefinition(
+                    "Conversation",
+                    "Приватні чати між користувачами щодо оголошень.",
+                    new[]
+                    {
+                        "Id (Guid)", "User1Id", "User2Id", "ListingId",
+                        "LastMessageAt"
+                    }),
+                new TableDefinition(
+                    "Message",
+                    "Окремі повідомлення у межах розмов.",
+                    new[]
+                    {
+                        "Id (Guid)", "ConversationId", "SenderId",
+                        "Content", "IsRead", "CreatedAt"
+                    }),
+                new TableDefinition(
+                    "Review",
+                    "Відгуки та оцінки користувачів один про одного.",
+                    new[]
+                    {
+                        "Id (Guid)", "ReviewerId", "ReviewedId",
+                        "Rating", "Comment", "CreatedAt", "IsModerated"
+                    }),
+                new TableDefinition(
+                    "Report",
+                    "Скарги на контент або поведінку.",
+                    new[]
+                    {
+                        "Id (Guid)", "ReporterId", "ReportedType",
+                        "ReportedEntityId", "Reason", "Description",
+                        "Status", "CreatedAt", "ResolvedAt"
+                    })
+            })
+    };
+
+    private sealed record ModuleDefinition(
+        string Title,
+        string Anchor,
+        string Description,
+        TableDefinition[] Tables);
+
+    private sealed record TableDefinition(
+        string Name,
+        string Description,
+        string[] Columns);
+}
