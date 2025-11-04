@@ -6,6 +6,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
+namespace PetSearchHome.DAL.Repositories;
+
 
 public interface IRepository<T, TKey> where T : class
 {

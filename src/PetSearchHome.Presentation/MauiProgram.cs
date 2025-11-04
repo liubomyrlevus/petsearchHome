@@ -2,12 +2,9 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Maui.Hosting;
 using MudBlazor.Services;
 using PetSearchHome.BLL;
-using PetSearchHome.BLL.Services;
-using PetSearchHome.DAL;
-// using PetSearchHome.DAL.Repositories;
-using System;
 
 namespace PetSearchHome.Presentation;
 
@@ -22,25 +19,16 @@ public static class MauiProgram
         ConfigureServices(builder);
         ConfigureLogging(builder);
 
-        var config = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json", optional: true)
-            .Build();
+        return builder.Build();
+    }
 
-        var connString = config.GetConnectionString("DefaultConnection");
-
-        // PostgreSQL and DAL registrations
-        // NOTE: AppDbContext, UserRepository and ListingRepository implementations are not present in the DAL project yet.
-        // When those are implemented in the DAL, register them here. Example:
-        // builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connString));
-        // builder.Services.AddScoped<IUserRepository, UserRepository>();
-        // builder.Services.AddScoped<IListingRepository, ListingRepository>();
-
-        // BLL - register services (including MediatR handlers) from BLL assembly
-        builder.Services.AddBllServices();
-        // NOTE: IUserService / IListingService implementations are not present in BLL yet.
-        // If/when you add them, register here like:
-        // builder.Services.AddScoped<IUserService, UserService>();
-        // builder.Services.AddScoped<IListingService, ListingService>();
+    private static void ConfigureFonts(MauiAppBuilder builder)
+    {
+        builder.ConfigureFonts(fonts =>
+        {
+            fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+        });
+    }
 
     private static void ConfigureConfiguration(MauiAppBuilder builder)
     {
@@ -66,5 +54,18 @@ public static class MauiProgram
 #if DEBUG
         builder.Logging.AddDebug();
 #endif
+    }
+}
+
+// Local shim to satisfy calls to AddBllServices when the actual PetSearchHome.BLL assembly is not referenced.
+// Remove this shim after adding a proper reference to the BLL project/package.
+public static class BllServiceCollectionExtensions
+{
+    public static IServiceCollection AddBllServices(this IServiceCollection services)
+    {
+        // No-op placeholder. Register real BLL services here once the BLL assembly is available:
+        // Example (when BLL exists):
+        // services.AddTransient<IMyBllService, MyBllService>();
+        return services;
     }
 }

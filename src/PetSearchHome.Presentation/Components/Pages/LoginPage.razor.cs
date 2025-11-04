@@ -1,19 +1,13 @@
 using Microsoft.AspNetCore.Components;
-using MediatR;
 using PetSearchHome.ViewModels;
-using PetSearchHome.BLL.Features.Auth.Commands.Login;
 
 // ❗ ПРОБЛЕМА 1 (Namespace): Виправлено відповідно до шляху ...Presentation/Components/Pages
 namespace PetSearchHome.Presentation.Components.Pages
 {
     public partial class LoginPage : ComponentBase
     {
+        // Посилання на навігацію Blazor
         [Inject]
-        // ❗ ПРОБЛЕМА 2 (Nullability): Додано "= default!;"
-        private IMediator Mediator { get; set; } = default!;
-
-        [Inject]
-        // ❗ ПРОБЛЕМА 2 (Nullability): Додано "= default!;"
         private NavigationManager NavManager { get; set; } = default!;
 
         // Властивість 'LoginViewModel', як очікує Учасник 5
@@ -24,23 +18,14 @@ namespace PetSearchHome.Presentation.Components.Pages
         protected string? ErrorMessage { get; set; }
 
         // Метод 'HandleLoginSubmit', як очікує Учасник 5
-        protected async Task HandleLoginSubmit()
+        protected Task HandleLoginSubmit()
         {
             ErrorMessage = null; // Тепер це коректно
 
-            // ❗ ПРОБЛЕМА 3 (Конструктор): Змінено з { } на ( )
-            var command = new LoginUserCommand(LoginModel.Email, LoginModel.Password);
+            // TODO: інтегрувати реальну авторизацію через BLL або API.
+            NavManager.NavigateTo("/home");
 
-            var result = await Mediator.Send(command);
-
-            if (result.IsSuccess)
-            {
-                NavManager.NavigateTo("/");
-            }
-            else
-            {
-                ErrorMessage = result.Error;
-            }
+            return Task.CompletedTask;
         }
 
         // Метод 'GoToRegister', як очікує Учасник 5
@@ -52,7 +37,7 @@ namespace PetSearchHome.Presentation.Components.Pages
         // Метод 'ContinueAsGuest', як очікує Учасник 5
         protected void ContinueAsGuest()
         {
-            NavManager.NavigateTo("/");
+            NavManager.NavigateTo("/home");
         }
     }
 }
