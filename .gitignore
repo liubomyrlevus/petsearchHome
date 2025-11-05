@@ -117,3 +117,5 @@ lcov.info
 # Other
 # ----------------------------
 structure.txt
+
+src/PetSearchHome.Presentation/appsettings.json
