@@ -1,0 +1,114 @@
+﻿@page "/register"
+@inject ViewModels.RegisterViewModel ViewModel
+@implements IDisposable
+
+<PageTitle>Реєстрація</PageTitle>
+
+<h3>Створити новий акаунт</h3>
+
+<div class="card">
+    <div class="card-body">
+        <EditForm Model="ViewModel" OnValidSubmit="ViewModel.RegisterCommand.ExecuteAsync">
+            <DataAnnotationsValidator />
+
+            <div class="form-group mb-3">
+                <label class="form-label">Я реєструюсь як:</label>
+                <InputSelect @bind-Value="ViewModel.SelectedUserType" class="form-select">
+                    <option value="Individual">Приватна особа</option>
+                    <option value="Shelter">Притулок</option>
+                </InputSelect>
+            </div>
+
+            <hr />
+
+            <div class="form-group mb-2">
+                <label class="form-label">Email:</label>
+                <InputText @bind-Value="ViewModel.Email" class="form-control" />
+                <ValidationMessage For="@(() => ViewModel.Email)" />
+            </div>
+            <div class="form-group mb-2">
+                <label class="form-label">Пароль:</label>
+                <InputText @bind-Value="ViewModel.Password" type="password" class="form-control" />
+                <ValidationMessage For="@(() => ViewModel.Password)" />
+            </div>
+
+            <hr />
+
+            @if (ViewModel.SelectedUserType == "Individual")
+            {
+                <h5>Профіль приватної особи</h5>
+                <div class="form-group mb-2">
+                    <label class="form-label">Ім'я:</label>
+                    <InputText @bind-Value="ViewModel.FirstName" class="form-control" />
+                </div>
+                <div class="form-group mb-2">
+                    <label class="form-label">Прізвище:</label>
+                    <InputText @bind-Value="ViewModel.LastName" class="form-control" />
+                </div>
+                <div class="form-group mb-2">
+                    <label class="form-label">Телефон:</label>
+                    <InputText @bind-Value="ViewModel.Phone" class="form-control" />
+                </div>
+                <div class="form-group mb-2">
+                    <label class="form-label">Місто:</label>
+                    <InputText @bind-Value="ViewModel.City" class="form-control" />
+                </div>
+                <div class="form-group mb-2">
+                    <label class="form-label">Район:</label>
+                    <InputText @bind-Value="ViewModel.District" class="form-control" />
+                </div>
+            }
+
+            @if (ViewModel.SelectedUserType == "Shelter")
+            {
+                <h5>Профіль притулку</h5>
+                <div class="form-group mb-2">
+                    <label class="form-label">Назва притулку:</label>
+                    <InputText @bind-Value="ViewModel.ShelterName" class="form-control" />
+                </div>
+                <div class="form-group mb-2">
+                    <label class="form-label">Контактна особа:</label>
+                    <InputText @bind-Value="ViewModel.ContactPerson" class="form-control" />
+                </div>
+                <div class="form-group mb-2">
+                    <label class="form-label">Телефон притулку:</label>
+                    <InputText @bind-Value="ViewModel.ShelterPhone" class="form-control" />
+                </div>
+                <div class="form-group mb-2">
+                    <label class="form-label">Адреса:</label>
+                    <InputText @bind-Value="ViewModel.Address" class="form-control" />
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
+            {
+                <div class="alert alert-danger mt-3">@ViewModel.ErrorMessage</div>
+            }
+
+            <button typeG="submit" class="btn btn-primary mt-3" disabled="@ViewModel.IsBusy">
+                @if (ViewModel.IsBusy)
+                {
+                    <span class="spinner-border spinner-border-sm"></span>
+                    <span>Реєстрація...</span>
+                }
+                else
+                {
+                    <span>Зареєструватися</span>
+                }
+            </button>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+
+    protected override void OnInitialized()
+    {
+        ViewModel.PropertyChanged += (_, _) => StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        ViewModel.PropertyChanged -= (_, _) => StateHasChanged();
+    }
+}

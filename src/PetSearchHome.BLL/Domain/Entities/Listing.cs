@@ -1,46 +1,27 @@
 using PetSearchHome.BLL.Domain.Enums;
-using System;
-using System.Collections.Generic;
 
 namespace PetSearchHome.BLL.Domain.Entities;
-
 public class Listing
 {
     public int Id { get; set; }
-
-    public Guid UserId { get; set; }
-
-    public AnimalType AnimalType { get; set; } = AnimalType.Unknown;
-
-    public string Breed { get; set; } = string.Empty;
-
-    public int AgeMonths { get; set; }
-
-    public AnimalSex Sex { get; set; } = AnimalSex.Unknown;
-
-    public AnimalSize Size { get; set; } = AnimalSize.Unknown;
-
-    public string Color { get; set; } = string.Empty;
-
-    public string City { get; set; } = string.Empty;
-
-    public string District { get; set; } = string.Empty;
-
-    public string Description { get; set; } = string.Empty;
-
+    public int UserId { get; set; }
+    public AnimalType AnimalType { get; set; } = AnimalType.unknown;
+    public string? Breed { get; set; }
+    public int? AgeMonths { get; set; }
+    public AnimalSex? Sex { get; set; } = AnimalSex.unknown;
+    public AnimalSize? Size { get; set; } = AnimalSize.unknown;
+    public string? Color { get; set; }
+    public string? City { get; set; }
+    public string? District { get; set; }
+    public string? Description { get; set; }
     public string? SpecialNeeds { get; set; }
-
-    public ListingStatus Status { get; set; } = ListingStatus.Pending;
-
+    public ListingStatus Status { get; set; } = ListingStatus.draft;
     public int ViewsCount { get; set; }
-
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
     public DateTime? UpdatedAt { get; set; }
-
     public string? ModerationComment { get; set; }
 
+    public RegisteredUser User { get; set; } = null!;
     public HealthInfo? HealthInfo { get; set; }
-
-    public List<ListingPhoto> Photos { get; set; } = new List<ListingPhoto>();
+    public ICollection<ListingPhoto> Photos { get; set; } = new List<ListingPhoto>();
 }

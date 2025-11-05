@@ -1,175 +1,89 @@
 ﻿@page "/home"
+@inject ViewModels.HomeViewModel ViewModel
+@implements IDisposable
+@using PetSearchHome.BLL.Domain.Enums 
 
-<MudContainer Class="home-container" MaxWidth="MaxWidth.False">
-    <MudText Typo="Typo.h3" GutterBottom="true">Головне вікно</MudText>
-    <MudText Typo="Typo.subtitle1" Class="mb-6">
-        Тут зібрано ключові сутності бази даних Pet Search Home та їх призначення.
-    </MudText>
+<PageTitle>Головне вікно</PageTitle>
 
-    <MudGrid GutterSize="3">
-        @foreach (var module in Modules)
+<h1>Каталог тварин</h1>
+<p>Тут ви можете знайти собі улюбленця.</p>
+
+<div class="filter-form">
+    <div class="row g-2">
+        <div class="col-md-5">
+            <InputText @bind-Value="ViewModel.SearchTerm" @onchange="ViewModel.LoadListingsCommand.ExecuteAsync" class="form-control" placeholder="Пошук за породою, описом..." />
+        </div>
+        <div class="col-md-3">
+            <InputSelect @bind-Value="ViewModel.SelectedAnimalType" @onchange="ViewModel.LoadListingsCommand.ExecuteAsync" class="form-select">
+                <option value="">-- Всі тварини --</option>
+                <option value="@AnimalType.dog">Собаки</option>
+                <option value="@AnimalType.cat">Коти</option>
+                <option value="@AnimalType.bird">Птахи</option>
+                <option value="@AnimalType.other">Інші</option>
+            </InputSelect>
+        </div>
+        <div class="col-md-2">
+            <InputText @bind-Value="ViewModel.City" @onchange="ViewModel.LoadListingsCommand.ExecuteAsync" class="form-control" placeholder="Місто..." />
+        </div>
+        <div class="col-md-2">
+            <button type="button" class="btn btn-primary w-100" @onclick="ViewModel.LoadListingsCommand.ExecuteAsync">
+                Пошук
+            </button>
+        </div>
+    </div>
+</div>
+<hr />
+
+
+@if (ViewModel.IsBusy)
+{
+    <p><em>Завантаження...</em></p>
+}
+else if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
+{
+    <div class="alert alert-danger">@ViewModel.ErrorMessage</div>
+}
+else if (!ViewModel.Listings.Any())
+{
+    <p><em>За вашим запитом нічого не знайдено.</em></p>
+}
+else
+{
+    <div class="pet-catalog-grid">
+        @foreach (var listing in ViewModel.Listings)
         {
-            <MudItem xs="12" md="6" lg="4">
-                <MudPaper Class="pa-4 module-card" Elevation="2">
-                    <div id="@module.Anchor" class="module-heading">
-                        <MudText Typo="Typo.h5">@module.Title</MudText>
-                    </div>
-                    <MudText Typo="Typo.body2" Class="mb-4">@module.Description</MudText>
+            <div class="pet-card">
+                <img src="@(string.IsNullOrEmpty(listing.MainPhotoUrl) ? "/images/default-pet.png" : listing.MainPhotoUrl)" alt="Фото тварини" />
 
-                    <MudExpansionPanels Dense="true" Class="module-panels">
-                        @foreach (var table in module.Tables)
-                        {
-                            <MudExpansionPanel Text="@table.Name" DisableRipple="true">
-                                <MudText Typo="Typo.caption" Class="mb-3">@table.Description</MudText>
-                                <MudList Dense="true" T="string">
-                                    @foreach (var column in table.Columns)
-                                    {
-                                        <MudListItem T="string">
-                                            <MudText Typo="Typo.body2">@column</MudText>
-                                        </MudListItem>
-                                    }
-                                </MudList>
-                            </MudExpansionPanel>
-                        }
-                    </MudExpansionPanels>
-                </MudPaper>
-            </MudItem>
+                <button class="favorite-btn" @onclick="() => ViewModel.AddFavoriteCommand.ExecuteAsync(listing.Id)">
+         
+                </button>
+
+                <div class="pet-card-body">
+                    <h5>@listing.Breed</h5>
+                    <p>@listing.City</p>
+                    <p>Тип: @listing.AnimalType, Вік: @listing.AgeMonths міс.</p>
+                    <a href="/listing/@listing.Id" class="btn btn-primary">Детальніше</a>
+                </div>
+            </div>
         }
-    </MudGrid>
-</MudContainer>
+    </div>
+}
 
 @code {
-    private static readonly ModuleDefinition[] Modules = new[]
+    protected override async Task OnInitializedAsync()
     {
-        new ModuleDefinition(
-            "Користувачі",
-            "users",
-            "Управління обліковими записами, профілями та чинними сесіями.",
-            new[]
-            {
-                new TableDefinition(
-                    "RegisteredUser",
-                    "Базова інформація про користувачів та їхні права.",
-                    new[]
-                    {
-                        "Id (Guid)", "Email", "PasswordHash", "UserType", "CreatedAt",
-                        "LastLogin", "IsActive", "IsAdmin"
-                    }),
-                new TableDefinition(
-                    "Session",
-                    "Поточні авторизаційні сесії та маркери доступу.",
-                    new[]
-                    {
-                        "Id (Guid)", "UserId", "SessionToken", "CreatedAt",
-                        "ExpiresAt", "LastActivity", "IsValid"
-                    }),
-                new TableDefinition(
-                    "IndividualProfile",
-                    "Особисті дані індивідуальних користувачів.",
-                    new[]
-                    {
-                        "Id (Guid)", "UserId", "FirstName", "LastName", "Phone",
-                        "City", "District", "AdditionalInfo", "PhotoUrl"
-                    }),
-                new TableDefinition(
-                    "ShelterProfile",
-                    "Розширені дані для притулків та організацій.",
-                    new[]
-                    {
-                        "Id (Guid)", "UserId", "Name", "ContactPerson", "Phone",
-                        "AdditionalPhone", "Address", "Description",
-                        "FacebookUrl", "InstagramUrl", "WebsiteUrl", "LogoUrl"
-                    })
-            }),
-        new ModuleDefinition(
-            "Оголошення",
-            "listings",
-            "Структура оголошень про тварин та пов'язану з ними інформацію.",
-            new[]
-            {
-                new TableDefinition(
-                    "Listing",
-                    "Основні характеристики оголошення та його стан.",
-                    new[]
-                    {
-                        "Id (int)", "UserId", "AnimalType", "Breed", "AgeMonths",
-                        "Sex", "Size", "Color", "City", "District",
-                        "Description", "SpecialNeeds", "Status",
-                        "ViewsCount", "CreatedAt", "UpdatedAt", "ModerationComment"
-                    }),
-                new TableDefinition(
-                    "ListingPhoto",
-                    "Фото, що ілюструють конкретне оголошення.",
-                    new[]
-                    {
-                        "Id (Guid)", "ListingId", "Url", "IsPrimary"
-                    }),
-                new TableDefinition(
-                    "HealthInfo",
-                    "Медичні відомості про тварину.",
-                    new[]
-                    {
-                        "Id (Guid)", "ListingId", "Vaccinations",
-                        "Sterilized", "ChronicDiseases", "TreatmentHistory"
-                    })
-            }),
-        new ModuleDefinition(
-            "Взаємодії",
-            "interactions",
-            "Комунікація та активність користувачів у сервісі.",
-            new[]
-            {
-                new TableDefinition(
-                    "Favorite",
-                    "Вподобані оголошення для швидкого доступу.",
-                    new[]
-                    {
-                        "Id (Guid)", "UserId", "ListingId", "CreatedAt"
-                    }),
-                new TableDefinition(
-                    "Conversation",
-                    "Приватні чати між користувачами щодо оголошень.",
-                    new[]
-                    {
-                        "Id (Guid)", "User1Id", "User2Id", "ListingId",
-                        "LastMessageAt"
-                    }),
-                new TableDefinition(
-                    "Message",
-                    "Окремі повідомлення у межах розмов.",
-                    new[]
-                    {
-                        "Id (Guid)", "ConversationId", "SenderId",
-                        "Content", "IsRead", "CreatedAt"
-                    }),
-                new TableDefinition(
-                    "Review",
-                    "Відгуки та оцінки користувачів один про одного.",
-                    new[]
-                    {
-                        "Id (Guid)", "ReviewerId", "ReviewedId",
-                        "Rating", "Comment", "CreatedAt", "IsModerated"
-                    }),
-                new TableDefinition(
-                    "Report",
-                    "Скарги на контент або поведінку.",
-                    new[]
-                    {
-                        "Id (Guid)", "ReporterId", "ReportedType",
-                        "ReportedEntityId", "Reason", "Description",
-                        "Status", "CreatedAt", "ResolvedAt"
-                    })
-            })
-    };
+        ViewModel.PropertyChanged += (_, _) => StateHasChanged();
 
-    private sealed record ModuleDefinition(
-        string Title,
-        string Anchor,
-        string Description,
-        TableDefinition[] Tables);
+        // Автоматично завантажуємо оголошення при першому вході на сторінку
+        if (ViewModel.LoadListingsCommand.CanExecute(null))
+        {
+            await ViewModel.LoadListingsCommand.ExecuteAsync(null);
+        }
+    }
 
-    private sealed record TableDefinition(
-        string Name,
-        string Description,
-        string[] Columns);
+    public void Dispose()
+    {
+        ViewModel.PropertyChanged -= (_, _) => StateHasChanged();
+    }
 }

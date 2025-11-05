@@ -1,32 +1,67 @@
 ﻿@page "/login"
 @page "/"
+@inject ViewModels.LoginViewModel ViewModel
+@inject NavigationManager NavigationManager
+@implements IDisposable
 
-<EditForm class="login-form" Model="LoginModel" OnValidSubmit="HandleLoginSubmit">
+<PageTitle>Вхід до системи</PageTitle>
+
+<EditForm class="login-form" Model="ViewModel" OnValidSubmit="ViewModel.LoginCommand.ExecuteAsync">
     <DataAnnotationsValidator />
-    <ValidationSummary />
 
     <h3>Вхід до системи</h3>
 
     <div class="form-field">
         <label for="emailInput">Email</label>
-        <InputText id="emailInput" @bind-Value="LoginModel.Email" type="email" />
-        <ValidationMessage For="@(() => LoginModel.Email)" />
+        <InputText id="emailInput" @bind-Value="ViewModel.Email" type="email" />
+        <ValidationMessage For="@(() => ViewModel.Email)" />
     </div>
 
     <div class="form-field">
         <label for="passwordInput">Пароль</label>
-        <InputText id="passwordInput" @bind-Value="LoginModel.Password" type="password" />
-        <ValidationMessage For="@(() => LoginModel.Password)" />
+        <InputText id="passwordInput" @bind-Value="ViewModel.Password" type="password" />
+        <ValidationMessage For="@(() => ViewModel.Password)" />
     </div>
 
-    @if (!string.IsNullOrEmpty(ErrorMessage))
+    @if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
     {
-        <div class="error-message">@ErrorMessage</div>
+        <div class="error-message">@ViewModel.ErrorMessage</div>
     }
 
     <div class="actions">
-        <button type="submit" class="primary">Увійти</button>
+        <button type="submit" class="primary" disabled="@ViewModel.IsBusy">
+            @if (ViewModel.IsBusy)
+            {
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            }
+            else
+            {
+                <span>Увійти</span>
+            }
+        </button>
         <button type="button" @onclick="GoToRegister">Зареєструватися</button>
         <button type="button" @onclick="ContinueAsGuest">Продовжити як гість</button>
     </div>
 </EditForm>
+
+@code {
+    protected override void OnInitialized()
+    {
+        ViewModel.PropertyChanged += (_, _) => StateHasChanged();
+    }
+
+    private void GoToRegister()
+    {
+        NavigationManager.NavigateTo("/register");
+    }
+
+    private void ContinueAsGuest()
+    {
+        NavigationManager.NavigateTo("/home", replace: true);
+    }
+
+    public void Dispose()
+    {
+        ViewModel.PropertyChanged -= (_, _) => StateHasChanged();
+    }
+}

@@ -8,9 +8,9 @@ namespace PetSearchHome.BLL.Commands;
 public class UpdateListingCommand : IRequest
 {
     public int Id { get; set; } // ID оголошення, яке редагується
-    public Guid UserId { get; set; } // ID користувача, який редагує
+    public int UserId { get; set; } // ID користувача, який редагує
     public AnimalType AnimalType { get; set; }
-    public string Breed { get; set; } = string.Empty;
+    public string? Breed { get; set; }
     public int AgeMonths { get; set; }
     public AnimalSex Sex { get; set; }
     public AnimalSize Size { get; set; }

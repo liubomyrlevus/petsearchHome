@@ -1,49 +1,103 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using MediatR;
+using PetSearchHome.BLL.Commands;
+using System;
 using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 
-namespace PetSearchHome.ViewModels // ❗ Namespace PetSearchHome.ViewModels
+
+namespace PetSearchHome.ViewModels;
+
+
+public partial class RegisterViewModel : ObservableValidator
 {
-    // Цей enum потрібен для перемикача "Притулок" / "Приватна особа"
-    public enum UserType
+    private readonly IMediator _mediator;
+    public RegisterViewModel(IMediator mediator)
     {
-        PrivatePerson,
-        Shelter
+        _mediator = mediator;
+        _selectedUserType = "Individual";
     }
 
-    public class RegisterViewModel
+
+    [ObservableProperty]
+    private string _selectedUserType;
+
+    [ObservableProperty]
+    [Required(ErrorMessage = "Email є обов'язковим")]
+    [EmailAddress]
+    private string _email;
+
+    [ObservableProperty]
+    [Required(ErrorMessage = "Пароль є обов'язковим")]
+    [MinLength(6, ErrorMessage = "Пароль має бути мін. 6 символів")]
+    private string _password;
+
+    [ObservableProperty] private string _firstName;
+    [ObservableProperty] private string _lastName;
+    [ObservableProperty] private string _phone;
+    [ObservableProperty] private string _city;
+    [ObservableProperty] private string _district;
+
+    [ObservableProperty] private string _shelterName;
+    [ObservableProperty] private string _contactPerson;
+    [ObservableProperty] private string _shelterPhone;
+    [ObservableProperty] private string _address;
+
+    [ObservableProperty] private string _errorMessage;
+    [ObservableProperty] private bool _isBusy;
+
+    [RelayCommand]
+    private async Task RegisterAsync()
     {
-        [Required]
-        public UserType AccountType { get; set; } = UserType.PrivatePerson;
+        ValidateAllProperties();
+        if (HasErrors)
+        {
+            ErrorMessage = string.Empty; 
+            return;
+        }
 
-        [Required(ErrorMessage = "Email є обов'язковим")]
-        [EmailAddress(ErrorMessage = "Неправильний формат email")]
-        public string Email { get; set; } = ""; // 👈 Додано
+        if (IsBusy) return; 
+        IsBusy = true;
+        ErrorMessage = string.Empty;
 
-        [Required(ErrorMessage = "Пароль є обов'язковим")]
-        [MinLength(6, ErrorMessage = "Пароль має бути щонайменше 6 символів")]
-        public string Password { get; set; } = ""; // 👈 Додано
-
-        // --- Поля для "Приватна особа" ---
-        [Required(ErrorMessage = "Введіть ім'я та прізвище")]
-        public string FullName { get; set; } = ""; // 👈 Додано
-
-        [Required(ErrorMessage = "Введіть телефон")]
-        [Phone(ErrorMessage = "Неправильний формат телефону")]
-        public string Phone { get; set; } = ""; // 👈 Додано
-
-        [Required(ErrorMessage = "Введіть адресу (місто + район)")]
-        public string Address { get; set; } = ""; // 👈 Додано
-
-        public string AdditionalInfo { get; set; } = ""; // 👈 Додано
-
-        // --- Поля для "Притулок" ---
-        [Required(ErrorMessage = "Введіть назву притулку")]
-        public string ShelterName { get; set; } = ""; // 👈 Додано
-
-        [Required(ErrorMessage = "Введіть контактну особу")]
-        public string ContactPerson { get; set; } = ""; // 👈 Додано
-
-        public string ShelterAddress { get; set; } = ""; // 👈 Додано
-        public string Description { get; set; } = ""; // 👈 Додано
-        public string SocialLinks { get; set; } = ""; // 👈 Додано
+        try
+        {
+            if (SelectedUserType == "Individual")
+            {
+                var command = new RegisterIndividualCommand
+                {
+                    Email = this.Email,
+                    Password = this.Password,
+                    FirstName = this.FirstName, 
+                    LastName = this.LastName,   
+                    Phone = this.Phone,       
+                    City = this.City,
+                    District = this.District
+                };
+                await _mediator.Send(command);
+            }
+            else if (SelectedUserType == "Shelter")
+            {
+                var command = new RegisterShelterCommand
+                {
+                    Email = this.Email,
+                    Password = this.Password,
+                    Name = this.ShelterName,
+                    ContactPerson = this.ContactPerson, 
+                    Phone = this.ShelterPhone,
+                    Address = this.Address              
+                };
+                await _mediator.Send(command);
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 }
