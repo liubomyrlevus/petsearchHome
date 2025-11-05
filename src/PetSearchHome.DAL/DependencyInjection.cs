@@ -11,7 +11,20 @@ public static class DependencyInjection
     public static IServiceCollection AddDalServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+            options.UseNpgsql(
+                configuration.GetConnectionString("DefaultConnection"),
+
+                npgsqlOptions =>
+                {
+                    npgsqlOptions.EnableRetryOnFailure(
+                        maxRetryCount: 5, 
+                        maxRetryDelay: TimeSpan.FromSeconds(10), 
+                        errorCodesToAdd: null
+                    );
+                }
+
+            )
+        );
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IUserRepository, UserRepository>();
