@@ -45,6 +45,8 @@ public static class MauiProgram
             path: "appsettings.json",
             optional: false,
             reloadOnChange: true);
+
+        builder.Configuration.AddUserSecrets<App>();
     }
 
  
