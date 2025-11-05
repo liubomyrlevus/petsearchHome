@@ -5,7 +5,7 @@ namespace PetSearchHome.BLL.DTOs;
 // DTO для відображення профілю користувача.
 public class UserProfileDto
 {
-    public Guid Id { get; set; }
+    public int Id { get; set; }
     public string Email { get; set; } = string.Empty;
     public UserType UserType { get; set; }
 

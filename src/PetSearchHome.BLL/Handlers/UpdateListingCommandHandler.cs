@@ -28,7 +28,6 @@ public class UpdateListingCommandHandler : IRequestHandler<UpdateListingCommand>
         // Перевірка прав доступу.
         if (listingToUpdate.UserId != request.UserId)
         {
-            
             throw new Exception("User is not authorized to edit this listing.");
         }
 

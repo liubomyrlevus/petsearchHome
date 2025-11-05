@@ -5,6 +5,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Hosting;
 using MudBlazor.Services;
 using PetSearchHome.BLL;
+using PetSearchHome.BLL.Services.Authentication;
+using PetSearchHome.DAL;
 
 namespace PetSearchHome.Presentation;
 
@@ -42,7 +44,15 @@ public static class MauiProgram
     {
         builder.Services.AddMauiBlazorWebView();
         builder.Services.AddMudServices();
-        builder.Services.AddBllServices();
+
+        // Bind JwtSettings and pass to BLL registration
+        var jwtSettings = new JwtSettings();
+        builder.Configuration.GetSection("Jwt").Bind(jwtSettings);
+        builder.Services.AddBllServices(jwtSettings);
+
+        // Register DAL services (DbContext + repositories)
+        var conn = builder.Configuration.GetConnectionString("DefaultConnection") ?? string.Empty;
+        builder.Services.AddDalServices(conn);
 
 #if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();

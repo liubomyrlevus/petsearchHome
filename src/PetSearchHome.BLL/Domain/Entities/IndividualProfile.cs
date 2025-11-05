@@ -2,9 +2,10 @@ namespace PetSearchHome.BLL.Domain.Entities;
 
 public class IndividualProfile
 {
-    public Guid Id { get; set; }
+    public int Id { get; set; }
 
-    public Guid UserId { get; set; }
+    // Match RegisteredUser.Id (int)
+    public int UserId { get; set; }
 
     public string FirstName { get; set; } = string.Empty;
 

@@ -22,7 +22,7 @@ public class GetConversationMessagesQueryHandler : IRequestHandler<GetConversati
         var messageDtos = messages
             .Select(m => new MessageDto
             {
-                Id = m.Id,
+                Id = (int)m.Id, // Зміна типу ID на int
                 SenderId = m.SenderId,
                 Content = m.Content,
                 CreatedAt = m.CreatedAt,

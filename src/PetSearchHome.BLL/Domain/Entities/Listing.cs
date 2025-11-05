@@ -8,7 +8,7 @@ public class Listing
 {
     public int Id { get; set; }
 
-    public Guid UserId { get; set; }
+    public int UserId { get; set; }
 
     public AnimalType AnimalType { get; set; } = AnimalType.Unknown;
 

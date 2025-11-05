@@ -5,5 +5,5 @@ namespace PetSearchHome.BLL.Queries;
 
 public class GetUserConversationsQuery : IRequest<IReadOnlyList<ConversationPreviewDto>>
 {
-    public Guid UserId { get; set; }
+    public int UserId { get; set; }
 }

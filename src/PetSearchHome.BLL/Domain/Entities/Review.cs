@@ -2,11 +2,11 @@ namespace PetSearchHome.BLL.Domain.Entities;
 
 public class Review
 {
-    public Guid Id { get; set; }
+    public int Id { get; set; }
 
-    public Guid ReviewerId { get; set; }
+    public int ReviewerId { get; set; }
 
-    public Guid ReviewedId { get; set; }
+    public int ReviewedId { get; set; }
 
     public int Rating { get; set; }
 

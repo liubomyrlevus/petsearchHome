@@ -4,7 +4,7 @@ public class Session
 {
     public Guid Id { get; set; }
 
-    public Guid UserId { get; set; }
+    public int UserId { get; set; }
 
     public string SessionToken { get; set; } = string.Empty;
 

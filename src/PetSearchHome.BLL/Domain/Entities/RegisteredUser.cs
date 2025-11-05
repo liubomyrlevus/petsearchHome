@@ -4,7 +4,7 @@ namespace PetSearchHome.BLL.Domain.Entities;
 
 public class RegisteredUser
 {
-    public Guid Id { get; set; }
+    public int Id { get; set; }
 
     public string Email { get; set; } = string.Empty;
 

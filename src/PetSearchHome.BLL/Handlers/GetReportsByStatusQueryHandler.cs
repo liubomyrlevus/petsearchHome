@@ -2,6 +2,7 @@
 using PetSearchHome.BLL.Contracts.Persistence;
 using PetSearchHome.BLL.DTOs;
 using PetSearchHome.BLL.Queries;
+using PetSearchHome.BLL.Domain.Enums; 
 
 namespace PetSearchHome.BLL.Handlers;
 

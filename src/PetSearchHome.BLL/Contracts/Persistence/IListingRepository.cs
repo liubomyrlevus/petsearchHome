@@ -7,10 +7,9 @@ public interface IListingRepository
 {
     Task<Listing?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
 
-
     Task<IReadOnlyList<Listing>> GetAllAsync(CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyList<Listing>> GetByOwnerAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Listing>> GetByOwnerAsync(int userId, CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<Listing>> SearchAsync(
         string? searchQuery,
@@ -20,7 +19,6 @@ public interface IListingRepository
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<Listing>> GetByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default);
-
 
     Task<int> AddAsync(Listing listing, CancellationToken cancellationToken = default);
 

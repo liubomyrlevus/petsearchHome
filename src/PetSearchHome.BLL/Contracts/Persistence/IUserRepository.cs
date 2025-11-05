@@ -4,7 +4,7 @@ namespace PetSearchHome.BLL.Contracts.Persistence;
 
 public interface IUserRepository
 {
-    Task<RegisteredUser?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<RegisteredUser?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
 
     Task<RegisteredUser?> GetByEmailAsync(string email, CancellationToken cancellationToken = default);
 

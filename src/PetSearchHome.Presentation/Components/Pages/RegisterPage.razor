@@ -1,0 +1,81 @@
+@page "/register"
+
+<EditForm Model="RegisterModel" OnValidSubmit="HandleRegisterSubmit">
+ <DataAnnotationsValidator />
+ <ValidationSummary />
+
+ <h3>Реєстрація</h3>
+
+ <div>
+ <label>Тип акаунта:</label>
+ <InputSelect @bind-Value="RegisterModel.AccountType">
+ <option value="@(PetSearchHome.ViewModels.UserType.PrivatePerson)">Приватна особа</option>
+ <option value="@(PetSearchHome.ViewModels.UserType.Shelter)">Притулок</option>
+ </InputSelect>
+ </div>
+
+ <div>
+ <label>Email</label>
+ <InputText @bind-Value="RegisterModel.Email" type="email" />
+ <ValidationMessage For="@(() => RegisterModel.Email)" />
+ </div>
+
+ <div>
+ <label>Пароль</label>
+ <InputText @bind-Value="RegisterModel.Password" type="password" />
+ <ValidationMessage For="@(() => RegisterModel.Password)" />
+ </div>
+
+ @if (RegisterModel.AccountType == PetSearchHome.ViewModels.UserType.PrivatePerson)
+ {
+ <fieldset>
+ <legend>Дані приватної особи</legend>
+ <div>
+ <label>Ім'я та прізвище</label>
+ <InputText @bind-Value="RegisterModel.FullName" />
+ <ValidationMessage For="@(() => RegisterModel.FullName)" />
+ </div>
+ <div>
+ <label>Телефон</label>
+ <InputText @bind-Value="RegisterModel.Phone" />
+ <ValidationMessage For="@(() => RegisterModel.Phone)" />
+ </div>
+ <div>
+ <label>Адреса (місто + район)</label>
+ <InputText @bind-Value="RegisterModel.Address" />
+ <ValidationMessage For="@(() => RegisterModel.Address)" />
+ </div>
+ <div>
+ <label>Додаткова інформація</label>
+ <InputText @bind-Value="RegisterModel.AdditionalInfo" />
+ </div>
+ </fieldset>
+ }
+ else
+ {
+ <fieldset>
+ <legend>Дані притулку</legend>
+ <div>
+ <label>Назва притулку</label>
+ <InputText @bind-Value="RegisterModel.ShelterName" />
+ <ValidationMessage For="@(() => RegisterModel.ShelterName)" />
+ </div>
+ <div>
+ <label>Контактна особа</label>
+ <InputText @bind-Value="RegisterModel.ContactPerson" />
+ <ValidationMessage For="@(() => RegisterModel.ContactPerson)" />
+ </div>
+ <div>
+ <label>Адреса</label>
+ <InputText @bind-Value="RegisterModel.ShelterAddress" />
+ </div>
+ </fieldset>
+ }
+
+ @if (!string.IsNullOrEmpty(ErrorMessage))
+ {
+ <div class="error-message">@ErrorMessage</div>
+ }
+
+ <button type="submit">Зареєструватися</button>
+</EditForm>

@@ -4,7 +4,7 @@ public class Favorite
 {
     public Guid Id { get; set; }
 
-    public Guid UserId { get; set; }
+    public int UserId { get; set; }
 
     public int ListingId { get; set; }
 

@@ -7,7 +7,7 @@ namespace PetSearchHome.BLL.Commands;
 // Команда для створення оголошення. Повертає ID створеного оголошення.
 public class CreateListingCommand : IRequest<int>
 {
-    public Guid UserId { get; set; }
+    public int UserId { get; set; }
     public AnimalType AnimalType { get; set; }
     public string Breed { get; set; } = string.Empty;
     public int AgeMonths { get; set; }

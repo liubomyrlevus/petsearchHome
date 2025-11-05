@@ -26,7 +26,7 @@ public class UserRepository : IUserRepository
     private readonly ApplicationDbContext _context;
     public UserRepository(ApplicationDbContext context) { _context = context; }
 
-    public async Task<RegisteredUser?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<RegisteredUser?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         return await _context.Users
             .Include(u => u.IndividualProfile)
@@ -116,7 +116,7 @@ public class ListingRepository : IListingRepository
         return await _context.Listings.AsNoTracking().ToListAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<Listing>> GetByOwnerAsync(Guid userId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<Listing>> GetByOwnerAsync(int userId, CancellationToken cancellationToken = default)
     {
         return await _context.Listings.Where(l => l.UserId == userId).AsNoTracking().ToListAsync(cancellationToken);
     }
@@ -127,7 +127,7 @@ public class FavoriteRepository : IFavoriteRepository
     private readonly ApplicationDbContext _context;
     public FavoriteRepository(ApplicationDbContext context) { _context = context; }
 
-    public async Task<IReadOnlyList<Favorite>> GetByUserAsync(Guid userId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<Favorite>> GetByUserAsync(int userId, CancellationToken cancellationToken = default)
     {
         return await _context.Favorites
             .Where(f => f.UserId == userId)
@@ -135,7 +135,7 @@ public class FavoriteRepository : IFavoriteRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<bool> ExistsAsync(Guid userId, int listingId, CancellationToken cancellationToken = default)
+    public async Task<bool> ExistsAsync(int userId, int listingId, CancellationToken cancellationToken = default)
     {
         return await _context.Favorites.AnyAsync(f => f.UserId == userId && f.ListingId == listingId, cancellationToken);
     }
@@ -145,7 +145,7 @@ public class FavoriteRepository : IFavoriteRepository
         await _context.Favorites.AddAsync(favorite, cancellationToken);
     }
 
-    public async Task RemoveAsync(Guid userId, int listingId, CancellationToken cancellationToken = default)
+    public async Task RemoveAsync(int userId, int listingId, CancellationToken cancellationToken = default)
     {
         var favorite = await _context.Favorites
             .FirstOrDefaultAsync(f => f.UserId == userId && f.ListingId == listingId, cancellationToken);
@@ -158,12 +158,12 @@ public class ConversationRepository : IConversationRepository
     private readonly ApplicationDbContext _context;
     public ConversationRepository(ApplicationDbContext context) { _context = context; }
 
-    public async Task<Conversation?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<Conversation?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         return await _context.Conversations.FindAsync(new object[] { id }, cancellationToken);
     }
 
-    public async Task<IReadOnlyList<Conversation>> GetByUserAsync(Guid userId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<Conversation>> GetByUserAsync(int userId, CancellationToken cancellationToken = default)
     {
         return await _context.Conversations
             .Where(c => c.User1Id == userId || c.User2Id == userId)
@@ -171,7 +171,7 @@ public class ConversationRepository : IConversationRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<Conversation?> GetByParticipantsAsync(Guid user1Id, Guid user2Id, int? listingId, CancellationToken cancellationToken = default)
+    public async Task<Conversation?> GetByParticipantsAsync(int user1Id, int user2Id, int? listingId, CancellationToken cancellationToken = default)
     {
         return await _context.Conversations
             .FirstOrDefaultAsync(c =>
@@ -196,7 +196,7 @@ public class MessageRepository : IMessageRepository
     private readonly ApplicationDbContext _context;
     public MessageRepository(ApplicationDbContext context) { _context = context; }
 
-    public async Task<IReadOnlyList<Message>> GetByConversationAsync(Guid conversationId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<Message>> GetByConversationAsync(int conversationId, CancellationToken cancellationToken = default)
     {
         return await _context.Messages
             .Where(m => m.ConversationId == conversationId)
@@ -205,7 +205,7 @@ public class MessageRepository : IMessageRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<Message?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<Message?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         return await _context.Messages.FindAsync(new object[] { id }, cancellationToken);
     }
@@ -215,7 +215,7 @@ public class MessageRepository : IMessageRepository
         await _context.Messages.AddAsync(message, cancellationToken);
     }
 
-    public async Task MarkAsReadAsync(Guid messageId, CancellationToken cancellationToken = default)
+    public async Task MarkAsReadAsync(int messageId, CancellationToken cancellationToken = default)
     {
         var message = await _context.Messages.FindAsync(new object[] { messageId }, cancellationToken);
         if (message != null && !message.IsRead)
@@ -230,7 +230,7 @@ public class ReviewRepository : IReviewRepository
     private readonly ApplicationDbContext _context;
     public ReviewRepository(ApplicationDbContext context) { _context = context; }
 
-    public async Task<IReadOnlyList<Review>> GetForUserAsync(Guid reviewedUserId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<Review>> GetForUserAsync(int reviewedUserId, CancellationToken cancellationToken = default)
     {
         return await _context.Reviews
             .Where(r => r.ReviewedId == reviewedUserId)
@@ -238,7 +238,7 @@ public class ReviewRepository : IReviewRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<Review?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<Review?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         return await _context.Reviews.FindAsync(new object[] { id }, cancellationToken);
     }
@@ -254,7 +254,7 @@ public class ReviewRepository : IReviewRepository
         return Task.CompletedTask;
     }
 
-    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
         var review = await _context.Reviews.FindAsync(new object[] { id }, cancellationToken);
         if (review != null) _context.Reviews.Remove(review);
@@ -274,7 +274,7 @@ public class ReportRepository : IReportRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<Report?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<Report?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         return await _context.Reports.FindAsync(new object[] { id }, cancellationToken);
     }

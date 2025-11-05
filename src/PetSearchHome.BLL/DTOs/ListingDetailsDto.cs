@@ -6,7 +6,7 @@ namespace PetSearchHome.BLL.DTOs;
 public class ListingDetailsDto
 {
     public int Id { get; set; }
-    public Guid UserId { get; set; }
+    public int UserId { get; set; }
     public string OwnerName { get; set; } = string.Empty;
     public AnimalType AnimalType { get; set; }
     public string Breed { get; set; } = string.Empty;
