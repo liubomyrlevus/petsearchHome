@@ -1,10 +1,15 @@
-﻿using Microsoft.AspNetCore.Components.WebView.Maui;
+﻿using MediatR;
+using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Maui.Hosting;
 using MudBlazor.Services;
 using PetSearchHome.BLL;
+using PetSearchHome.BLL.Services.Authentication;
+using PetSearchHome.DAL; 
+using PetSearchHome.Presentation.Components.Pages; 
+using PetSearchHome.Presentation.Services;
+using PetSearchHome.Presentation.Services; 
+using PetSearchHome.ViewModels;
 
 namespace PetSearchHome.Presentation;
 
@@ -14,9 +19,13 @@ public static class MauiProgram
     {
         var builder = MauiApp.CreateBuilder();
         builder.UseMauiApp<App>();
+
         ConfigureFonts(builder);
         ConfigureConfiguration(builder);
-        ConfigureServices(builder);
+
+      
+        ConfigureServices(builder.Services, builder.Configuration);
+
         ConfigureLogging(builder);
 
         return builder.Build();
@@ -29,43 +38,56 @@ public static class MauiProgram
             fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
         });
     }
-
     private static void ConfigureConfiguration(MauiAppBuilder builder)
     {
         builder.Configuration.AddJsonFile(
             path: "appsettings.json",
             optional: false,
             reloadOnChange: true);
+
+        builder.Configuration.AddUserSecrets<App>();
     }
 
-    private static void ConfigureServices(MauiAppBuilder builder)
+ 
+    private static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
-        builder.Services.AddMauiBlazorWebView();
-        builder.Services.AddMudServices();
-        builder.Services.AddBllServices();
+        services.AddMauiBlazorWebView();
+        services.AddMudServices();
+
+        var jwtSettings = new JwtSettings();
+        configuration.GetSection("JwtSettings").Bind(jwtSettings);
+
+        services.AddSingleton(jwtSettings);
+
+        services.AddDalServices(configuration);
+        services.AddBllServices();
+
+        services.AddTransient(sp => new LoginViewModel(
+            sp.GetRequiredService<IMediator>(),
+            sp.GetRequiredService<NavigationManager>(),
+            sp.GetRequiredService<CurrentUserService>() 
+        ));
+        services.AddTransient<RegisterViewModel>();
+        services.AddTransient<HomeViewModel>();
+        services.AddTransient<CreateListingViewModel>();
+
+        services.AddTransient<LoginPage>();
+        services.AddTransient<Home>();
+        services.AddTransient<RegisterPage>();
+        services.AddTransient<CreateListingPage>();
+
+        services.AddSingleton<CurrentUserService>();
 
 #if DEBUG
-        builder.Services.AddBlazorWebViewDeveloperTools();
+        services.AddBlazorWebViewDeveloperTools();
 #endif
     }
 
     private static void ConfigureLogging(MauiAppBuilder builder)
     {
 #if DEBUG
-        builder.Logging.AddDebug();
+        builder.Logging.AddDebug(); 
 #endif
     }
 }
 
-// Local shim to satisfy calls to AddBllServices when the actual PetSearchHome.BLL assembly is not referenced.
-// Remove this shim after adding a proper reference to the BLL project/package.
-public static class BllServiceCollectionExtensions
-{
-    public static IServiceCollection AddBllServices(this IServiceCollection services)
-    {
-        // No-op placeholder. Register real BLL services here once the BLL assembly is available:
-        // Example (when BLL exists):
-        // services.AddTransient<IMyBllService, MyBllService>();
-        return services;
-    }
-}

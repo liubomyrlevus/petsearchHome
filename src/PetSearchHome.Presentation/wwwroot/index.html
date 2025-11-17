@@ -1,35 +1,33 @@
-<!DOCTYPE html>
-<html lang="en">
+﻿<!DOCTYPE html>
+<html lang="uk">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <title>PetSearchHome.Presentation</title>
+    <title>Pet Search Home</title>
+    <meta name="description" content="Адміністративна панель Pet Search Home" />
     <base href="/" />
     <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
     <link rel="stylesheet" href="css/app.css" />
     <link rel="stylesheet" href="PetSearchHome.Presentation.styles.css" />
-    <link rel="icon" href="data:,">
-
+    <link rel="icon" href="data:," />
     <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
-
 </head>
 
 <body>
-
     <div class="status-bar-safe-area"></div>
 
-    <div id="app">Loading...</div>
+    <div id="app" class="loading-state">
+        <div class="loading-spinner" aria-hidden="true"></div>
+        <div class="loading-text">Завантаження інтерфейсу...</div>
+    </div>
 
-    <div id="blazor-error-ui">
-        An unhandled error has occurred.
-        <a href="" class="reload">Reload</a>
-        <a class="dismiss">🗙</a>
+    <div id="blazor-error-ui" role="alert">
+        Сталася непередбачена помилка.
+        <a href="" class="reload">Перезавантажити</a>
+        <button type="button" class="dismiss" aria-label="Закрити повідомлення">Закрити</button>
     </div>
 
     <script src="_framework/blazor.webview.js" autostart="false"></script>
-
     <script src="_content/MudBlazor/MudBlazor.min.js"></script>
-
 </body>
-
 </html>

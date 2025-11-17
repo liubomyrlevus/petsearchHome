@@ -1,27 +1,43 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">PetSearchHome.Presentation</a>
+        <a class="navbar-brand" href="">Pet Search Home</a>
     </div>
 </div>
 
 <input type="checkbox" title="Navigation menu" class="navbar-toggler" />
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').checked = false">
     <nav class="flex-column">
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+            <NavLink class="nav-link" href="home" Match="NavLinkMatch.All">
+                <span class="bi bi-grid-nav-menu" aria-hidden="true"></span> Головна сторінка
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
+            <a class="nav-link" href="home#users">
+                <span class="bi bi-users-nav-menu" aria-hidden="true"></span> Статистика користувачів
+            </a>
+        </div>
+        <div class="nav-item px-3">
+            <a class="nav-link" href="home#listings">
+                <span class="bi bi-listings-nav-menu" aria-hidden="true"></span> Статистика оголошень
+            </a>
+        </div>
+        <div class="nav-item px-3">
+            <a class="nav-link" href="home#interactions">
+                <span class="bi bi-interactions-nav-menu" aria-hidden="true"></span> Статистика взаємодій
+            </a>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="create-listing">
+                <span class="bi bi-plus-circle-nav-menu" aria-hidden="true"></span> Створити оголошення
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
+            <NavLink class="nav-link" href="login">
+                <span class="bi bi-login-nav-menu" aria-hidden="true"></span> Вхід
             </NavLink>
         </div>
     </nav>
 </div>
+

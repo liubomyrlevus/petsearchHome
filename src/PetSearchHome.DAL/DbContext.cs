@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using PetSearchHome.BLL.Domain.Entities; 
+using PetSearchHome.BLL.Domain.Entities;
 using PetSearchHome.BLL.Domain.Enums;
 
 namespace PetSearchHome.DAL;
@@ -7,7 +7,6 @@ namespace PetSearchHome.DAL;
 public class ApplicationDbContext : DbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
-
 
     public DbSet<RegisteredUser> Users { get; set; }
     public DbSet<Session> Sessions { get; set; }
@@ -26,31 +25,202 @@ public class ApplicationDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        // --- Налаштування RegisteredUser ---
         modelBuilder.Entity<RegisteredUser>(entity =>
         {
+            entity.ToTable("registered_users");
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id).ValueGeneratedOnAdd(); 
-            entity.HasIndex(u => u.Email).IsUnique();
+            entity.Property(e => e.Id).HasColumnName("user_id").UseIdentityByDefaultColumn();
+            entity.Property(e => e.Email).HasColumnName("email");
+            entity.Property(e => e.PasswordHash).HasColumnName("password_hash");
+            entity.Property(e => e.UserType).HasColumnName("user_type").HasConversion<string>();
+            entity.Property(e => e.CreatedAt).HasColumnName("created_at").HasDefaultValueSql("NOW()");
+            entity.Property(e => e.LastLogin).HasColumnName("last_login");
+            entity.Property(e => e.IsActive).HasColumnName("is_active").HasDefaultValue(true);
+            entity.Property(e => e.IsAdmin).HasColumnName("is_admin").HasDefaultValue(false);
+
             entity.HasOne(u => u.IndividualProfile).WithOne(i => i.User).HasForeignKey<IndividualProfile>(i => i.UserId);
             entity.HasOne(u => u.ShelterProfile).WithOne(s => s.User).HasForeignKey<ShelterProfile>(s => s.UserId);
         });
 
-        modelBuilder.Entity<IndividualProfile>().Property(e => e.Id).ValueGeneratedOnAdd();
-        modelBuilder.Entity<ShelterProfile>().Property(e => e.Id).ValueGeneratedOnAdd();
+        // --- Налаштування Профілів ---
+        modelBuilder.Entity<IndividualProfile>(entity =>
+        {
+            entity.ToTable("individuals");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasColumnName("individual_id").UseIdentityByDefaultColumn();
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+            entity.Property(e => e.FirstName).HasColumnName("first_name");
+            entity.Property(e => e.LastName).HasColumnName("last_name");
+            entity.Property(e => e.Phone).HasColumnName("phone");
+            entity.Property(e => e.City).HasColumnName("city");
+            entity.Property(e => e.District).HasColumnName("district");
+            entity.Property(e => e.AdditionalInfo).HasColumnName("additional_info");
+            entity.Property(e => e.PhotoUrl).HasColumnName("photo_url");
+        });
 
-        modelBuilder.Entity<Listing>(entity => {
+        modelBuilder.Entity<ShelterProfile>(entity =>
+        {
+            entity.ToTable("shelters");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasColumnName("shelter_id").UseIdentityByDefaultColumn();
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+            entity.Property(e => e.Name).HasColumnName("name");
+            entity.Property(e => e.ContactPerson).HasColumnName("contact_person");
+            entity.Property(e => e.Phone).HasColumnName("phone");
+            entity.Property(e => e.AdditionalPhone).HasColumnName("additional_phone");
+            entity.Property(e => e.Address).HasColumnName("address");
+            entity.Property(e => e.Description).HasColumnName("description");
+            entity.Property(e => e.FacebookUrl).HasColumnName("facebook_url");
+            entity.Property(e => e.InstagramUrl).HasColumnName("instagram_url");
+            entity.Property(e => e.WebsiteUrl).HasColumnName("website_url");
+            entity.Property(e => e.LogoUrl).HasColumnName("logo_url");
+        });
+
+        // --- Налаштування Listing ---
+        modelBuilder.Entity<Listing>(entity =>
+        {
+            entity.ToTable("listings");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasColumnName("listing_id").UseIdentityByDefaultColumn();
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+            entity.Property(e => e.AnimalType).HasColumnName("animal_type").HasConversion<string>();
+            entity.Property(e => e.Breed).HasColumnName("breed");
+            entity.Property(e => e.AgeMonths).HasColumnName("age_months");
+            entity.Property(e => e.Sex).HasColumnName("sex").HasConversion<string>();
+            entity.Property(e => e.Size).HasColumnName("size").HasConversion<string>();
+            entity.Property(e => e.Color).HasColumnName("color");
+            entity.Property(e => e.City).HasColumnName("city");
+            entity.Property(e => e.District).HasColumnName("district");
+            entity.Property(e => e.Description).HasColumnName("description");
+            entity.Property(e => e.SpecialNeeds).HasColumnName("special_needs");
+            entity.Property(e => e.Status).HasColumnName("status").HasConversion<string>().HasDefaultValue(ListingStatus.draft);
+            entity.Property(e => e.ViewsCount).HasColumnName("views_count").HasDefaultValue(0);
+            entity.Property(e => e.CreatedAt).HasColumnName("created_at").HasDefaultValueSql("NOW()");
+            entity.Property(e => e.UpdatedAt).HasColumnName("updated_at").HasDefaultValueSql("NOW()");
+            entity.Property(e => e.ModerationComment).HasColumnName("moderation_comment");
+
             entity.HasOne(l => l.HealthInfo).WithOne(h => h.Listing).HasForeignKey<HealthInfo>(h => h.ListingId);
             entity.HasMany(l => l.Photos).WithOne(p => p.Listing).HasForeignKey(p => p.ListingId);
         });
 
-        modelBuilder.Entity<ListingPhoto>().Property(e => e.Id).ValueGeneratedOnAdd();
-        modelBuilder.Entity<HealthInfo>().Property(e => e.Id).ValueGeneratedOnAdd();
+        // --- Налаштування HealthInfo ---
+        modelBuilder.Entity<HealthInfo>(entity =>
+        {
+            entity.ToTable("health_info");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasColumnName("health_id").UseIdentityByDefaultColumn();
+            entity.Property(e => e.ListingId).HasColumnName("listing_id");
+            entity.Property(e => e.Vaccinations).HasColumnName("vaccinations");
+            entity.Property(e => e.Sterilized).HasColumnName("sterilized");
+            entity.Property(e => e.ChronicDiseases).HasColumnName("chronic_diseases");
+            entity.Property(e => e.TreatmentHistory).HasColumnName("treatment_history");
+        });
 
-        modelBuilder.Entity<Session>().Property(e => e.Id).ValueGeneratedOnAdd();
-        modelBuilder.Entity<Favorite>().Property(e => e.Id).ValueGeneratedOnAdd();
-        modelBuilder.Entity<Conversation>().Property(e => e.Id).ValueGeneratedOnAdd();
-        modelBuilder.Entity<Message>().Property(e => e.Id).ValueGeneratedOnAdd();
-        modelBuilder.Entity<Review>().Property(e => e.Id).ValueGeneratedOnAdd();
-        modelBuilder.Entity<Report>().Property(e => e.Id).ValueGeneratedOnAdd();
+        // --- Налаштування ListingPhoto ---
+        modelBuilder.Entity<ListingPhoto>(entity =>
+        {
+            entity.ToTable("photos");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasColumnName("photo_id").UseIdentityByDefaultColumn();
+            entity.Property(e => e.ListingId).HasColumnName("listing_id");
+            entity.Property(e => e.Url).HasColumnName("url");
+            entity.Property(e => e.IsPrimary).HasColumnName("is_primary").HasDefaultValue(false);
+        });
+
+        // --- Налаштування Favorite ---
+        modelBuilder.Entity<Favorite>(entity =>
+        {
+            entity.ToTable("favorites");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasColumnName("favorite_id").UseIdentityByDefaultColumn();
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+            entity.Property(e => e.ListingId).HasColumnName("listing_id");
+            entity.Property(e => e.CreatedAt).HasColumnName("created_at").HasDefaultValueSql("NOW()");
+            entity.HasIndex(f => new { f.UserId, f.ListingId }).IsUnique();
+        });
+
+        // --- Налаштування Conversation ---
+        modelBuilder.Entity<Conversation>(entity =>
+        {
+            entity.ToTable("conversations");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasColumnName("conversation_id").UseIdentityByDefaultColumn();
+            entity.Property(e => e.User1Id).HasColumnName("user1_id");
+            entity.Property(e => e.User2Id).HasColumnName("user2_id");
+            entity.Property(e => e.ListingId).HasColumnName("listing_id");
+            entity.Property(e => e.LastMessageAt).HasColumnName("last_message_at").HasDefaultValueSql("NOW()");
+
+            entity.HasOne(c => c.User1).WithMany().HasForeignKey(c => c.User1Id).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(c => c.User2).WithMany().HasForeignKey(c => c.User2Id).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(c => c.Listing).WithMany().HasForeignKey(c => c.ListingId).OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // --- Налаштування Message ---
+        modelBuilder.Entity<Message>(entity =>
+        {
+            entity.ToTable("messages");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasColumnName("message_id").UseIdentityByDefaultColumn();
+            entity.Property(e => e.ConversationId).HasColumnName("conversation_id");
+            entity.Property(e => e.SenderId).HasColumnName("sender_id");
+            entity.Property(e => e.Content).HasColumnName("content");
+            entity.Property(e => e.IsRead).HasColumnName("is_read").HasDefaultValue(false);
+            entity.Property(e => e.CreatedAt).HasColumnName("created_at").HasDefaultValueSql("NOW()");
+
+            entity.HasOne(m => m.Sender).WithMany().HasForeignKey(m => m.SenderId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(m => m.Conversation).WithMany(c => c.Messages).HasForeignKey(m => m.ConversationId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // --- Налаштування Review ---
+        modelBuilder.Entity<Review>(entity =>
+        {
+            entity.ToTable("reviews");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasColumnName("review_id").UseIdentityByDefaultColumn();
+            entity.Property(e => e.ReviewerId).HasColumnName("reviewer_id");
+            entity.Property(e => e.ReviewedId).HasColumnName("reviewed_id");
+            entity.Property(e => e.Rating).HasColumnName("rating");
+            entity.Property(e => e.Comment).HasColumnName("comment");
+            entity.Property(e => e.CreatedAt).HasColumnName("created_at").HasDefaultValueSql("NOW()");
+            entity.Property(e => e.IsModerated).HasColumnName("is_moderated").HasDefaultValue(false);
+
+            entity.HasOne(r => r.Reviewer).WithMany().HasForeignKey(r => r.ReviewerId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(r => r.Reviewed).WithMany().HasForeignKey(r => r.ReviewedId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // --- Налаштування Report ---
+        modelBuilder.Entity<Report>(entity =>
+        {
+            entity.ToTable("reports");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasColumnName("report_id").UseIdentityByDefaultColumn();
+            entity.Property(e => e.ReporterId).HasColumnName("reporter_id");
+            entity.Property(e => e.ReportedType).HasColumnName("reported_type").HasConversion<string>();
+            entity.Property(e => e.ReportedEntityId).HasColumnName("reported_id");
+            entity.Property(e => e.Reason).HasColumnName("reason");
+            entity.Property(e => e.Description).HasColumnName("description");
+            entity.Property(e => e.Status).HasColumnName("status").HasConversion<string>().HasDefaultValue(ReportStatus.pending);
+            entity.Property(e => e.CreatedAt).HasColumnName("created_at").HasDefaultValueSql("NOW()");
+            entity.Property(e => e.ResolvedAt).HasColumnName("resolved_at");
+
+            entity.HasOne(r => r.Reporter).WithMany().HasForeignKey(r => r.ReporterId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // --- Налаштування Session ---
+        modelBuilder.Entity<Session>(entity =>
+        {
+            entity.ToTable("sessions");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasColumnName("session_id").HasDefaultValueSql("gen_random_uuid()"); 
+            entity.Property(e => e.UserId).HasColumnName("user_id"); // int
+            entity.Property(e => e.SessionToken).HasColumnName("session_token");
+            entity.Property(e => e.CreatedAt).HasColumnName("created_at").HasDefaultValueSql("NOW()");
+            entity.Property(e => e.ExpiresAt).HasColumnName("expires_at");
+            entity.Property(e => e.LastActivity).HasColumnName("last_activity").HasDefaultValueSql("NOW()");
+            entity.Property(e => e.IsValid).HasColumnName("is_valid").HasDefaultValue(true);
+
+            entity.HasOne(s => s.User).WithMany().HasForeignKey(s => s.UserId).OnDelete(DeleteBehavior.Cascade);
+        });
     }
 }
