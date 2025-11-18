@@ -2,6 +2,7 @@
 @page "/"
 @inject ViewModels.LoginViewModel ViewModel
 @inject NavigationManager NavigationManager
+@inject PetSearchHome.Presentation.Services.CurrentUserService CurrentUserService
 @implements IDisposable
 
 <PageTitle>Вхід</PageTitle>
@@ -81,6 +82,7 @@
 
     private void ContinueAsGuest()
     {
+        CurrentUserService.SetGuest();
         NavigationManager.NavigateTo("/home", replace: true);
     }
 
@@ -89,4 +91,3 @@
         ViewModel.PropertyChanged -= (_, _) => StateHasChanged();
     }
 }
-

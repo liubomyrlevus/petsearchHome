@@ -1,7 +1,10 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using Microsoft.AspNetCore.Components;
 using PetSearchHome.BLL.Commands;
+using PetSearchHome.BLL.DTOs;
+using PetSearchHome.Presentation.Services;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
@@ -11,10 +14,17 @@ namespace PetSearchHome.ViewModels;
 public partial class RegisterViewModel : ObservableValidator
 {
     private readonly IMediator _mediator;
+    private readonly NavigationManager _navigationManager;
+    private readonly CurrentUserService _currentUserService;
 
-    public RegisterViewModel(IMediator mediator)
+    public RegisterViewModel(
+        IMediator mediator,
+        NavigationManager navigationManager,
+        CurrentUserService currentUserService)
     {
         _mediator = mediator;
+        _navigationManager = navigationManager;
+        _currentUserService = currentUserService;
         _selectedUserType = "Individual";
     }
 
@@ -61,6 +71,8 @@ public partial class RegisterViewModel : ObservableValidator
 
         try
         {
+            LoginResultDto? loginResult = null;
+
             if (SelectedUserType == "Individual")
             {
                 var command = new RegisterIndividualCommand
@@ -74,7 +86,7 @@ public partial class RegisterViewModel : ObservableValidator
                     District = District
                 };
 
-                await _mediator.Send(command);
+                loginResult = await _mediator.Send(command);
             }
             else if (SelectedUserType == "Shelter")
             {
@@ -88,7 +100,18 @@ public partial class RegisterViewModel : ObservableValidator
                     Address = Address
                 };
 
-                await _mediator.Send(command);
+                loginResult = await _mediator.Send(command);
+            }
+
+            if (loginResult is not null)
+            {
+                _currentUserService.SetUser(
+                    loginResult.User.Id,
+                    loginResult.User.Email,
+                    rememberMe: false,
+                    isAdmin: loginResult.User.IsAdmin);
+
+                _navigationManager.NavigateTo("/home", forceLoad: true);
             }
         }
         catch (Exception ex)

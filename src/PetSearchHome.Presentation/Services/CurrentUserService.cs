@@ -8,8 +8,10 @@ public class CurrentUserService
     public string? UserEmail { get; private set; }
     public bool RememberMe { get; private set; }
     public bool IsAdmin { get; private set; }
+    public bool IsGuest { get; private set; }
 
     public bool IsLoggedIn => UserId.HasValue;
+    public bool IsAuthorized => IsLoggedIn || IsGuest;
 
     public void SetUser(int userId, string email)
     {
@@ -27,6 +29,7 @@ public class CurrentUserService
         UserEmail = email;
         RememberMe = rememberMe;
         IsAdmin = isAdmin;
+        IsGuest = false;
     }
 
     public void ClearUser()
@@ -35,5 +38,15 @@ public class CurrentUserService
         UserEmail = null;
         RememberMe = false;
         IsAdmin = false;
+        IsGuest = false;
+    }
+
+    public void SetGuest()
+    {
+        UserId = null;
+        UserEmail = null;
+        RememberMe = false;
+        IsAdmin = false;
+        IsGuest = true;
     }
 }

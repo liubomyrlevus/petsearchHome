@@ -74,7 +74,9 @@ public partial class LoginViewModel : ObservableValidator
                 RememberMe,
                 loginResult.User.IsAdmin);
 
-            _navigationManager.NavigateTo("/home", replace: true);
+            // Повне перезавантаження Blazor WebView (аналог Ctrl+R),
+            // щоб меню й сторінки одразу побачили оновлений стан користувача.
+            _navigationManager.NavigateTo("/home", forceLoad: true);
         }
         catch (System.Exception ex)
         {

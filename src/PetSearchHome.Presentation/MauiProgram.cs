@@ -68,7 +68,11 @@ public static class MauiProgram
             sp.GetRequiredService<NavigationManager>(),
             sp.GetRequiredService<CurrentUserService>()
         ));
-        services.AddTransient<RegisterViewModel>();
+        services.AddTransient(sp => new RegisterViewModel(
+            sp.GetRequiredService<IMediator>(),
+            sp.GetRequiredService<NavigationManager>(),
+            sp.GetRequiredService<CurrentUserService>()
+        ));
         services.AddTransient<HomeViewModel>();
         services.AddTransient<CreateListingViewModel>();
         services.AddTransient<EditListingViewModel>();
