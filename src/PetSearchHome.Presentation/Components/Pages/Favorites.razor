@@ -1,0 +1,66 @@
+@page "/favorites"
+@inject PetSearchHome.ViewModels.FavoritesViewModel ViewModel
+@implements IDisposable
+
+<PageTitle>Улюблені</PageTitle>
+
+<h1>Мої улюблені оголошення</h1>
+
+@if (ViewModel.IsBusy)
+{
+    <p><em>Завантаження улюблених...</em></p>
+}
+else if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
+{
+    <div class="alert alert-danger">@ViewModel.ErrorMessage</div>
+}
+else if (!ViewModel.Favorites.Any())
+{
+    <p><em>У вас ще немає збережених оголошень.</em></p>
+}
+else
+{
+    <div class="pet-catalog-grid">
+        @foreach (var item in ViewModel.Favorites)
+        {
+            <div class="pet-card">
+                <img src="@(string.IsNullOrEmpty(item.MainPhotoUrl) ? "/images/default-pet.png" : item.MainPhotoUrl)"
+                     alt="Фото тварини" />
+
+                <button class="favorite-btn"
+                        @onclick="() => ViewModel.RemoveFavoriteCommand.ExecuteAsync(item.ListingId)">
+                    Видалити з улюблених
+                </button>
+
+                <div class="pet-card-body">
+                    <h5>@item.Breed</h5>
+                    <p>Тип: @item.AnimalType</p>
+                    <a href="/listing/@item.ListingId" class="btn btn-primary">Деталі</a>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+
+        if (ViewModel.LoadFavoritesCommand.CanExecute(null))
+        {
+            await ViewModel.LoadFavoritesCommand.ExecuteAsync(null);
+        }
+    }
+
+    private void OnViewModelPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
+    }
+}
+

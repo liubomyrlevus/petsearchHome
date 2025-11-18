@@ -7,3 +7,4 @@ public class HealthInfoDto
     public string? ChronicDiseases { get; set; }
     public string? TreatmentHistory { get; set; }
 }
+

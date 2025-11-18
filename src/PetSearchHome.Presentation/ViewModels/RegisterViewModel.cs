@@ -1,49 +1,104 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using MediatR;
+using PetSearchHome.BLL.Commands;
+using System;
 using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 
-namespace PetSearchHome.ViewModels // ❗ Namespace PetSearchHome.ViewModels
+namespace PetSearchHome.ViewModels;
+
+public partial class RegisterViewModel : ObservableValidator
 {
-    // Цей enum потрібен для перемикача "Притулок" / "Приватна особа"
-    public enum UserType
+    private readonly IMediator _mediator;
+
+    public RegisterViewModel(IMediator mediator)
     {
-        PrivatePerson,
-        Shelter
+        _mediator = mediator;
+        _selectedUserType = "Individual";
     }
 
-    public class RegisterViewModel
+    [ObservableProperty]
+    private string _selectedUserType;
+
+    [ObservableProperty]
+    [Required(ErrorMessage = "Email є обов'язковим.")]
+    [EmailAddress]
+    private string _email = string.Empty;
+
+    [ObservableProperty]
+    [Required(ErrorMessage = "Пароль є обов'язковим.")]
+    [MinLength(6, ErrorMessage = "Пароль повинен містити щонайменше 6 символів.")]
+    private string _password = string.Empty;
+
+    [ObservableProperty] private string _firstName = string.Empty;
+    [ObservableProperty] private string _lastName = string.Empty;
+    [ObservableProperty] private string _phone = string.Empty;
+    [ObservableProperty] private string _city = string.Empty;
+    [ObservableProperty] private string _district = string.Empty;
+
+    [ObservableProperty] private string _shelterName = string.Empty;
+    [ObservableProperty] private string _contactPerson = string.Empty;
+    [ObservableProperty] private string _shelterPhone = string.Empty;
+    [ObservableProperty] private string _address = string.Empty;
+
+    [ObservableProperty] private string _errorMessage = string.Empty;
+    [ObservableProperty] private bool _isBusy;
+
+    [RelayCommand]
+    private async Task RegisterAsync()
     {
-        [Required]
-        public UserType AccountType { get; set; } = UserType.PrivatePerson;
+        ValidateAllProperties();
+        if (HasErrors)
+        {
+            ErrorMessage = string.Empty;
+            return;
+        }
 
-        [Required(ErrorMessage = "Email є обов'язковим")]
-        [EmailAddress(ErrorMessage = "Неправильний формат email")]
-        public string Email { get; set; } = ""; // 👈 Додано
+        if (IsBusy) return;
+        IsBusy = true;
+        ErrorMessage = string.Empty;
 
-        [Required(ErrorMessage = "Пароль є обов'язковим")]
-        [MinLength(6, ErrorMessage = "Пароль має бути щонайменше 6 символів")]
-        public string Password { get; set; } = ""; // 👈 Додано
+        try
+        {
+            if (SelectedUserType == "Individual")
+            {
+                var command = new RegisterIndividualCommand
+                {
+                    Email = Email,
+                    Password = Password,
+                    FirstName = FirstName,
+                    LastName = LastName,
+                    Phone = Phone,
+                    City = City,
+                    District = District
+                };
 
-        // --- Поля для "Приватна особа" ---
-        [Required(ErrorMessage = "Введіть ім'я та прізвище")]
-        public string FullName { get; set; } = ""; // 👈 Додано
+                await _mediator.Send(command);
+            }
+            else if (SelectedUserType == "Shelter")
+            {
+                var command = new RegisterShelterCommand
+                {
+                    Email = Email,
+                    Password = Password,
+                    Name = ShelterName,
+                    ContactPerson = ContactPerson,
+                    Phone = ShelterPhone,
+                    Address = Address
+                };
 
-        [Required(ErrorMessage = "Введіть телефон")]
-        [Phone(ErrorMessage = "Неправильний формат телефону")]
-        public string Phone { get; set; } = ""; // 👈 Додано
-
-        [Required(ErrorMessage = "Введіть адресу (місто + район)")]
-        public string Address { get; set; } = ""; // 👈 Додано
-
-        public string AdditionalInfo { get; set; } = ""; // 👈 Додано
-
-        // --- Поля для "Притулок" ---
-        [Required(ErrorMessage = "Введіть назву притулку")]
-        public string ShelterName { get; set; } = ""; // 👈 Додано
-
-        [Required(ErrorMessage = "Введіть контактну особу")]
-        public string ContactPerson { get; set; } = ""; // 👈 Додано
-
-        public string ShelterAddress { get; set; } = ""; // 👈 Додано
-        public string Description { get; set; } = ""; // 👈 Додано
-        public string SocialLinks { get; set; } = ""; // 👈 Додано
+                await _mediator.Send(command);
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 }
+

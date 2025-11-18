@@ -1,5 +1,105 @@
-﻿@page "/home"
+@page "/home"
+@inject PetSearchHome.ViewModels.HomeViewModel ViewModel
+@implements IDisposable
+@using PetSearchHome.BLL.Domain.Enums
 
-<h1>Hello, world!</h1>
+<PageTitle>Головна</PageTitle>
 
-Welcome to your new app.
+<h1>Пошук тварин</h1>
+<p>Знайдіть свого майбутнього улюбленця.</p>
+
+<div class="filter-form">
+    <div class="row g-2">
+        <div class="col-md-5">
+            <InputText @bind-Value="ViewModel.SearchTerm"
+                       @onchange="ViewModel.LoadListingsCommand.ExecuteAsync"
+                       class="form-control"
+                       placeholder="Порода, опис, ключові слова..." />
+        </div>
+        <div class="col-md-3">
+            <InputSelect @bind-Value="ViewModel.SelectedAnimalType"
+                         @onchange="ViewModel.LoadListingsCommand.ExecuteAsync"
+                         class="form-select">
+                <option value="">-- Всі тварини --</option>
+                <option value="@AnimalType.dog">Собака</option>
+                <option value="@AnimalType.cat">Кіт / Кішка</option>
+                <option value="@AnimalType.bird">Птах</option>
+                <option value="@AnimalType.other">Інше</option>
+            </InputSelect>
+        </div>
+        <div class="col-md-2">
+            <InputText @bind-Value="ViewModel.City"
+                       @onchange="ViewModel.LoadListingsCommand.ExecuteAsync"
+                       class="form-control"
+                       placeholder="Місто..." />
+        </div>
+        <div class="col-md-2">
+            <button type="button"
+                    class="btn btn-primary w-100"
+                    @onclick="ViewModel.LoadListingsCommand.ExecuteAsync">
+                Пошук
+            </button>
+        </div>
+    </div>
+</div>
+<hr />
+
+@if (ViewModel.IsBusy)
+{
+    <p><em>Завантаження оголошень...</em></p>
+}
+else if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
+{
+    <div class="alert alert-danger">@ViewModel.ErrorMessage</div>
+}
+else if (!ViewModel.Listings.Any())
+{
+    <p><em>За даними фільтрами оголошень не знайдено.</em></p>
+}
+else
+{
+    <div class="pet-catalog-grid">
+        @foreach (var listing in ViewModel.Listings)
+        {
+            <div class="pet-card">
+                <img src="@(string.IsNullOrEmpty(listing.MainPhotoUrl) ? "/images/default-pet.png" : listing.MainPhotoUrl)"
+                     alt="Фото тварини" />
+
+                <button class="favorite-btn"
+                        @onclick="() => ViewModel.ToggleFavoriteCommand.ExecuteAsync(listing.Id)">
+                    @(ViewModel.IsFavorite(listing.Id) ? "В улюблених" : "Додати в улюблені")
+                </button>
+
+                <div class="pet-card-body">
+                    <h5>@listing.Breed</h5>
+                    <p>@listing.City</p>
+                    <p>Тип: @listing.AnimalType, вік: @listing.AgeMonths міс.</p>
+                    <a href="/listing/@listing.Id" class="btn btn-primary">Деталі</a>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+
+        if (ViewModel.LoadListingsCommand.CanExecute(null))
+        {
+            await ViewModel.LoadListingsCommand.ExecuteAsync(null);
+        }
+    }
+
+    private void OnViewModelPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
+    }
+}
+

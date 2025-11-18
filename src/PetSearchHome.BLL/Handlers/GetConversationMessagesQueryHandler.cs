@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using PetSearchHome.BLL.Contracts.Persistence;
 using PetSearchHome.BLL.DTOs;
 using PetSearchHome.BLL.Queries;
@@ -18,8 +18,7 @@ public class GetConversationMessagesQueryHandler : IRequestHandler<GetConversati
     {
         var messages = await _messageRepository.GetByConversationAsync(request.ConversationId, cancellationToken);
 
-        // Перетворюємо сутності в DTO
-        var messageDtos = messages
+        return messages
             .Select(m => new MessageDto
             {
                 Id = m.Id,
@@ -28,9 +27,8 @@ public class GetConversationMessagesQueryHandler : IRequestHandler<GetConversati
                 CreatedAt = m.CreatedAt,
                 IsRead = m.IsRead
             })
-            .OrderBy(m => m.CreatedAt) 
+            .OrderBy(m => m.CreatedAt)
             .ToList();
-
-        return messageDtos;
     }
 }
+

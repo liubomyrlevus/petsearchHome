@@ -1,38 +1,87 @@
-﻿@page "/login"
+@page "/login"
 @page "/"
+@inject ViewModels.LoginViewModel ViewModel
+@inject NavigationManager NavigationManager
+@implements IDisposable
 
-<EditForm Model="LoginModel" OnValidSubmit="HandleLoginSubmit">
+<PageTitle>Вхід до системи</PageTitle>
+
+<EditForm class="login-form" Model="ViewModel" OnValidSubmit="ViewModel.LoginCommand.ExecuteAsync">
     <DataAnnotationsValidator />
-    <ValidationSummary />
 
-    <h3>Вхід до системи</h3>
-
-    <div>
+    <div class="form-field">
         <label for="emailInput">Email</label>
-        <InputText id="emailInput" @bind-Value="LoginModel.Email" type="email" />
-        <ValidationMessage For="@(() => LoginModel.Email)" />
+        <InputText id="emailInput"
+                   @bind-Value="ViewModel.Email"
+                   type="email"
+                   placeholder="Email" />
+        <ValidationMessage For="@(() => ViewModel.Email)" />
     </div>
 
-    <div>
+    <div class="form-field">
         <label for="passwordInput">Пароль</label>
-        <InputText id="passwordInput" @bind-Value="LoginModel.Password" type="password" />
-        <ValidationMessage For="@(() => LoginModel.Password)" />
+        <InputText id="passwordInput"
+                   @bind-Value="ViewModel.Password"
+                   type="password"
+                   placeholder="Password" />
+        <ValidationMessage For="@(() => ViewModel.Password)" />
     </div>
 
-    @if (!string.IsNullOrEmpty(ErrorMessage))
+    <div class="form-footer">
+        <label class="remember-me">
+            <input type="checkbox" @bind="ViewModel.RememberMe" />
+            <span>Запам'ятати мене</span>
+        </label>
+
+        <button type="button" class="link-button" @onclick="ForgotPassword">
+            Забув пароль?
+        </button>
+    </div>
+
+    @if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
     {
-        <div class="error-message">@ErrorMessage</div>
+        <div class="error-message">@ViewModel.ErrorMessage</div>
     }
 
-    <button type="submit">Увійти</button>
-    <button type="button" @onclick="GoToRegister">Зареєструватися</button>
-    <button type="button" @onclick="ContinueAsGuest">Продовжити як гість</button>
-
+    <div class="actions">
+        <button type="submit" class="primary" disabled="@(!ViewModel.CanLogin)">
+            @if (ViewModel.IsBusy)
+            {
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            }
+            else
+            {
+                <span>Увійти</span>
+            }
+        </button>
+        <button type="button" @onclick="GoToRegister">Зареєструватися</button>
+        <button type="button" @onclick="ContinueAsGuest">Продовжити як гість</button>
+    </div>
 </EditForm>
 
-
 @code {
-    // Цей блок залишається порожнім.
-    // Вся C#-логіка (LoginModel, HandleLoginSubmit, GoToRegister, ContinueAsGuest)
-    // знаходиться у файлі LoginPage.razor.cs.
+    protected override void OnInitialized()
+    {
+        ViewModel.PropertyChanged += (_, _) => StateHasChanged();
+    }
+
+    private void GoToRegister()
+    {
+        NavigationManager.NavigateTo("/register");
+    }
+
+    private void ForgotPassword()
+    {
+        NavigationManager.NavigateTo("/forgot-password");
+    }
+
+    private void ContinueAsGuest()
+    {
+        NavigationManager.NavigateTo("/home", replace: true);
+    }
+
+    public void Dispose()
+    {
+        ViewModel.PropertyChanged -= (_, _) => StateHasChanged();
+    }
 }

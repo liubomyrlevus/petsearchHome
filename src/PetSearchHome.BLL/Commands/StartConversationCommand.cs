@@ -1,10 +1,11 @@
-﻿using MediatR;
+using MediatR;
 
 namespace PetSearchHome.BLL.Commands;
 
-public class StartConversationCommand : IRequest<Guid>
+public class StartConversationCommand : IRequest<int>
 {
-    public Guid InitiatorUserId { get; set; }
-    public Guid ReceiverUserId { get; set; }
+    public int InitiatorUserId { get; set; }
+    public int ReceiverUserId { get; set; }
     public int ListingId { get; set; }
 }
+

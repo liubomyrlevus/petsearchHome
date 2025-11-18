@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using PetSearchHome.BLL.Commands;
 using PetSearchHome.BLL.Contracts.Persistence;
 using PetSearchHome.BLL.Domain.Entities;
@@ -6,7 +6,7 @@ using PetSearchHome.BLL.Domain.Enums;
 
 namespace PetSearchHome.BLL.Handlers;
 
-public class CreateReportCommandHandler : IRequestHandler<CreateReportCommand, Guid>
+public class CreateReportCommandHandler : IRequestHandler<CreateReportCommand, int>
 {
     private readonly IReportRepository _reportRepository;
     private readonly IUnitOfWork _unitOfWork;
@@ -17,9 +17,8 @@ public class CreateReportCommandHandler : IRequestHandler<CreateReportCommand, G
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<Guid> Handle(CreateReportCommand request, CancellationToken cancellationToken)
+    public async Task<int> Handle(CreateReportCommand request, CancellationToken cancellationToken)
     {
-
         var report = new Report
         {
             ReporterId = request.ReporterId,
@@ -27,8 +26,7 @@ public class CreateReportCommandHandler : IRequestHandler<CreateReportCommand, G
             ReportedEntityId = request.ReportedEntityId,
             Reason = request.Reason,
             Description = request.Description,
-            Status = ReportStatus.Pending, 
-            CreatedAt = DateTime.UtcNow
+            Status = ReportStatus.pending
         };
 
         await _reportRepository.AddAsync(report, cancellationToken);
@@ -37,3 +35,4 @@ public class CreateReportCommandHandler : IRequestHandler<CreateReportCommand, G
         return report.Id;
     }
 }
+

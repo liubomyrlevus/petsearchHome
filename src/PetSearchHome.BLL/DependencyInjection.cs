@@ -1,31 +1,25 @@
-﻿using System.Reflection;
-using MediatR;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
+using PetSearchHome.BLL.Commands;
 using PetSearchHome.BLL.Services.Authentication;
+using System.Reflection;
+using MediatR;
 
 namespace PetSearchHome.BLL;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddBllServices(this IServiceCollection services, JwtSettings? jwtSettings = null)
+    public static IServiceCollection AddBllServices(this IServiceCollection services)
     {
-        services.AddMediatR(Assembly.GetExecutingAssembly());
+        services.AddMediatR(typeof(RegisterIndividualCommand).Assembly);
 
-        // Business/auth services implemented in BLL
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
 
-        if (jwtSettings is not null)
+  
+        services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>(provider =>
         {
-            services.AddSingleton(jwtSettings);
-            services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
-        }
-        else
-        {
-            // If Presentation will provide IJwtTokenGenerator, skip registration.
-        }
-
-        // Register other BLL services (example)
-        // services.AddScoped<IUserService, UserService>();
+            var settings = provider.GetRequiredService<JwtSettings>();
+            return new JwtTokenGenerator(settings);
+        });
 
         return services;
     }
