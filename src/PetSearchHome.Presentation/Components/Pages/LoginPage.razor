@@ -26,14 +26,14 @@
             <InputText id="passwordInput"
                        @bind-Value="ViewModel.Password"
                        type="password"
-                       placeholder="Введіть пароль" />
+                       placeholder="Введіть свій пароль" />
             <ValidationMessage For="@(() => ViewModel.Password)" />
         </div>
 
         <div class="form-footer">
             <label class="remember-me">
                 <input type="checkbox" @bind="ViewModel.RememberMe" />
-                <span>Запам'ятати мене</span>
+                <span>Запам’ятати мене на цьому пристрої</span>
             </label>
 
             <button type="button" class="link-button" @onclick="ForgotPassword">
@@ -57,7 +57,7 @@
                     <span>Увійти</span>
                 }
             </button>
-            <button type="button" @onclick="GoToRegister">Створити обліковий запис</button>
+            <button type="button" @onclick="GoToRegister">Зареєструватися</button>
             <button type="button" @onclick="ContinueAsGuest">Продовжити як гість</button>
         </div>
     </EditForm>
@@ -89,3 +89,4 @@
         ViewModel.PropertyChanged -= (_, _) => StateHasChanged();
     }
 }
+

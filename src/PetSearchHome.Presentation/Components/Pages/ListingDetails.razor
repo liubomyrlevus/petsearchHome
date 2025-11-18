@@ -8,7 +8,7 @@
 {
     <div class="loading-state">
         <div class="loading-spinner"></div>
-        <div class="loading-text">Завантажуємо інформацію...</div>
+        <div class="loading-text">Завантаження інформації про оголошення...</div>
     </div>
 }
 else if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
@@ -26,7 +26,7 @@ else
     <div class="page-container listing-details">
         <div class="listing-header d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
             <div>
-                <h2>@(listing.Breed ?? "Без назви")</h2>
+                <h2>@(listing.Breed ?? "Без породи")</h2>
                 <p class="text-muted mb-0">
                     @listing.AnimalType.ToUkrainianLabel(),
                     @(listing.AgeMonths.HasValue ? $"{listing.AgeMonths} міс." : "вік не вказано")
@@ -58,12 +58,12 @@ else
         <div class="row gy-4">
             <div class="col-lg-8">
                 <section class="mb-4">
-                    <h4>Основні характеристики</h4>
+                    <h4>Основна інформація</h4>
                     <ul class="details-list">
-                        <li>Тип: @listing.AnimalType.ToUkrainianLabel()</li>
+                        <li>Вид: @listing.AnimalType.ToUkrainianLabel()</li>
                         @if (!string.IsNullOrEmpty(listing.Breed))
                         {
-                            <li>Порода / кличка: @listing.Breed</li>
+                            <li>Порода / різновид: @listing.Breed</li>
                         }
                         @if (listing.Sex.HasValue)
                         {
@@ -75,18 +75,18 @@ else
                         }
                         @if (!string.IsNullOrEmpty(listing.Color))
                         {
-                            <li>Масть / колір: @listing.Color</li>
+                            <li>Колір / масть: @listing.Color</li>
                         }
                         @if (!string.IsNullOrEmpty(listing.City))
                         {
-                            <li>Локація: @listing.City @if (!string.IsNullOrEmpty(listing.District)) { <span>(@listing.District)</span>; }</li>
+                            <li>Місцезнаходження: @listing.City @if (!string.IsNullOrEmpty(listing.District)) { <span>(@listing.District)</span>; }</li>
                         }
                     </ul>
                 </section>
 
                 <section class="mb-4">
                     <h4>Опис</h4>
-                    <p>@(string.IsNullOrWhiteSpace(listing.Description) ? "Опис відсутній." : listing.Description)</p>
+                    <p>@(string.IsNullOrWhiteSpace(listing.Description) ? "Опис не вказано." : listing.Description)</p>
                 </section>
 
                 @if (!string.IsNullOrWhiteSpace(listing.SpecialNeeds))
@@ -104,11 +104,11 @@ else
                         <ul class="details-list">
                             @if (!string.IsNullOrWhiteSpace(listing.HealthInfo.Vaccinations))
                             {
-                                <li>Вакцинація: @listing.HealthInfo.Vaccinations</li>
+                                <li>Щеплення: @listing.HealthInfo.Vaccinations</li>
                             }
                             @if (listing.HealthInfo.Sterilized.HasValue)
                             {
-                                <li>Стерилізація: @(listing.HealthInfo.Sterilized.Value ? "так" : "ні")</li>
+                                <li>Стерилізовано: @(listing.HealthInfo.Sterilized.Value ? "так" : "ні")</li>
                             }
                             @if (!string.IsNullOrWhiteSpace(listing.HealthInfo.ChronicDiseases))
                             {
@@ -116,7 +116,7 @@ else
                             }
                             @if (!string.IsNullOrWhiteSpace(listing.HealthInfo.TreatmentHistory))
                             {
-                                <li>Лікування: @listing.HealthInfo.TreatmentHistory</li>
+                                <li>Історія лікування: @listing.HealthInfo.TreatmentHistory</li>
                             }
                         </ul>
                     </section>
@@ -127,6 +127,9 @@ else
                 <section class="info-card">
                     <h4>Власник</h4>
                     <p class="fw-semibold mb-1">@listing.OwnerName</p>
+                    <NavLink class="btn btn-sm btn-outline-secondary mb-2" href="@($"/profile/{listing.UserId}")">
+                        Переглянути профіль власника
+                    </NavLink>
                     <small class="text-muted d-block mb-2">
                         Оголошення створено: @listing.CreatedAt.ToLocalTime().ToShortDateString()<br />
                         Переглядів: @listing.ViewsCount
@@ -161,3 +164,6 @@ else
         ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
     }
 }
+
+
+

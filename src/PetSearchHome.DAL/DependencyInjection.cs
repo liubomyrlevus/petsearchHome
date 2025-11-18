@@ -10,7 +10,7 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddDalServices(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddDbContext<ApplicationDbContext>(options =>
+        services.AddDbContextFactory<ApplicationDbContext>(options =>
             options.UseNpgsql(
                 configuration.GetConnectionString("DefaultConnection"),
                 npgsqlOptions =>
@@ -37,4 +37,3 @@ public static class DependencyInjection
         return services;
     }
 }
-

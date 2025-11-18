@@ -41,7 +41,7 @@ public class UpdateListingCommandHandler : IRequestHandler<UpdateListingCommand>
         listingToUpdate.District = request.District;
         listingToUpdate.Description = request.Description;
         listingToUpdate.SpecialNeeds = request.SpecialNeeds;
-        listingToUpdate.Status = ListingStatus.pending;
+        listingToUpdate.Status = request.NewStatus ?? ListingStatus.pending;
         listingToUpdate.UpdatedAt = DateTime.UtcNow;
 
         if (request.HealthInfo != null)
@@ -66,4 +66,3 @@ public class UpdateListingCommandHandler : IRequestHandler<UpdateListingCommand>
         return Unit.Value;
     }
 }
-

@@ -7,6 +7,7 @@ public class UserProfileDto
     public int Id { get; set; }
     public string Email { get; set; } = string.Empty;
     public UserType UserType { get; set; }
+    public bool IsAdmin { get; set; }
     public IndividualProfileDto? IndividualProfile { get; set; }
     public ShelterProfileDto? ShelterProfile { get; set; }
 }
@@ -31,4 +32,3 @@ public class ShelterProfileDto
     public string? Description { get; set; }
     public string? LogoUrl { get; set; }
 }
-

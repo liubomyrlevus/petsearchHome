@@ -13,7 +13,7 @@
                 <DataAnnotationsValidator />
 
                 <div class="form-group mb-3">
-                    <label class="form-label">Тип облікового запису</label>
+                    <label class="form-label">Тип користувача</label>
                     <InputSelect @bind-Value="ViewModel.SelectedUserType" class="form-select">
                         <option value="Individual">Приватна особа</option>
                         <option value="Shelter">Притулок</option>
@@ -40,7 +40,7 @@
                 {
                     <h5>Дані приватної особи</h5>
                     <div class="form-group mb-2">
-                        <label class="form-label">Ім'я</label>
+                        <label class="form-label">Ім’я</label>
                         <InputText @bind-Value="ViewModel.FirstName" class="form-control" />
                     </div>
                     <div class="form-group mb-2">
@@ -91,7 +91,7 @@
                     @if (ViewModel.IsBusy)
                     {
                         <span class="spinner-border spinner-border-sm"></span>
-                        <span>Реєструємо...</span>
+                        <span>Створення облікового запису...</span>
                     }
                     else
                     {
@@ -114,3 +114,4 @@
         ViewModel.PropertyChanged -= (_, _) => StateHasChanged();
     }
 }
+

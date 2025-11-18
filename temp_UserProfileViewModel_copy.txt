@@ -7,7 +7,6 @@ using PetSearchHome.BLL.DTOs;
 using PetSearchHome.BLL.Queries;
 using PetSearchHome.Presentation.Services;
 using System;
-using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 
 namespace PetSearchHome.ViewModels;
@@ -22,22 +21,9 @@ public partial class UserProfileViewModel : ObservableObject
     [ObservableProperty] private bool _isBusy;
     [ObservableProperty] private string _errorMessage = string.Empty;
     [ObservableProperty] private string _successMessage = string.Empty;
-    [ObservableProperty] private ObservableCollection<ReviewDto> _reviews = new();
-    [ObservableProperty] private int _newReviewRating = 5;
-    [ObservableProperty] private string _newReviewComment = string.Empty;
-    [ObservableProperty] private string _reviewErrorMessage = string.Empty;
-    [ObservableProperty] private bool _isReviewBusy;
 
     public bool IsIndividual => Profile?.UserType == UserType.individual;
     public bool IsShelter => Profile?.UserType == UserType.shelter;
-    public bool IsOwnProfile =>
-        Profile is not null &&
-        _currentUserService.IsLoggedIn &&
-        _currentUserService.UserId == Profile.Id;
-    public bool CanLeaveReview =>
-        Profile is not null &&
-        _currentUserService.IsLoggedIn &&
-        _currentUserService.UserId != Profile.Id;
 
     public UserProfileViewModel(IMediator mediator, CurrentUserService currentUserService)
     {
@@ -49,22 +35,19 @@ public partial class UserProfileViewModel : ObservableObject
     {
         OnPropertyChanged(nameof(IsIndividual));
         OnPropertyChanged(nameof(IsShelter));
-        OnPropertyChanged(nameof(IsOwnProfile));
-        OnPropertyChanged(nameof(CanLeaveReview));
     }
 
     [RelayCommand]
-    private async Task LoadProfileAsync(int? userId)
+    private async Task LoadProfileAsync()
     {
         if (IsBusy) return;
 
         ErrorMessage = string.Empty;
         SuccessMessage = string.Empty;
-        ReviewErrorMessage = string.Empty;
 
-        if (!userId.HasValue && !_currentUserService.IsLoggedIn)
+        if (!_currentUserService.IsLoggedIn)
         {
-            ErrorMessage = "�c�?�+ ����?��?�>�?�?�?�'�� ���?�?�\"�-�>�?, ���?�'�?�?����?���'��?�?.";
+            ErrorMessage = "Щоб переглянути профіль, авторизуйтеся.";
             return;
         }
 
@@ -72,22 +55,13 @@ public partial class UserProfileViewModel : ObservableObject
 
         try
         {
-            var targetUserId = userId ?? _currentUserService.UserId!.Value;
-
             var profile = await _mediator.Send(new GetUserProfileQuery
             {
-                UserId = targetUserId
+                UserId = _currentUserService.UserId!.Value
             });
 
             Profile = profile;
             ContactForm = CreateContactForm(profile);
-
-            var reviews = await _mediator.Send(new GetReviewsForUserQuery
-            {
-                ReviewedUserId = profile.Id
-            });
-
-            Reviews = new ObservableCollection<ReviewDto>(reviews);
         }
         catch (Exception ex)
         {
@@ -104,7 +78,7 @@ public partial class UserProfileViewModel : ObservableObject
     {
         if (Profile == null)
         {
-            ErrorMessage = "�\"���?�- ���?�?�\"�-�>�? �?�-�?�?�?�'�?�-.";
+            ErrorMessage = "Дані профілю відсутні.";
             return;
         }
 
@@ -143,71 +117,11 @@ public partial class UserProfileViewModel : ObservableObject
 
             Profile = updatedProfile;
             ContactForm = CreateContactForm(updatedProfile);
-            SuccessMessage = "�?�?�?�'����'�� �?�?���-�?�?�? ���+��?����?�?.";
+            SuccessMessage = "Контакти успішно збережено.";
         }
         catch (Exception ex)
         {
             ErrorMessage = ex.Message;
-        }
-    }
-
-    [RelayCommand]
-    private async Task CreateReviewAsync()
-    {
-        if (Profile is null)
-        {
-            ReviewErrorMessage = "Профіль користувача не завантажено.";
-            return;
-        }
-
-        if (!_currentUserService.IsLoggedIn)
-        {
-            ReviewErrorMessage = "Щоб залишити відгук, увійдіть у систему.";
-            return;
-        }
-
-        if (_currentUserService.UserId == Profile.Id)
-        {
-            ReviewErrorMessage = "Не можна залишати відгук про власний профіль.";
-            return;
-        }
-
-        if (NewReviewRating < 1 || NewReviewRating > 5)
-        {
-            ReviewErrorMessage = "Оцінка має бути від 1 до 5.";
-            return;
-        }
-
-        if (IsReviewBusy)
-        {
-            return;
-        }
-
-        IsReviewBusy = true;
-        ReviewErrorMessage = string.Empty;
-
-        try
-        {
-            var command = new CreateReviewCommand
-            {
-                ReviewerId = _currentUserService.UserId!.Value,
-                ReviewedId = Profile.Id,
-                Rating = NewReviewRating,
-                Comment = string.IsNullOrWhiteSpace(NewReviewComment) ? null : NewReviewComment.Trim()
-            };
-
-            var createdReview = await _mediator.Send(command);
-
-            Reviews.Insert(0, createdReview);
-            NewReviewComment = string.Empty;
-        }
-        catch (Exception ex)
-        {
-            ReviewErrorMessage = ex.Message;
-        }
-        finally
-        {
-            IsReviewBusy = false;
         }
     }
 
@@ -244,4 +158,3 @@ public class ContactFormModel
     public string? Address { get; set; }
     public string? Description { get; set; }
 }
-

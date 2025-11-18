@@ -242,4 +242,41 @@ public class ApplicationDbContext : DbContext
                   .HasForeignKey(s => s.UserId);
         });
     }
+
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        NormalizeDateTimesToUtc();
+        return base.SaveChangesAsync(cancellationToken);
+    }
+
+    public override int SaveChanges()
+    {
+        NormalizeDateTimesToUtc();
+        return base.SaveChanges();
+    }
+
+    private void NormalizeDateTimesToUtc()
+    {
+        foreach (var entry in ChangeTracker.Entries())
+        {
+            if (entry.State is not EntityState.Added and not EntityState.Modified)
+            {
+                continue;
+            }
+
+            foreach (var property in entry.Properties)
+            {
+                var clrType = property.Metadata.ClrType;
+
+                if (clrType == typeof(DateTime) && property.CurrentValue is DateTime dt && dt.Kind == DateTimeKind.Unspecified)
+                {
+                    property.CurrentValue = DateTime.SpecifyKind(dt, DateTimeKind.Utc);
+                }
+                else if (clrType == typeof(DateTime?) && property.CurrentValue is DateTime ndt && ndt.Kind == DateTimeKind.Unspecified)
+                {
+                    property.CurrentValue = (DateTime?)DateTime.SpecifyKind(ndt, DateTimeKind.Utc);
+                }
+            }
+        }
+    }
 }

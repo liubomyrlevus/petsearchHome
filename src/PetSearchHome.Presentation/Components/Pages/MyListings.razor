@@ -10,7 +10,7 @@
 
     @if (ViewModel.IsBusy)
     {
-        <p><em>Завантажуємо список...</em></p>
+        <p><em>Завантаження ваших оголошень...</em></p>
     }
     else
     {
@@ -26,7 +26,7 @@
 
         if (!ViewModel.Listings.Any())
         {
-            <p class="text-muted"><em>Ви ще не створили жодного оголошення.</em></p>
+            <p class="text-muted"><em>У вас ще немає створених оголошень.</em></p>
         }
         else
         {
@@ -35,7 +35,7 @@
                     <thead>
                         <tr>
                             <th style="width: 120px;">Фото</th>
-                            <th>Порода / кличка</th>
+                            <th>Порода / різновид</th>
                             <th>Місто</th>
                             <th>Статус</th>
                             <th class="text-end">Дії</th>
@@ -48,10 +48,10 @@
                                 <td>
                                     <img src="@(string.IsNullOrEmpty(listing.MainPhotoUrl) ? "/images/default-pet.png" : listing.MainPhotoUrl)"
                                          class="img-fluid rounded"
-                                         alt="Фото оголошення"
+                                         alt="Фото тварини"
                                          style="max-height: 80px;" />
                                 </td>
-                                <td>@(listing.Breed ?? "Без назви")</td>
+                                <td>@(listing.Breed ?? "Без породи")</td>
                                 <td>@listing.City</td>
                                 <td>
                                     <span class="badge @ViewModel.GetStatusCss(listing.Status)">
@@ -59,6 +59,7 @@
                                     </span>
                                 </td>
                                 <td class="text-end">
+                                    <a class="btn btn-outline-secondary btn-sm me-2" href="/edit-listing/@listing.Id">Редагувати</a>
                                     <a class="btn btn-outline-primary btn-sm me-2" href="/listing/@listing.Id">Переглянути</a>
                                     <button class="btn btn-outline-danger btn-sm"
                                             @onclick="() => ViewModel.DeleteListingCommand.ExecuteAsync(listing.Id)">
@@ -95,3 +96,4 @@
         ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
     }
 }
+

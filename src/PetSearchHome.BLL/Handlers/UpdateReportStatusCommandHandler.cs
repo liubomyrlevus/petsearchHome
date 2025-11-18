@@ -12,7 +12,11 @@ public class UpdateReportStatusCommandHandler : IRequestHandler<UpdateReportStat
     public async Task<Unit> Handle(UpdateReportStatusCommand request, CancellationToken cancellationToken)
     {
         var moderator = await _userRepository.GetByIdAsync(request.ModeratorId, cancellationToken);
-        if (moderator == null || !moderator.IsAdmin) { throw new Exception("User is not authorized to moderate reports."); }
+        var isAdminEffective = moderator != null && (moderator.IsAdmin || moderator.UserType == Domain.Enums.UserType.shelter);
+        if (!isAdminEffective)
+        {
+            throw new Exception("User is not authorized to moderate reports.");
+        }
         var report = await _reportRepository.GetByIdAsync(request.ReportId, cancellationToken);
         if (report == null) { throw new Exception("Report not found."); }
         report.Status = request.NewStatus;

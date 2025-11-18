@@ -68,7 +68,11 @@ public partial class LoginViewModel : ObservableValidator
             var query = new LoginQuery { Email = Email, Password = Password };
             var loginResult = await _mediator.Send(query);
 
-            _currentUserService.SetUser(loginResult.User.Id, loginResult.User.Email, RememberMe);
+            _currentUserService.SetUser(
+                loginResult.User.Id,
+                loginResult.User.Email,
+                RememberMe,
+                loginResult.User.IsAdmin);
 
             _navigationManager.NavigateTo("/home", replace: true);
         }

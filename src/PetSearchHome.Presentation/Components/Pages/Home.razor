@@ -7,31 +7,31 @@
 
 <div class="page-container home-page">
     <header class="page-header">
-        <h1>Знайдіть дім для улюбленця</h1>
-        <p>Допомагаємо притулкам і власникам тварин знайти турботливих людей, які подарують нову домівку.</p>
+        <h1>Допоможіть тваринам знайти дім</h1>
+        <p>PetSearchHome допомагає волонтерам, притулкам та власникам тварин знаходити надійних господарів для хвостатих друзів.</p>
     </header>
 
     <section class="filter-form card-panel">
         <div class="row g-2 align-items-end">
             <div class="col-md-5">
-                <label class="form-label fw-semibold">Ключові слова</label>
+                <label class="form-label fw-semibold">Пошук за ключовими словами</label>
                 <InputText @bind-Value="ViewModel.SearchTerm"
                            @onchange="ViewModel.LoadListingsCommand.ExecuteAsync"
                            class="form-control"
-                           placeholder="Порода, кличка або особливість..." />
+                           placeholder="Порода, різновид або особливості..." />
             </div>
             <div class="col-md-3">
-                <label class="form-label fw-semibold">Тип тварини</label>
+                <label class="form-label fw-semibold">Вид тварини</label>
                 <InputSelect @bind-Value="ViewModel.SelectedAnimalType"
                              @onchange="ViewModel.LoadListingsCommand.ExecuteAsync"
                              class="form-select">
-                    <option value="">-- Оберіть вид --</option>
+                    <option value="">-- Усі --</option>
                     <option value="@AnimalType.dog">Собака</option>
-                    <option value="@AnimalType.cat">Кіт / Кішка</option>
+                    <option value="@AnimalType.cat">Кіт / кішка</option>
                     <option value="@AnimalType.bird">Птах</option>
                     <option value="@AnimalType.rodent">Гризун</option>
                     <option value="@AnimalType.reptile">Рептилія</option>
-                    <option value="@AnimalType.other">Інший</option>
+                    <option value="@AnimalType.other">Інше</option>
                 </InputSelect>
             </div>
             <div class="col-md-2">
@@ -39,7 +39,7 @@
                 <InputText @bind-Value="ViewModel.City"
                            @onchange="ViewModel.LoadListingsCommand.ExecuteAsync"
                            class="form-control"
-                           placeholder="Напр., Львів" />
+                           placeholder="Напр., Київ" />
             </div>
             <div class="col-md-2 d-grid">
                 <button type="button"
@@ -53,7 +53,7 @@
 
     @if (ViewModel.IsBusy)
     {
-        <p class="text-muted"><em>Завантажуємо оголошення...</em></p>
+        <p class="text-muted"><em>Завантаження оголошень...</em></p>
     }
     else if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
     {
@@ -61,7 +61,7 @@
     }
     else if (!ViewModel.Listings.Any())
     {
-        <p class="text-muted"><em>За заданими критеріями нічого не знайдено. Спробуйте змінити фільтри.</em></p>
+        <p class="text-muted"><em>Оголошень за вказаними параметрами не знайдено. Спробуйте змінити умови пошуку.</em></p>
     }
     else
     {
@@ -79,9 +79,9 @@
                         </button>
 
                         <div class="pet-card-body">
-                            <h5>@(listing.Breed ?? "Без назви")</h5>
+                            <h5>@(listing.Breed ?? "Без породи")</h5>
                             <p class="text-muted">@listing.City</p>
-                            <p>Тип: @listing.AnimalType.ToUkrainianLabel(), вік: @FormatAge(listing.AgeMonths).</p>
+                            <p>Вид: @listing.AnimalType.ToUkrainianLabel(), вік: @FormatAge(listing.AgeMonths).</p>
                             <a href="/listing/@listing.Id" class="btn btn-outline-primary w-100">Детальніше</a>
                         </div>
                     </article>
@@ -115,9 +115,10 @@
     private static string FormatAge(int? months) =>
         months switch
         {
-            null => "не вказано",
+            null => "Не вказано",
             1 => "1 місяць",
             >= 2 and <= 4 => $"{months} місяці",
             _ => $"{months} місяців"
         };
 }
+

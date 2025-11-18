@@ -6,8 +6,8 @@
 <PageTitle>Створити оголошення</PageTitle>
 
 <div class="page-container">
-    <h2>Створіть оголошення</h2>
-    <p class="text-muted">Заповніть інформацію про тварину та залиште контакти, щоб ми могли швидше знайти їй дім.</p>
+    <h2>Створити оголошення</h2>
+    <p class="text-muted">Заповніть інформацію про тварину та умови прилаштування, щоб інші користувачі могли знайти вашого улюбленця.</p>
 
     <EditForm class="create-listing-form"
               Model="ViewModel"
@@ -16,14 +16,14 @@
 
         <div class="form-grid">
             <div class="form-section">
-                <h4>Основна інформація</h4>
+                <h4>Основна інформація про тварину</h4>
 
                 <div class="form-field">
-                    <label>Тип тварини</label>
+                    <label>Вид тварини</label>
                     <InputSelect @bind-Value="ViewModel.AnimalType" class="form-select">
-                        <option value="@AnimalType.unknown">Оберіть варіант...</option>
+                        <option value="@AnimalType.unknown">Оберіть вид тварини...</option>
                         <option value="@AnimalType.dog">Собака</option>
-                        <option value="@AnimalType.cat">Кіт / Кішка</option>
+                        <option value="@AnimalType.cat">Кіт / кішка</option>
                         <option value="@AnimalType.bird">Птах</option>
                         <option value="@AnimalType.rodent">Гризун</option>
                         <option value="@AnimalType.reptile">Рептилія</option>
@@ -33,7 +33,7 @@
                 </div>
 
                 <div class="form-field">
-                    <label>Порода / кличка</label>
+                    <label>Порода / різновид</label>
                     <InputText @bind-Value="ViewModel.Breed" class="form-control" />
                     <ValidationMessage For="@(() => ViewModel.Breed)" />
                 </div>
@@ -67,13 +67,13 @@
                 </div>
 
                 <div class="form-field">
-                    <label>Масть / колір</label>
+                    <label>Колір / масть</label>
                     <InputText @bind-Value="ViewModel.Color" class="form-control" />
                 </div>
             </div>
 
             <div class="form-section">
-                <h4>Локація та фото</h4>
+                <h4>Місцезнаходження та фото</h4>
 
                 <div class="form-field">
                     <label>Місто</label>
@@ -89,7 +89,7 @@
                 <div class="form-field">
                     <label>Головне фото (URL)</label>
                     <InputText @bind-Value="ViewModel.MainPhotoUrl" class="form-control" />
-                    <small class="text-muted">Скопіюйте посилання на фото або залиште поле порожнім.</small>
+                    <small class="text-muted">Додайте посилання на фото, щоб користувачі краще бачили тварину.</small>
                 </div>
             </div>
         </div>
@@ -98,13 +98,13 @@
             <h4>Опис</h4>
 
             <div class="form-field">
-                <label>Історія та характер</label>
+                <label>Опис тварини та умов прилаштування</label>
                 <InputTextArea @bind-Value="ViewModel.Description" class="form-control" rows="4" />
                 <ValidationMessage For="@(() => ViewModel.Description)" />
             </div>
 
             <div class="form-field">
-                <label>Особливі потреби (необов'язково)</label>
+                <label>Особливі потреби / зауваження (за наявності)</label>
                 <InputTextArea @bind-Value="ViewModel.SpecialNeeds" class="form-control" rows="3" />
             </div>
         </div>
@@ -113,14 +113,14 @@
             <h4>Медична інформація</h4>
 
             <div class="form-field">
-                <label>Вакцинація</label>
+                <label>Щеплення</label>
                 <InputTextArea @bind-Value="ViewModel.Vaccinations" class="form-control" rows="2" />
             </div>
 
             <div class="form-field checkbox-field">
                 <label>
                     <InputCheckbox @bind-Value="ViewModel.Sterilized" />
-                    Тварину стерилізовано
+                    Тварина стерилізована
                 </label>
             </div>
 
@@ -145,7 +145,7 @@
                 @if (ViewModel.IsBusy)
                 {
                     <span class="spinner-border spinner-border-sm"></span>
-                    <span>Зберігаємо...</span>
+                    <span>Створення оголошення...</span>
                 }
                 else
                 {
@@ -171,3 +171,4 @@
         ViewModel.PropertyChanged -= (_, _) => StateHasChanged();
     }
 }
+

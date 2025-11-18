@@ -1,0 +1,166 @@
+@page "/admin"
+@inject PetSearchHome.ViewModels.AdminPanelViewModel ViewModel
+@inject PetSearchHome.Presentation.Services.CurrentUserService CurrentUser
+@implements IDisposable
+@using PetSearchHome.BLL.Domain.Enums
+
+<PageTitle>Адмін-панель</PageTitle>
+
+<div class="page-container">
+    <h1>Адмін-панель</h1>
+
+    @if (!CurrentUser.IsLoggedIn || !CurrentUser.IsAdmin)
+    {
+        <div class="alert alert-danger">
+            Недостатньо прав для перегляду цієї сторінки.
+        </div>
+    }
+    else
+    {
+        @if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
+        {
+            <div class="alert alert-danger">@ViewModel.ErrorMessage</div>
+        }
+
+        <MudTabs>
+            <MudTabPanel Text="Модерація оголошень">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4>Оголошення, що очікують модерації</h4>
+                    <button class="btn btn-outline-primary"
+                            @onclick="ViewModel.LoadModerationListingsCommand.ExecuteAsync">
+                        Оновити список
+                    </button>
+                </div>
+
+                @if (!ViewModel.ListingsForModeration.Any())
+                {
+                    <p class="text-muted"><em>Немає оголошень у статусі чернетки або очікує модерації.</em></p>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-striped align-middle">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Порода / назва</th>
+                                    <th>Вид</th>
+                                    <th>Місто</th>
+                                    <th>Статус</th>
+                                    <th class="text-end">Дії</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var listing in ViewModel.ListingsForModeration)
+                                {
+                                    <tr>
+                                        <td>@listing.Id</td>
+                                        <td>@(listing.Breed ?? "Без породи")</td>
+                                        <td>@listing.AnimalType.ToUkrainianLabel()</td>
+                                        <td>@listing.City</td>
+                                        <td>@listing.Status</td>
+                                        <td class="text-end">
+                                            <a class="btn btn-sm btn-outline-secondary me-2" href="/listing/@listing.Id">
+                                                Переглянути
+                                            </a>
+                                            <button class="btn btn-sm btn-success me-1"
+                                                    @onclick="() => ViewModel.ApproveListingCommand.ExecuteAsync(listing.Id)">
+                                                Схвалити
+                                            </button>
+                                            <button class="btn btn-sm btn-danger"
+                                                    @onclick="() => ViewModel.RejectListingCommand.ExecuteAsync(listing.Id)">
+                                                Відхилити
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </MudTabPanel>
+
+            <MudTabPanel Text="Скарги">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4>Скарги користувачів</h4>
+                    <button class="btn btn-outline-primary"
+                            @onclick="ViewModel.LoadReportsCommand.ExecuteAsync">
+                        Оновити список
+                    </button>
+                </div>
+
+                @if (!ViewModel.Reports.Any())
+                {
+                    <p class="text-muted"><em>Немає скарг, що очікують розгляду.</em></p>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-striped align-middle">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Відправник</th>
+                                    <th>Тип</th>
+                                    <th>Ціль</th>
+                                    <th>Причина</th>
+                                    <th>Створено</th>
+                                    <th class="text-end">Дії</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var report in ViewModel.Reports)
+                                {
+                                    <tr>
+                                        <td>@report.Id</td>
+                                        <td>@report.ReporterInfo</td>
+                                        <td>@report.ReportedType</td>
+                                        <td>@report.ReportedEntityId</td>
+                                        <td>@report.Reason</td>
+                                        <td>@report.CreatedAt.ToLocalTime().ToShortDateString()</td>
+                                        <td class="text-end">
+                                            <button class="btn btn-sm btn-success me-1"
+                                                    @onclick="() => ViewModel.ResolveReportCommand.ExecuteAsync(report.Id)">
+                                                Вирішено
+                                            </button>
+                                            <button class="btn btn-sm btn-danger"
+                                                    @onclick="() => ViewModel.RejectReportCommand.ExecuteAsync(report.Id)">
+                                                Відхилено
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </MudTabPanel>
+        </MudTabs>
+    }
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+
+        if (CurrentUser.IsLoggedIn && CurrentUser.IsAdmin)
+        {
+            if (ViewModel.LoadModerationListingsCommand.CanExecute(null))
+            {
+                await ViewModel.LoadModerationListingsCommand.ExecuteAsync(null);
+            }
+        }
+    }
+
+    private void OnViewModelPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
+    }
+}
+
