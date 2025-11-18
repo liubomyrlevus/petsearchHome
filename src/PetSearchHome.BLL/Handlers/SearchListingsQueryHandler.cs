@@ -11,13 +11,12 @@ public class SearchListingsQueryHandler : IRequestHandler<SearchListingsQuery, I
     public async Task<IReadOnlyList<ListingCardDto>> Handle(SearchListingsQuery request, CancellationToken cancellationToken)
     {
         var listings = await _listingRepository.SearchAsync(
-            request.SearchQuery,
-            request.AnimalType,
-            request.City,
-            request.Status,
-            request.UserId,
-            cancellationToken
-        );
+        request.SearchQuery,
+        request.AnimalType,
+        request.City,
+        ListingStatus.active, 
+        cancellationToken     
+    );
         return listings.Select(l => new ListingCardDto
         {
             Id = l.Id,

@@ -27,7 +27,7 @@ public class CreateListingCommandHandler : IRequestHandler<CreateListingCommand,
             SpecialNeeds = request.SpecialNeeds,
             // Нові оголошення одразу робимо активними,
             // щоб вони з'являлися на головній сторінці.
-            Status = ListingStatus.active,
+            Status = ListingStatus.pending,
             Photos = request.PhotoUrls.Select((url, index) => new ListingPhoto
             {
                 Url = url,

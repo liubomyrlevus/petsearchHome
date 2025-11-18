@@ -23,7 +23,6 @@ public class GetListingsByStatusQueryHandler : IRequestHandler<GetListingsByStat
             animalType: null,
   city: null,
           status: request.Status,
-     userId: null,
     cancellationToken);
 
         var result = new List<ListingModerationDto>();
