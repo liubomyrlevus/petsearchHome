@@ -68,7 +68,7 @@
             </td>
    <td>@listing.CreatedAt.ToLocalTime().ToShortDateString()</td>
          <td class="text-end">
-      <a class="btn btn-sm btn-outline-secondary me-2" href="/listing/@listing.Id" target="_blank">
+      <a class="btn btn-sm btn-outline-secondary me-2" href="/listing/@listing.Id">
       Переглянути
   </a>
       <button class="btn btn-sm btn-success me-1"
@@ -129,7 +129,7 @@
      <td>
           @if (report.ReportedType == ReportTargetType.listing)
             {
-        <a href="/listing/@report.ReportedEntityId" target="_blank">
+        <a href="/listing/@report.ReportedEntityId">
      #@report.ReportedEntityId
        </a>
         }
