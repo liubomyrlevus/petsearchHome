@@ -15,10 +15,10 @@ namespace PetSearchHome.ViewModels;
 
 public partial class AdminPanelViewModel : ObservableObject
 {
-    private readonly IMediator _mediator;
+ private readonly IMediator _mediator;
     private readonly CurrentUserService _currentUserService;
 
-    [ObservableProperty] private ObservableCollection<ListingCardDto> _listingsForModeration = new();
+  [ObservableProperty] private ObservableCollection<ListingModerationDto> _listingsForModeration = new();
     [ObservableProperty] private ObservableCollection<ReportDto> _reports = new();
     [ObservableProperty] private bool _isBusy;
     [ObservableProperty] private string _errorMessage = string.Empty;
@@ -27,54 +27,56 @@ public partial class AdminPanelViewModel : ObservableObject
 
     public AdminPanelViewModel(IMediator mediator, CurrentUserService currentUserService)
     {
-        _mediator = mediator;
-        _currentUserService = currentUserService;
+  _mediator = mediator;
+     _currentUserService = currentUserService;
     }
 
     [RelayCommand]
-    private async Task LoadModerationListingsAsync()
+  private async Task LoadModerationListingsAsync()
     {
-        if (!IsAdmin)
-        {
-            ErrorMessage = "Недостатньо прав для перегляду цієї сторінки.";
-            return;
+    if (!IsAdmin)
+  {
+            ErrorMessage = "??????????? ???? ??? ????????? ???? ????????.";
+      return;
         }
 
         if (IsBusy) return;
         IsBusy = true;
-        ErrorMessage = string.Empty;
+   ErrorMessage = string.Empty;
 
         try
         {
-            var result = new ObservableCollection<ListingCardDto>();
+     var result = new ObservableCollection<ListingModerationDto>();
 
-            var drafts = await _mediator.Send(new SearchListingsQuery
+            // ????????? ?????????? ? ??????? Draft
+            var drafts = await _mediator.Send(new GetListingsByStatusQuery
             {
-                Status = ListingStatus.draft
+          Status = ListingStatus.draft
             });
 
             foreach (var l in drafts)
-            {
+        {
                 result.Add(l);
-            }
+    }
 
-            var pending = await _mediator.Send(new SearchListingsQuery
+            // ????????? ?????????? ? ??????? Pending (ModerationPending)
+            var pending = await _mediator.Send(new GetListingsByStatusQuery
             {
-                Status = ListingStatus.pending
-            });
+  Status = ListingStatus.pending
+    });
 
-            foreach (var l in pending.Where(p => result.All(r => r.Id != p.Id)))
-            {
-                result.Add(l);
-            }
+        foreach (var l in pending.Where(p => result.All(r => r.Id != p.Id)))
+         {
+           result.Add(l);
+   }
 
-            ListingsForModeration = result;
+     ListingsForModeration = result;
         }
-        catch (Exception ex)
+catch (Exception ex)
         {
             ErrorMessage = ex.Message;
         }
-        finally
+  finally
         {
             IsBusy = false;
         }
@@ -83,90 +85,77 @@ public partial class AdminPanelViewModel : ObservableObject
     [RelayCommand]
     private async Task ApproveListingAsync(int listingId)
     {
-        await ChangeListingStatusAsync(listingId, ListingStatus.active);
+     await ModerateListingAsync(listingId, ListingStatus.active, "???????? ???????????");
     }
 
     [RelayCommand]
     private async Task RejectListingAsync(int listingId)
     {
-        await ChangeListingStatusAsync(listingId, ListingStatus.rejected);
+        await ModerateListingAsync(listingId, ListingStatus.rejected, "????????? ???????????");
     }
 
-    private async Task ChangeListingStatusAsync(int listingId, ListingStatus newStatus)
+    private async Task ModerateListingAsync(int listingId, ListingStatus newStatus, string comment)
     {
-        if (!IsAdmin)
-        {
-            ErrorMessage = "Недостатньо прав для модерації оголошень.";
-            return;
-        }
+        if (!IsAdmin || !_currentUserService.UserId.HasValue)
+ {
+    ErrorMessage = "??????????? ???? ??? ????????? ?????????.";
+         return;
+      }
 
         try
         {
-            var details = await _mediator.Send(new GetListingDetailsQuery { Id = listingId });
-
-            var command = new UpdateListingCommand
+            var command = new ModerateListingCommand
             {
-                Id = details.Id,
-                UserId = details.UserId, // оновлення від імені власника
-                AnimalType = details.AnimalType,
-                Breed = details.Breed,
-                AgeMonths = details.AgeMonths ?? 0,
-                Sex = details.Sex ?? AnimalSex.unknown,
-                Size = details.Size ?? AnimalSize.unknown,
-                Color = details.Color ?? string.Empty,
-                City = details.City ?? string.Empty,
-                District = details.District ?? string.Empty,
-                Description = details.Description ?? string.Empty,
-                SpecialNeeds = details.SpecialNeeds,
-                HealthInfo = details.HealthInfo,
-                PhotoUrls = details.PhotoUrls ?? new System.Collections.Generic.List<string>(),
-                NewStatus = newStatus
-            };
+  ListingId = listingId,
+     ModeratorId = _currentUserService.UserId.Value,
+      NewStatus = newStatus,
+           ModerationComment = comment
+        };
 
             await _mediator.Send(command);
 
-            var listing = ListingsForModeration.FirstOrDefault(l => l.Id == listingId);
-            if (listing != null)
-            {
-                ListingsForModeration.Remove(listing);
-            }
+ var listing = ListingsForModeration.FirstOrDefault(l => l.Id == listingId);
+    if (listing != null)
+     {
+        ListingsForModeration.Remove(listing);
+}
         }
         catch (Exception ex)
         {
             ErrorMessage = ex.Message;
-        }
+      }
     }
 
     [RelayCommand]
     private async Task LoadReportsAsync()
-    {
-        if (!IsAdmin)
+ {
+ if (!IsAdmin)
         {
-            ErrorMessage = "Недостатньо прав для перегляду скарг.";
-            return;
+         ErrorMessage = "??????????? ???? ??? ????????? ?????.";
+        return;
         }
 
         if (IsBusy) return;
         IsBusy = true;
-        ErrorMessage = string.Empty;
+ErrorMessage = string.Empty;
 
         try
-        {
-            var reports = await _mediator.Send(new GetReportsByStatusQuery
-            {
-                Status = ReportStatus.pending
+  {
+     var reports = await _mediator.Send(new GetReportsByStatusQuery
+  {
+        Status = ReportStatus.pending
             });
 
-            Reports = new ObservableCollection<ReportDto>(reports);
+ Reports = new ObservableCollection<ReportDto>(reports);
         }
         catch (Exception ex)
         {
-            ErrorMessage = ex.Message;
-        }
-        finally
+   ErrorMessage = ex.Message;
+   }
+      finally
         {
-            IsBusy = false;
-        }
+     IsBusy = false;
+   }
     }
 
     [RelayCommand]
@@ -175,7 +164,7 @@ public partial class AdminPanelViewModel : ObservableObject
         await UpdateReportStatusInternalAsync(reportId, ReportStatus.confirmed);
     }
 
-    [RelayCommand]
+  [RelayCommand]
     private async Task RejectReportAsync(int reportId)
     {
         await UpdateReportStatusInternalAsync(reportId, ReportStatus.rejected);
@@ -185,31 +174,30 @@ public partial class AdminPanelViewModel : ObservableObject
     {
         if (!IsAdmin || !_currentUserService.UserId.HasValue)
         {
-            ErrorMessage = "Недостатньо прав для модерації скарг.";
+      ErrorMessage = "??????????? ???? ??? ????????? ?????.";
             return;
         }
 
-        try
-        {
-            var command = new UpdateReportStatusCommand
+      try
+    {
+    var command = new UpdateReportStatusCommand
             {
-                ReportId = reportId,
-                NewStatus = newStatus,
-                ModeratorId = _currentUserService.UserId.Value
-            };
+        ReportId = reportId,
+      NewStatus = newStatus,
+       ModeratorId = _currentUserService.UserId.Value
+      };
 
-            await _mediator.Send(command);
+   await _mediator.Send(command);
 
-            var report = Reports.FirstOrDefault(r => r.Id == reportId);
-            if (report != null)
-            {
-                Reports.Remove(report);
-            }
+   var report = Reports.FirstOrDefault(r => r.Id == reportId);
+         if (report != null)
+       {
+         Reports.Remove(report);
+          }
         }
         catch (Exception ex)
-        {
-            ErrorMessage = ex.Message;
+   {
+      ErrorMessage = ex.Message;
         }
     }
 }
-

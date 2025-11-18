@@ -13,7 +13,7 @@ public class GetListingDetailsQueryHandler : IRequestHandler<GetListingDetailsQu
     public async Task<ListingDetailsDto> Handle(GetListingDetailsQuery request, CancellationToken cancellationToken)
     {
         var listing = await _listingRepository.GetByIdAsync(request.Id, cancellationToken);
-        if (listing == null || listing.Status != ListingStatus.active) { throw new Exception("Listing not found or not active."); }
+        if (listing == null || listing.Status == ListingStatus.archived || listing.Status == ListingStatus.rejected) { throw new Exception("Listing not found or not active."); }
         var owner = await _userRepository.GetByIdAsync(listing.UserId, cancellationToken);
         if (owner == null) { throw new Exception("Owner not found."); }
         var dto = new ListingDetailsDto

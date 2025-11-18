@@ -128,6 +128,16 @@ public class ListingRepository : IListingRepository
 
     public async Task<int> AddAsync(Listing listing, CancellationToken cancellationToken = default)
     {
+        // Ensure UTC kinds
+        if (listing.CreatedAt.Kind == DateTimeKind.Unspecified)
+        {
+            listing.CreatedAt = DateTime.SpecifyKind(listing.CreatedAt, DateTimeKind.Utc);
+        }
+        if (listing.UpdatedAt.HasValue && listing.UpdatedAt.Value.Kind == DateTimeKind.Unspecified)
+        {
+            listing.UpdatedAt = DateTime.SpecifyKind(listing.UpdatedAt.Value, DateTimeKind.Utc);
+        }
+
         await using var _context = await _contextFactory.CreateDbContextAsync(cancellationToken);
         var entry = await _context.Listings.AddAsync(listing, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
@@ -136,6 +146,16 @@ public class ListingRepository : IListingRepository
 
     public async Task UpdateAsync(Listing listing, CancellationToken cancellationToken = default)
     {
+        // Normalize DateTime kinds to UTC to satisfy Npgsql timestamptz requirements
+        if (listing.CreatedAt.Kind == DateTimeKind.Unspecified)
+        {
+            listing.CreatedAt = DateTime.SpecifyKind(listing.CreatedAt, DateTimeKind.Utc);
+        }
+        if (listing.UpdatedAt.HasValue && listing.UpdatedAt.Value.Kind == DateTimeKind.Unspecified)
+        {
+            listing.UpdatedAt = DateTime.SpecifyKind(listing.UpdatedAt.Value, DateTimeKind.Utc);
+        }
+
         await using var _context = await _contextFactory.CreateDbContextAsync(cancellationToken);
         _context.Listings.Update(listing);
         await _context.SaveChangesAsync(cancellationToken);
@@ -372,6 +392,16 @@ public class ReportRepository : IReportRepository
 
     public async Task AddAsync(Report report, CancellationToken cancellationToken = default)
     {
+        // Normalize DateTime kinds to UTC
+        if (report.CreatedAt.Kind == DateTimeKind.Unspecified)
+        {
+            report.CreatedAt = DateTime.SpecifyKind(report.CreatedAt, DateTimeKind.Utc);
+        }
+        if (report.ResolvedAt.HasValue && report.ResolvedAt.Value.Kind == DateTimeKind.Unspecified)
+        {
+            report.ResolvedAt = DateTime.SpecifyKind(report.ResolvedAt.Value, DateTimeKind.Utc);
+        }
+
         await using var _context = await _contextFactory.CreateDbContextAsync(cancellationToken);
         await _context.Reports.AddAsync(report, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
@@ -379,6 +409,16 @@ public class ReportRepository : IReportRepository
 
     public async Task UpdateAsync(Report report, CancellationToken cancellationToken = default)
     {
+        // Normalize DateTime kinds to UTC
+        if (report.CreatedAt.Kind == DateTimeKind.Unspecified)
+        {
+            report.CreatedAt = DateTime.SpecifyKind(report.CreatedAt, DateTimeKind.Utc);
+        }
+        if (report.ResolvedAt.HasValue && report.ResolvedAt.Value.Kind == DateTimeKind.Unspecified)
+        {
+            report.ResolvedAt = DateTime.SpecifyKind(report.ResolvedAt.Value, DateTimeKind.Utc);
+        }
+
         await using var _context = await _contextFactory.CreateDbContextAsync(cancellationToken);
         _context.Reports.Update(report);
         await _context.SaveChangesAsync(cancellationToken);

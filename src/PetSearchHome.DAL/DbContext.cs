@@ -2,6 +2,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PetSearchHome.BLL.Domain.Entities;
 using PetSearchHome.BLL.Domain.Enums;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Npgsql;
 
 namespace PetSearchHome.DAL;
 
@@ -47,6 +52,30 @@ public class ApplicationDbContext : DbContext
             entity.HasOne(u => u.ShelterProfile)
                   .WithOne(s => s.User)
                   .HasForeignKey<ShelterProfile>(s => s.UserId);
+
+            // Seed ???????? ??????????????
+            entity.HasData(
+                new RegisteredUser
+                {
+                    Id = 1111111,
+                    Email = "admin@petsearchhome.com",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123!"),
+                    UserType = UserType.individual,
+                    IsAdmin = true,
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new RegisteredUser
+                {
+                    Id = 22222222,
+                    Email = "moderator@petsearchhome.com",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("Moderator123!"),
+                    UserType = UserType.individual,
+                    IsAdmin = true,
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                }
+            );
         });
 
         // IndividualProfile
