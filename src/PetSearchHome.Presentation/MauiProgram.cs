@@ -73,6 +73,8 @@ public static class MauiProgram
         services.AddTransient<CreateListingViewModel>();
         services.AddTransient<ListingDetailsViewModel>();
         services.AddTransient<FavoritesViewModel>();
+        services.AddTransient<UserProfileViewModel>();
+        services.AddTransient<MyListingsViewModel>();
 
         services.AddTransient<LoginPage>();
         services.AddTransient<Home>();
@@ -80,6 +82,8 @@ public static class MauiProgram
         services.AddTransient<CreateListingPage>();
         services.AddTransient<ListingDetails>();
         services.AddTransient<Favorites>();
+        services.AddTransient<UserProfile>();
+        services.AddTransient<MyListings>();
 
 #if DEBUG
         services.AddBlazorWebViewDeveloperTools();

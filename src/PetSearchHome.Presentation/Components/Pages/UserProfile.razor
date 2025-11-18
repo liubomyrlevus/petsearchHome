@@ -1,0 +1,142 @@
+@page "/profile"
+@inject PetSearchHome.ViewModels.UserProfileViewModel ViewModel
+@implements IDisposable
+@using PetSearchHome.BLL.Domain.Enums
+
+<PageTitle>Профіль користувача</PageTitle>
+
+<div class="page-container">
+    <h1>Мій профіль</h1>
+
+    @if (ViewModel.IsBusy)
+    {
+        <p><em>Завантажуємо дані...</em></p>
+    }
+    else if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
+    {
+        <div class="alert alert-danger">@ViewModel.ErrorMessage</div>
+    }
+    else if (ViewModel.Profile is null)
+    {
+        <p><em>Дані профілю недоступні.</em></p>
+    }
+    else
+    {
+        <div class="card mb-4">
+            <div class="card-body">
+                <h3 class="card-title">Основна інформація</h3>
+                <p><strong>Email:</strong> @ViewModel.Profile.Email</p>
+                <p>
+                    <strong>Тип облікового запису:</strong>
+                    @(ViewModel.Profile.UserType == UserType.shelter ? "Притулок" : "Приватна особа")
+                </p>
+
+                @if (ViewModel.IsIndividual && ViewModel.Profile.IndividualProfile is not null)
+                {
+                    <ul class="list-unstyled mb-0">
+                        <li><strong>Ім'я:</strong> @ViewModel.Profile.IndividualProfile.FirstName</li>
+                        <li><strong>Прізвище:</strong> @ViewModel.Profile.IndividualProfile.LastName</li>
+                        <li><strong>Місто:</strong> @ViewModel.Profile.IndividualProfile.City</li>
+                        <li><strong>Район:</strong> @ViewModel.Profile.IndividualProfile.District</li>
+                    </ul>
+                }
+                else if (ViewModel.IsShelter && ViewModel.Profile.ShelterProfile is not null)
+                {
+                    <ul class="list-unstyled mb-0">
+                        <li><strong>Назва притулку:</strong> @ViewModel.Profile.ShelterProfile.Name</li>
+                        <li><strong>Контактна особа:</strong> @ViewModel.Profile.ShelterProfile.ContactPerson</li>
+                        <li><strong>Адреса:</strong> @ViewModel.Profile.ShelterProfile.Address</li>
+                    </ul>
+                }
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title">Контакти</h3>
+                @if (!string.IsNullOrEmpty(ViewModel.SuccessMessage))
+                {
+                    <div class="alert alert-success">@ViewModel.SuccessMessage</div>
+                }
+
+                <EditForm Model="ViewModel.ContactForm"
+                          OnValidSubmit="ViewModel.SaveContactsCommand.ExecuteAsync">
+                    <div class="row g-3">
+                        @if (ViewModel.IsIndividual)
+                        {
+                            <div class="col-md-6">
+                                <label class="form-label">Телефон</label>
+                                <InputText @bind-Value="ViewModel.ContactForm.Phone" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Місто</label>
+                                <InputText @bind-Value="ViewModel.ContactForm.City" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Район</label>
+                                <InputText @bind-Value="ViewModel.ContactForm.District" class="form-control" />
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label">Додаткова інформація</label>
+                                <InputTextArea @bind-Value="ViewModel.ContactForm.AdditionalInfo" class="form-control" rows="3" />
+                            </div>
+                        }
+                        else if (ViewModel.IsShelter)
+                        {
+                            <div class="col-md-6">
+                                <label class="form-label">Контактна особа</label>
+                                <InputText @bind-Value="ViewModel.ContactForm.ContactPerson" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Телефон</label>
+                                <InputText @bind-Value="ViewModel.ContactForm.Phone" class="form-control" />
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label">Адреса</label>
+                                <InputText @bind-Value="ViewModel.ContactForm.Address" class="form-control" />
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label">Опис</label>
+                                <InputTextArea @bind-Value="ViewModel.ContactForm.Description" class="form-control" rows="3" />
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="col-12">
+                                <p class="text-muted">Щоб оновити контакти, увійдіть до свого профілю.</p>
+                            </div>
+                        }
+                    </div>
+
+                    <button type="submit"
+                            class="btn btn-primary mt-3"
+                            disabled="@ViewModel.IsBusy">
+                        Зберегти контакти
+                    </button>
+                </EditForm>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+
+        if (ViewModel.LoadProfileCommand.CanExecute(null))
+        {
+            await ViewModel.LoadProfileCommand.ExecuteAsync(null);
+        }
+    }
+
+    private void OnViewModelPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
+    }
+}

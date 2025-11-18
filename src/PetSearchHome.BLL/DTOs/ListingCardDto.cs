@@ -8,5 +8,6 @@ public class ListingCardDto
     public string? Breed { get; set; }
     public int? AgeMonths { get; set; }
     public string? City { get; set; }
+    public ListingStatus Status { get; set; }
 }
 // DTO для короткого відображення оголошення в загальному списку (каталозі).

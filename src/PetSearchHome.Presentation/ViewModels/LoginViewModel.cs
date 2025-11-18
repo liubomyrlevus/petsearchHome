@@ -1,11 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using Microsoft.AspNetCore.Components;
 using PetSearchHome.BLL.Queries;
+using PetSearchHome.Presentation.Services;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
-using PetSearchHome.Presentation.Services;
 
 namespace PetSearchHome.ViewModels;
 
@@ -16,13 +16,13 @@ public partial class LoginViewModel : ObservableValidator
     private readonly CurrentUserService _currentUserService;
 
     [ObservableProperty]
-    [Required(ErrorMessage = "Поле Email є обов'язковим")]
-    [EmailAddress(ErrorMessage = "Введіть коректний формат email")]
+    [Required(ErrorMessage = "Поле Email є обов'язковим.")]
+    [EmailAddress(ErrorMessage = "Введіть коректну адресу електронної пошти.")]
     private string _email = string.Empty;
 
     [ObservableProperty]
-    [Required(ErrorMessage = "Поле Пароль є обов'язковим")]
-    [MinLength(6, ErrorMessage = "Пароль має містити щонайменше 6 символів")]
+    [Required(ErrorMessage = "Поле «Пароль» є обов'язковим.")]
+    [MinLength(6, ErrorMessage = "Пароль має містити щонайменше 6 символів.")]
     private string _password = string.Empty;
 
     [ObservableProperty]
@@ -82,4 +82,3 @@ public partial class LoginViewModel : ObservableValidator
         }
     }
 }
-

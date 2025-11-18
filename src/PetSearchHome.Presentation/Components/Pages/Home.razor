@@ -5,81 +5,91 @@
 
 <PageTitle>Головна</PageTitle>
 
-<h1>Пошук тварин</h1>
-<p>Знайдіть свого майбутнього улюбленця.</p>
+<div class="page-container home-page">
+    <header class="page-header">
+        <h1>Знайдіть дім для улюбленця</h1>
+        <p>Допомагаємо притулкам і власникам тварин знайти турботливих людей, які подарують нову домівку.</p>
+    </header>
 
-<div class="filter-form">
-    <div class="row g-2">
-        <div class="col-md-5">
-            <InputText @bind-Value="ViewModel.SearchTerm"
-                       @onchange="ViewModel.LoadListingsCommand.ExecuteAsync"
-                       class="form-control"
-                       placeholder="Порода, опис, ключові слова..." />
-        </div>
-        <div class="col-md-3">
-            <InputSelect @bind-Value="ViewModel.SelectedAnimalType"
-                         @onchange="ViewModel.LoadListingsCommand.ExecuteAsync"
-                         class="form-select">
-                <option value="">-- Всі тварини --</option>
-                <option value="@AnimalType.dog">Собака</option>
-                <option value="@AnimalType.cat">Кіт / Кішка</option>
-                <option value="@AnimalType.bird">Птах</option>
-                <option value="@AnimalType.other">Інше</option>
-            </InputSelect>
-        </div>
-        <div class="col-md-2">
-            <InputText @bind-Value="ViewModel.City"
-                       @onchange="ViewModel.LoadListingsCommand.ExecuteAsync"
-                       class="form-control"
-                       placeholder="Місто..." />
-        </div>
-        <div class="col-md-2">
-            <button type="button"
-                    class="btn btn-primary w-100"
-                    @onclick="ViewModel.LoadListingsCommand.ExecuteAsync">
-                Пошук
-            </button>
-        </div>
-    </div>
-</div>
-<hr />
-
-@if (ViewModel.IsBusy)
-{
-    <p><em>Завантаження оголошень...</em></p>
-}
-else if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
-{
-    <div class="alert alert-danger">@ViewModel.ErrorMessage</div>
-}
-else if (!ViewModel.Listings.Any())
-{
-    <p><em>За даними фільтрами оголошень не знайдено.</em></p>
-}
-else
-{
-    <div class="pet-catalog-grid">
-        @foreach (var listing in ViewModel.Listings)
-        {
-            <div class="pet-card">
-                <img src="@(string.IsNullOrEmpty(listing.MainPhotoUrl) ? "/images/default-pet.png" : listing.MainPhotoUrl)"
-                     alt="Фото тварини" />
-
-                <button class="favorite-btn"
-                        @onclick="() => ViewModel.ToggleFavoriteCommand.ExecuteAsync(listing.Id)">
-                    @(ViewModel.IsFavorite(listing.Id) ? "В улюблених" : "Додати в улюблені")
-                </button>
-
-                <div class="pet-card-body">
-                    <h5>@listing.Breed</h5>
-                    <p>@listing.City</p>
-                    <p>Тип: @listing.AnimalType, вік: @listing.AgeMonths міс.</p>
-                    <a href="/listing/@listing.Id" class="btn btn-primary">Деталі</a>
-                </div>
+    <section class="filter-form card-panel">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label fw-semibold">Ключові слова</label>
+                <InputText @bind-Value="ViewModel.SearchTerm"
+                           @onchange="ViewModel.LoadListingsCommand.ExecuteAsync"
+                           class="form-control"
+                           placeholder="Порода, кличка або особливість..." />
             </div>
-        }
-    </div>
-}
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">Тип тварини</label>
+                <InputSelect @bind-Value="ViewModel.SelectedAnimalType"
+                             @onchange="ViewModel.LoadListingsCommand.ExecuteAsync"
+                             class="form-select">
+                    <option value="">-- Оберіть вид --</option>
+                    <option value="@AnimalType.dog">Собака</option>
+                    <option value="@AnimalType.cat">Кіт / Кішка</option>
+                    <option value="@AnimalType.bird">Птах</option>
+                    <option value="@AnimalType.rodent">Гризун</option>
+                    <option value="@AnimalType.reptile">Рептилія</option>
+                    <option value="@AnimalType.other">Інший</option>
+                </InputSelect>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label fw-semibold">Місто</label>
+                <InputText @bind-Value="ViewModel.City"
+                           @onchange="ViewModel.LoadListingsCommand.ExecuteAsync"
+                           class="form-control"
+                           placeholder="Напр., Львів" />
+            </div>
+            <div class="col-md-2 d-grid">
+                <button type="button"
+                        class="btn btn-primary"
+                        @onclick="ViewModel.LoadListingsCommand.ExecuteAsync">
+                    Знайти
+                </button>
+            </div>
+        </div>
+    </section>
+
+    @if (ViewModel.IsBusy)
+    {
+        <p class="text-muted"><em>Завантажуємо оголошення...</em></p>
+    }
+    else if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
+    {
+        <div class="alert alert-danger">@ViewModel.ErrorMessage</div>
+    }
+    else if (!ViewModel.Listings.Any())
+    {
+        <p class="text-muted"><em>За заданими критеріями нічого не знайдено. Спробуйте змінити фільтри.</em></p>
+    }
+    else
+    {
+        <section class="catalog-section">
+            <div class="pet-catalog-grid">
+                @foreach (var listing in ViewModel.Listings)
+                {
+                    <article class="pet-card">
+                        <img src="@(string.IsNullOrEmpty(listing.MainPhotoUrl) ? "/images/default-pet.png" : listing.MainPhotoUrl)"
+                             alt="Фото тварини" />
+
+                        <button class="favorite-btn"
+                                @onclick="() => ViewModel.ToggleFavoriteCommand.ExecuteAsync(listing.Id)">
+                            @(ViewModel.IsFavorite(listing.Id) ? "В обраному" : "Додати в обране")
+                        </button>
+
+                        <div class="pet-card-body">
+                            <h5>@(listing.Breed ?? "Без назви")</h5>
+                            <p class="text-muted">@listing.City</p>
+                            <p>Тип: @listing.AnimalType.ToUkrainianLabel(), вік: @FormatAge(listing.AgeMonths).</p>
+                            <a href="/listing/@listing.Id" class="btn btn-outline-primary w-100">Детальніше</a>
+                        </div>
+                    </article>
+                }
+            </div>
+        </section>
+    }
+</div>
 
 @code {
     protected override async Task OnInitializedAsync()
@@ -101,5 +111,13 @@ else
     {
         ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
     }
-}
 
+    private static string FormatAge(int? months) =>
+        months switch
+        {
+            null => "не вказано",
+            1 => "1 місяць",
+            >= 2 and <= 4 => $"{months} місяці",
+            _ => $"{months} місяців"
+        };
+}

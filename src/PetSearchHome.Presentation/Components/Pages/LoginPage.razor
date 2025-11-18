@@ -4,60 +4,64 @@
 @inject NavigationManager NavigationManager
 @implements IDisposable
 
-<PageTitle>Вхід до системи</PageTitle>
+<PageTitle>Вхід</PageTitle>
 
-<EditForm class="login-form" Model="ViewModel" OnValidSubmit="ViewModel.LoginCommand.ExecuteAsync">
-    <DataAnnotationsValidator />
+<div class="page-container auth-page">
+    <EditForm class="login-form" Model="ViewModel" OnValidSubmit="ViewModel.LoginCommand.ExecuteAsync">
+        <DataAnnotationsValidator />
 
-    <div class="form-field">
-        <label for="emailInput">Email</label>
-        <InputText id="emailInput"
-                   @bind-Value="ViewModel.Email"
-                   type="email"
-                   placeholder="Email" />
-        <ValidationMessage For="@(() => ViewModel.Email)" />
-    </div>
+        <h3>Увійдіть до PetSearchHome</h3>
 
-    <div class="form-field">
-        <label for="passwordInput">Пароль</label>
-        <InputText id="passwordInput"
-                   @bind-Value="ViewModel.Password"
-                   type="password"
-                   placeholder="Password" />
-        <ValidationMessage For="@(() => ViewModel.Password)" />
-    </div>
+        <div class="form-field">
+            <label for="emailInput">Email</label>
+            <InputText id="emailInput"
+                       @bind-Value="ViewModel.Email"
+                       type="email"
+                       placeholder="example@gmail.com" />
+            <ValidationMessage For="@(() => ViewModel.Email)" />
+        </div>
 
-    <div class="form-footer">
-        <label class="remember-me">
-            <input type="checkbox" @bind="ViewModel.RememberMe" />
-            <span>Запам'ятати мене</span>
-        </label>
+        <div class="form-field">
+            <label for="passwordInput">Пароль</label>
+            <InputText id="passwordInput"
+                       @bind-Value="ViewModel.Password"
+                       type="password"
+                       placeholder="Введіть пароль" />
+            <ValidationMessage For="@(() => ViewModel.Password)" />
+        </div>
 
-        <button type="button" class="link-button" @onclick="ForgotPassword">
-            Забув пароль?
-        </button>
-    </div>
+        <div class="form-footer">
+            <label class="remember-me">
+                <input type="checkbox" @bind="ViewModel.RememberMe" />
+                <span>Запам'ятати мене</span>
+            </label>
 
-    @if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
-    {
-        <div class="error-message">@ViewModel.ErrorMessage</div>
-    }
+            <button type="button" class="link-button" @onclick="ForgotPassword">
+                Забули пароль?
+            </button>
+        </div>
 
-    <div class="actions">
-        <button type="submit" class="primary" disabled="@(!ViewModel.CanLogin)">
-            @if (ViewModel.IsBusy)
-            {
-                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-            }
-            else
-            {
-                <span>Увійти</span>
-            }
-        </button>
-        <button type="button" @onclick="GoToRegister">Зареєструватися</button>
-        <button type="button" @onclick="ContinueAsGuest">Продовжити як гість</button>
-    </div>
-</EditForm>
+        @if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
+        {
+            <div class="error-message">@ViewModel.ErrorMessage</div>
+        }
+
+        <div class="actions">
+            <button type="submit" class="primary" disabled="@(!ViewModel.CanLogin)">
+                @if (ViewModel.IsBusy)
+                {
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                }
+                else
+                {
+                    <span>Увійти</span>
+                }
+            </button>
+            <button type="button" @onclick="GoToRegister">Створити обліковий запис</button>
+            <button type="button" @onclick="ContinueAsGuest">Продовжити як гість</button>
+        </div>
+    </EditForm>
+</div>
 
 @code {
     protected override void OnInitialized()

@@ -37,8 +37,6 @@ public partial class ListingDetailsViewModel : ObservableObject
         try
         {
             Listing = await _mediator.Send(new GetListingDetailsQuery { Id = listingId });
-
-            // Початковий стан "Улюблене" – локальний, без додаткового запиту.
             IsFavorite = false;
         }
         catch (Exception ex)
@@ -58,7 +56,7 @@ public partial class ListingDetailsViewModel : ObservableObject
 
         if (!_currentUserService.IsLoggedIn)
         {
-            ErrorMessage = "Щоб керувати \"Улюбленими\", увійдіть у систему.";
+            ErrorMessage = "Увійдіть до облікового запису, щоб додати оголошення в обране.";
             return;
         }
 
@@ -91,4 +89,3 @@ public partial class ListingDetailsViewModel : ObservableObject
         }
     }
 }
-

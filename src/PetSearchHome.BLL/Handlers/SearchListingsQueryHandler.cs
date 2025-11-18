@@ -14,7 +14,8 @@ public class SearchListingsQueryHandler : IRequestHandler<SearchListingsQuery, I
             request.SearchQuery,
             request.AnimalType,
             request.City,
-            ListingStatus.active, 
+            request.Status,
+            request.UserId,
             cancellationToken
         );
         return listings.Select(l => new ListingCardDto
@@ -24,7 +25,8 @@ public class SearchListingsQueryHandler : IRequestHandler<SearchListingsQuery, I
             AnimalType = l.AnimalType,
             Breed = l.Breed,
             AgeMonths = l.AgeMonths,
-            City = l.City
+            City = l.City,
+            Status = l.Status
         }).ToList();
     }
 }

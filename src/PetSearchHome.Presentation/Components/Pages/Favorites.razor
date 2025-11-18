@@ -2,45 +2,50 @@
 @inject PetSearchHome.ViewModels.FavoritesViewModel ViewModel
 @implements IDisposable
 
-<PageTitle>Улюблені</PageTitle>
+<PageTitle>Обране</PageTitle>
 
-<h1>Мої улюблені оголошення</h1>
+<div class="page-container">
+    <header class="page-header">
+        <h1>Збережені оголошення</h1>
+        <p class="text-muted">Тут відображаються тварини, яких ви додали в обране.</p>
+    </header>
 
-@if (ViewModel.IsBusy)
-{
-    <p><em>Завантаження улюблених...</em></p>
-}
-else if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
-{
-    <div class="alert alert-danger">@ViewModel.ErrorMessage</div>
-}
-else if (!ViewModel.Favorites.Any())
-{
-    <p><em>У вас ще немає збережених оголошень.</em></p>
-}
-else
-{
-    <div class="pet-catalog-grid">
-        @foreach (var item in ViewModel.Favorites)
-        {
-            <div class="pet-card">
-                <img src="@(string.IsNullOrEmpty(item.MainPhotoUrl) ? "/images/default-pet.png" : item.MainPhotoUrl)"
-                     alt="Фото тварини" />
+    @if (ViewModel.IsBusy)
+    {
+        <p class="text-muted"><em>Завантажуємо обрані оголошення...</em></p>
+    }
+    else if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
+    {
+        <div class="alert alert-danger">@ViewModel.ErrorMessage</div>
+    }
+    else if (!ViewModel.Favorites.Any())
+    {
+        <p class="text-muted"><em>Список обраних поки порожній.</em></p>
+    }
+    else
+    {
+        <div class="pet-catalog-grid">
+            @foreach (var item in ViewModel.Favorites)
+            {
+                <article class="pet-card">
+                    <img src="@(string.IsNullOrEmpty(item.MainPhotoUrl) ? "/images/default-pet.png" : item.MainPhotoUrl)"
+                         alt="Фото тварини" />
 
-                <button class="favorite-btn"
-                        @onclick="() => ViewModel.RemoveFavoriteCommand.ExecuteAsync(item.ListingId)">
-                    Видалити з улюблених
-                </button>
+                    <button class="favorite-btn"
+                            @onclick="() => ViewModel.RemoveFavoriteCommand.ExecuteAsync(item.ListingId)">
+                        Прибрати з обраних
+                    </button>
 
-                <div class="pet-card-body">
-                    <h5>@item.Breed</h5>
-                    <p>Тип: @item.AnimalType</p>
-                    <a href="/listing/@item.ListingId" class="btn btn-primary">Деталі</a>
-                </div>
-            </div>
-        }
-    </div>
-}
+                    <div class="pet-card-body">
+                        <h5>@(item.Breed ?? "Без назви")</h5>
+                        <p>Тип: @item.AnimalType.ToUkrainianLabel()</p>
+                        <a href="/listing/@item.ListingId" class="btn btn-outline-primary w-100">Переглянути</a>
+                    </div>
+                </article>
+            }
+        </div>
+    }
+</div>
 
 @code {
     protected override async Task OnInitializedAsync()
@@ -63,4 +68,3 @@ else
         ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
     }
 }
-

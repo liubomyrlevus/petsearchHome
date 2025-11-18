@@ -80,10 +80,11 @@ public class ListingRepository : IListingRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<Listing>> SearchAsync(string? searchQuery, AnimalType? animalType, string? city, ListingStatus? status, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<Listing>> SearchAsync(string? searchQuery, AnimalType? animalType, string? city, ListingStatus? status, int? userId, CancellationToken cancellationToken = default)
     {
         var query = _context.Listings.AsQueryable();
         if (status.HasValue) query = query.Where(l => l.Status == status.Value);
+        if (userId.HasValue) query = query.Where(l => l.UserId == userId.Value);
         if (animalType.HasValue) query = query.Where(l => l.AnimalType == animalType.Value);
         if (!string.IsNullOrWhiteSpace(city)) query = query.Where(l => l.City.ToLower().Contains(city.ToLower()));
         if (!string.IsNullOrWhiteSpace(searchQuery))

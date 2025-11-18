@@ -36,7 +36,7 @@ public partial class FavoritesViewModel : ObservableObject
 
         if (!_currentUserService.IsLoggedIn)
         {
-            ErrorMessage = "Щоб переглядати \"Улюблені\", увійдіть у систему.";
+            ErrorMessage = "Увійдіть до облікового запису, щоб переглянути обране.";
             return;
         }
 
@@ -70,7 +70,7 @@ public partial class FavoritesViewModel : ObservableObject
     {
         if (!_currentUserService.IsLoggedIn)
         {
-            ErrorMessage = "Щоб керувати \"Улюбленими\", увійдіть у систему.";
+            ErrorMessage = "Авторизуйтеся, щоб керувати списком обраного.";
             return;
         }
 
@@ -94,4 +94,3 @@ public partial class FavoritesViewModel : ObservableObject
         }
     }
 }
-

@@ -18,15 +18,15 @@ public partial class CreateListingViewModel : ObservableValidator
     private readonly CurrentUserService _currentUserService;
 
     [ObservableProperty]
-    [Required(ErrorMessage = "Тип тварини є обов'язковим")]
+    [Required(ErrorMessage = "Поле «Тип тварини» є обов'язковим.")]
     private AnimalType _animalType = AnimalType.unknown;
 
     [ObservableProperty]
-    [Required(ErrorMessage = "Порода є обов'язковою")]
+    [Required(ErrorMessage = "Вкажіть породу або кличку.")]
     private string _breed = string.Empty;
 
     [ObservableProperty]
-    [Range(0, 360, ErrorMessage = "Вік має бути від 0 до 360 місяців")]
+    [Range(0, 360, ErrorMessage = "Вік має бути в діапазоні від 0 до 360 місяців.")]
     private int? _ageMonths;
 
     [ObservableProperty]
@@ -39,15 +39,15 @@ public partial class CreateListingViewModel : ObservableValidator
     private string? _color;
 
     [ObservableProperty]
-    [Required(ErrorMessage = "Місто є обов'язковим")]
+    [Required(ErrorMessage = "Місто є обов'язковим полем.")]
     private string _city = string.Empty;
 
     [ObservableProperty]
     private string? _district;
 
     [ObservableProperty]
-    [Required(ErrorMessage = "Опис є обов'язковим")]
-    [MinLength(10, ErrorMessage = "Опис має містити щонайменше 10 символів")]
+    [Required(ErrorMessage = "Додайте короткий опис.")]
+    [MinLength(10, ErrorMessage = "Опис має містити щонайменше 10 символів.")]
     private string _description = string.Empty;
 
     [ObservableProperty]
@@ -98,7 +98,7 @@ public partial class CreateListingViewModel : ObservableValidator
 
         if (!_currentUserService.IsLoggedIn)
         {
-            ErrorMessage = "Щоб створити оголошення, спочатку увійдіть у систему.";
+            ErrorMessage = "Увійдіть, щоб створити оголошення.";
             return;
         }
 
@@ -140,9 +140,8 @@ public partial class CreateListingViewModel : ObservableValidator
 
             var listingId = await _mediator.Send(command);
 
-            // Після успішного створення повертаємося на головну сторінку,
-            // де нове оголошення буде доступне в загальному списку.
-            _navigationManager.NavigateTo("/home", replace: true);
+            // Після створення оголошення повертаємо користувача на головну сторінку.
+            _navigationManager.NavigateTo($"/listing/{listingId}", replace: true);
         }
         catch (System.Exception ex)
         {

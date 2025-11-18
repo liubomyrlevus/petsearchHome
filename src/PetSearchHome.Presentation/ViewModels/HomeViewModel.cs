@@ -1,16 +1,16 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
-using PetSearchHome.BLL.DTOs;
-using PetSearchHome.BLL.Queries;
 using PetSearchHome.BLL.Commands;
 using PetSearchHome.BLL.Domain.Enums;
+using PetSearchHome.BLL.DTOs;
 using PetSearchHome.Presentation.Services;
-using System.Collections.ObjectModel;
-using System.Threading.Tasks;
+using PetSearchHome.BLL.Queries;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace PetSearchHome.ViewModels;
 
@@ -20,12 +20,12 @@ public partial class HomeViewModel : ObservableValidator
     private readonly CurrentUserService _currentUserService;
     private HashSet<int> _favoriteListingIds = new();
 
-    [ObservableProperty] private string _searchTerm;
+    [ObservableProperty] private string _searchTerm = string.Empty;
     [ObservableProperty] private AnimalType? _selectedAnimalType;
-    [ObservableProperty] private string _city;
+    [ObservableProperty] private string _city = string.Empty;
     [ObservableProperty] private ObservableCollection<ListingCardDto> _listings = new();
     [ObservableProperty] private bool _isBusy;
-    [ObservableProperty] private string _errorMessage;
+    [ObservableProperty] private string _errorMessage = string.Empty;
 
     public HomeViewModel(IMediator mediator, CurrentUserService currentUserService)
     {
@@ -44,9 +44,9 @@ public partial class HomeViewModel : ObservableValidator
         {
             var query = new SearchListingsQuery
             {
-                SearchQuery = this.SearchTerm,
-                AnimalType = this.SelectedAnimalType,
-                City = this.City
+                SearchQuery = SearchTerm,
+                AnimalType = SelectedAnimalType,
+                City = City
             };
 
             var result = await _mediator.Send(query);
@@ -76,7 +76,7 @@ public partial class HomeViewModel : ObservableValidator
     {
         if (!_currentUserService.IsLoggedIn)
         {
-            ErrorMessage = "Щоб додати в \"Улюблені\", увійдіть у систему.";
+            ErrorMessage = "Щоб працювати з обраним, спочатку увійдіть у систему.";
             return;
         }
 
@@ -107,7 +107,7 @@ public partial class HomeViewModel : ObservableValidator
         }
         catch (Exception ex)
         {
-            ErrorMessage = $"Помилка: {ex.Message}";
+            ErrorMessage = $"Сталася помилка: {ex.Message}";
         }
     }
 
@@ -130,8 +130,7 @@ public partial class HomeViewModel : ObservableValidator
         }
         catch
         {
-            // Ігноруємо помилки завантаження улюблених.
+            // Ігноруємо помилки завантаження списку обраного, щоб не блокувати основну сторінку.
         }
     }
 }
-

@@ -13,6 +13,7 @@ public interface IListingRepository
         AnimalType? animalType,
         string? city,
         ListingStatus? status,
+        int? userId,
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<Listing>> GetByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default);

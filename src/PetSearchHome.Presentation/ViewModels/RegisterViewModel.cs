@@ -22,13 +22,13 @@ public partial class RegisterViewModel : ObservableValidator
     private string _selectedUserType;
 
     [ObservableProperty]
-    [Required(ErrorMessage = "Email є обов'язковим.")]
-    [EmailAddress]
+    [Required(ErrorMessage = "Поле Email є обов'язковим.")]
+    [EmailAddress(ErrorMessage = "Введіть коректний Email.")]
     private string _email = string.Empty;
 
     [ObservableProperty]
-    [Required(ErrorMessage = "Пароль є обов'язковим.")]
-    [MinLength(6, ErrorMessage = "Пароль повинен містити щонайменше 6 символів.")]
+    [Required(ErrorMessage = "Вкажіть пароль.")]
+    [MinLength(6, ErrorMessage = "Пароль має містити щонайменше 6 символів.")]
     private string _password = string.Empty;
 
     [ObservableProperty] private string _firstName = string.Empty;
@@ -101,4 +101,3 @@ public partial class RegisterViewModel : ObservableValidator
         }
     }
 }
-
