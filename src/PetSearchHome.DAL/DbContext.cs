@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PetSearchHome.BLL.Domain.Entities;
 using PetSearchHome.BLL.Domain.Enums;
 
@@ -25,7 +26,7 @@ public class ApplicationDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        // --- Налаштування RegisteredUser ---
+        // RegisteredUser
         modelBuilder.Entity<RegisteredUser>(entity =>
         {
             entity.ToTable("registered_users");
@@ -39,11 +40,16 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.IsActive).HasColumnName("is_active").HasDefaultValue(true);
             entity.Property(e => e.IsAdmin).HasColumnName("is_admin").HasDefaultValue(false);
 
-            entity.HasOne(u => u.IndividualProfile).WithOne(i => i.User).HasForeignKey<IndividualProfile>(i => i.UserId);
-            entity.HasOne(u => u.ShelterProfile).WithOne(s => s.User).HasForeignKey<ShelterProfile>(s => s.UserId);
+            entity.HasOne(u => u.IndividualProfile)
+                  .WithOne(i => i.User)
+                  .HasForeignKey<IndividualProfile>(i => i.UserId);
+
+            entity.HasOne(u => u.ShelterProfile)
+                  .WithOne(s => s.User)
+                  .HasForeignKey<ShelterProfile>(s => s.UserId);
         });
 
-        // --- Налаштування Профілів ---
+        // IndividualProfile
         modelBuilder.Entity<IndividualProfile>(entity =>
         {
             entity.ToTable("individuals");
@@ -59,6 +65,7 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.PhotoUrl).HasColumnName("photo_url");
         });
 
+        // ShelterProfile
         modelBuilder.Entity<ShelterProfile>(entity =>
         {
             entity.ToTable("shelters");
@@ -77,7 +84,7 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.LogoUrl).HasColumnName("logo_url");
         });
 
-        // --- Налаштування Listing ---
+        // Listing
         modelBuilder.Entity<Listing>(entity =>
         {
             entity.ToTable("listings");
@@ -94,17 +101,33 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.District).HasColumnName("district");
             entity.Property(e => e.Description).HasColumnName("description");
             entity.Property(e => e.SpecialNeeds).HasColumnName("special_needs");
-            entity.Property(e => e.Status).HasColumnName("status").HasConversion<string>().HasDefaultValue(ListingStatus.draft);
-            entity.Property(e => e.ViewsCount).HasColumnName("views_count").HasDefaultValue(0);
+            entity.Property(e => e.Status).HasColumnName("status").HasConversion<string>();
+            entity.Property(e => e.ViewsCount).HasColumnName("views_count");
             entity.Property(e => e.CreatedAt).HasColumnName("created_at").HasDefaultValueSql("NOW()");
-            entity.Property(e => e.UpdatedAt).HasColumnName("updated_at").HasDefaultValueSql("NOW()");
+            entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
             entity.Property(e => e.ModerationComment).HasColumnName("moderation_comment");
 
-            entity.HasOne(l => l.HealthInfo).WithOne(h => h.Listing).HasForeignKey<HealthInfo>(h => h.ListingId);
-            entity.HasMany(l => l.Photos).WithOne(p => p.Listing).HasForeignKey(p => p.ListingId);
+            entity.HasOne(e => e.User)
+                  .WithMany()
+                  .HasForeignKey(e => e.UserId);
         });
 
-        // --- Налаштування HealthInfo ---
+        // ListingPhoto
+        modelBuilder.Entity<ListingPhoto>(entity =>
+        {
+            entity.ToTable("photos");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasColumnName("photo_id").UseIdentityByDefaultColumn();
+            entity.Property(e => e.ListingId).HasColumnName("listing_id");
+            entity.Property(e => e.Url).HasColumnName("url");
+            entity.Property(e => e.IsPrimary).HasColumnName("is_primary");
+
+            entity.HasOne(e => e.Listing)
+                  .WithMany(l => l.Photos)
+                  .HasForeignKey(e => e.ListingId);
+        });
+
+        // HealthInfo
         modelBuilder.Entity<HealthInfo>(entity =>
         {
             entity.ToTable("health_info");
@@ -115,20 +138,13 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.Sterilized).HasColumnName("sterilized");
             entity.Property(e => e.ChronicDiseases).HasColumnName("chronic_diseases");
             entity.Property(e => e.TreatmentHistory).HasColumnName("treatment_history");
+
+            entity.HasOne(e => e.Listing)
+                  .WithOne(l => l.HealthInfo)
+                  .HasForeignKey<HealthInfo>(e => e.ListingId);
         });
 
-        // --- Налаштування ListingPhoto ---
-        modelBuilder.Entity<ListingPhoto>(entity =>
-        {
-            entity.ToTable("photos");
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id).HasColumnName("photo_id").UseIdentityByDefaultColumn();
-            entity.Property(e => e.ListingId).HasColumnName("listing_id");
-            entity.Property(e => e.Url).HasColumnName("url");
-            entity.Property(e => e.IsPrimary).HasColumnName("is_primary").HasDefaultValue(false);
-        });
-
-        // --- Налаштування Favorite ---
+        // Favorite
         modelBuilder.Entity<Favorite>(entity =>
         {
             entity.ToTable("favorites");
@@ -137,10 +153,11 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.UserId).HasColumnName("user_id");
             entity.Property(e => e.ListingId).HasColumnName("listing_id");
             entity.Property(e => e.CreatedAt).HasColumnName("created_at").HasDefaultValueSql("NOW()");
+
             entity.HasIndex(f => new { f.UserId, f.ListingId }).IsUnique();
         });
 
-        // --- Налаштування Conversation ---
+        // Conversation
         modelBuilder.Entity<Conversation>(entity =>
         {
             entity.ToTable("conversations");
@@ -156,7 +173,7 @@ public class ApplicationDbContext : DbContext
             entity.HasOne(c => c.Listing).WithMany().HasForeignKey(c => c.ListingId).OnDelete(DeleteBehavior.SetNull);
         });
 
-        // --- Налаштування Message ---
+        // Message
         modelBuilder.Entity<Message>(entity =>
         {
             entity.ToTable("messages");
@@ -172,7 +189,7 @@ public class ApplicationDbContext : DbContext
             entity.HasOne(m => m.Conversation).WithMany(c => c.Messages).HasForeignKey(m => m.ConversationId).OnDelete(DeleteBehavior.Cascade);
         });
 
-        // --- Налаштування Review ---
+        // Review
         modelBuilder.Entity<Review>(entity =>
         {
             entity.ToTable("reviews");
@@ -189,7 +206,7 @@ public class ApplicationDbContext : DbContext
             entity.HasOne(r => r.Reviewed).WithMany().HasForeignKey(r => r.ReviewedId).OnDelete(DeleteBehavior.Cascade);
         });
 
-        // --- Налаштування Report ---
+        // Report
         modelBuilder.Entity<Report>(entity =>
         {
             entity.ToTable("reports");
@@ -207,20 +224,22 @@ public class ApplicationDbContext : DbContext
             entity.HasOne(r => r.Reporter).WithMany().HasForeignKey(r => r.ReporterId).OnDelete(DeleteBehavior.Cascade);
         });
 
-        // --- Налаштування Session ---
+        // Session
         modelBuilder.Entity<Session>(entity =>
         {
             entity.ToTable("sessions");
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id).HasColumnName("session_id").HasDefaultValueSql("gen_random_uuid()"); 
-            entity.Property(e => e.UserId).HasColumnName("user_id"); // int
+            entity.Property(e => e.Id).HasColumnName("session_id").HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
             entity.Property(e => e.SessionToken).HasColumnName("session_token");
             entity.Property(e => e.CreatedAt).HasColumnName("created_at").HasDefaultValueSql("NOW()");
             entity.Property(e => e.ExpiresAt).HasColumnName("expires_at");
             entity.Property(e => e.LastActivity).HasColumnName("last_activity").HasDefaultValueSql("NOW()");
             entity.Property(e => e.IsValid).HasColumnName("is_valid").HasDefaultValue(true);
 
-            entity.HasOne(s => s.User).WithMany().HasForeignKey(s => s.UserId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(s => s.User)
+                  .WithMany()
+                  .HasForeignKey(s => s.UserId);
         });
     }
 }

@@ -1,6 +1,7 @@
 using PetSearchHome.BLL.Domain.Enums;
 
 namespace PetSearchHome.BLL.Domain.Entities;
+
 public class Listing
 {
     public int Id { get; set; }
@@ -25,3 +26,4 @@ public class Listing
     public HealthInfo? HealthInfo { get; set; }
     public ICollection<ListingPhoto> Photos { get; set; } = new List<ListingPhoto>();
 }
+

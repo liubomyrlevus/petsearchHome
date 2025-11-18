@@ -27,7 +27,7 @@ public class GetUserConversationsQueryHandler : IRequestHandler<GetUserConversat
 
         foreach (var conv in conversations)
         {
-            var otherUserId = conv.User1Id == request.UserId ? conv.User2Id : conv.User1Id;
+            var otherUserId = (int)(conv.User1Id == request.UserId ? conv.User2Id : conv.User1Id);
             var otherUser = await _userRepository.GetByIdAsync(otherUserId, cancellationToken);
             if (otherUser == null) continue;
 

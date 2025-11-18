@@ -1,9 +1,10 @@
 using PetSearchHome.BLL.Domain.Enums;
 
 namespace PetSearchHome.BLL.Domain.Entities;
+
 public class RegisteredUser
 {
-    public int Id { get; set; } 
+    public int Id { get; set; }
     public string Email { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
     public UserType UserType { get; set; } = UserType.unknown;
@@ -15,3 +16,4 @@ public class RegisteredUser
     public IndividualProfile? IndividualProfile { get; set; }
     public ShelterProfile? ShelterProfile { get; set; }
 }
+

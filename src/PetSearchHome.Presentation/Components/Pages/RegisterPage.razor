@@ -1,10 +1,10 @@
-﻿@page "/register"
-@inject ViewModels.RegisterViewModel ViewModel
+@page "/register"
+@inject PetSearchHome.ViewModels.RegisterViewModel ViewModel
 @implements IDisposable
 
 <PageTitle>Реєстрація</PageTitle>
 
-<h3>Створити новий акаунт</h3>
+<h3>Створити обліковий запис</h3>
 
 <div class="card">
     <div class="card-body">
@@ -12,7 +12,7 @@
             <DataAnnotationsValidator />
 
             <div class="form-group mb-3">
-                <label class="form-label">Я реєструюсь як:</label>
+                <label class="form-label">Тип облікового запису:</label>
                 <InputSelect @bind-Value="ViewModel.SelectedUserType" class="form-select">
                     <option value="Individual">Приватна особа</option>
                     <option value="Shelter">Притулок</option>
@@ -26,6 +26,7 @@
                 <InputText @bind-Value="ViewModel.Email" class="form-control" />
                 <ValidationMessage For="@(() => ViewModel.Email)" />
             </div>
+
             <div class="form-group mb-2">
                 <label class="form-label">Пароль:</label>
                 <InputText @bind-Value="ViewModel.Password" type="password" class="form-control" />
@@ -36,7 +37,7 @@
 
             @if (ViewModel.SelectedUserType == "Individual")
             {
-                <h5>Профіль приватної особи</h5>
+                <h5>Дані приватної особи</h5>
                 <div class="form-group mb-2">
                     <label class="form-label">Ім'я:</label>
                     <InputText @bind-Value="ViewModel.FirstName" class="form-control" />
@@ -61,7 +62,7 @@
 
             @if (ViewModel.SelectedUserType == "Shelter")
             {
-                <h5>Профіль притулку</h5>
+                <h5>Дані притулку</h5>
                 <div class="form-group mb-2">
                     <label class="form-label">Назва притулку:</label>
                     <InputText @bind-Value="ViewModel.ShelterName" class="form-control" />
@@ -85,7 +86,7 @@
                 <div class="alert alert-danger mt-3">@ViewModel.ErrorMessage</div>
             }
 
-            <button typeG="submit" class="btn btn-primary mt-3" disabled="@ViewModel.IsBusy">
+            <button type="submit" class="btn btn-primary mt-3" disabled="@ViewModel.IsBusy">
                 @if (ViewModel.IsBusy)
                 {
                     <span class="spinner-border spinner-border-sm"></span>
@@ -101,7 +102,6 @@
 </div>
 
 @code {
-
     protected override void OnInitialized()
     {
         ViewModel.PropertyChanged += (_, _) => StateHasChanged();
@@ -112,3 +112,4 @@
         ViewModel.PropertyChanged -= (_, _) => StateHasChanged();
     }
 }
+

@@ -1,32 +1,42 @@
-﻿@page "/home"
-@inject ViewModels.HomeViewModel ViewModel
+@page "/home"
+@inject PetSearchHome.ViewModels.HomeViewModel ViewModel
 @implements IDisposable
-@using PetSearchHome.BLL.Domain.Enums 
+@using PetSearchHome.BLL.Domain.Enums
 
-<PageTitle>Головне вікно</PageTitle>
+<PageTitle>Головна</PageTitle>
 
-<h1>Каталог тварин</h1>
-<p>Тут ви можете знайти собі улюбленця.</p>
+<h1>Пошук тварин</h1>
+<p>Знайдіть свого майбутнього улюбленця.</p>
 
 <div class="filter-form">
     <div class="row g-2">
         <div class="col-md-5">
-            <InputText @bind-Value="ViewModel.SearchTerm" @onchange="ViewModel.LoadListingsCommand.ExecuteAsync" class="form-control" placeholder="Пошук за породою, описом..." />
+            <InputText @bind-Value="ViewModel.SearchTerm"
+                       @onchange="ViewModel.LoadListingsCommand.ExecuteAsync"
+                       class="form-control"
+                       placeholder="Порода, опис, ключові слова..." />
         </div>
         <div class="col-md-3">
-            <InputSelect @bind-Value="ViewModel.SelectedAnimalType" @onchange="ViewModel.LoadListingsCommand.ExecuteAsync" class="form-select">
+            <InputSelect @bind-Value="ViewModel.SelectedAnimalType"
+                         @onchange="ViewModel.LoadListingsCommand.ExecuteAsync"
+                         class="form-select">
                 <option value="">-- Всі тварини --</option>
-                <option value="@AnimalType.dog">Собаки</option>
-                <option value="@AnimalType.cat">Коти</option>
-                <option value="@AnimalType.bird">Птахи</option>
-                <option value="@AnimalType.other">Інші</option>
+                <option value="@AnimalType.dog">Собака</option>
+                <option value="@AnimalType.cat">Кіт / Кішка</option>
+                <option value="@AnimalType.bird">Птах</option>
+                <option value="@AnimalType.other">Інше</option>
             </InputSelect>
         </div>
         <div class="col-md-2">
-            <InputText @bind-Value="ViewModel.City" @onchange="ViewModel.LoadListingsCommand.ExecuteAsync" class="form-control" placeholder="Місто..." />
+            <InputText @bind-Value="ViewModel.City"
+                       @onchange="ViewModel.LoadListingsCommand.ExecuteAsync"
+                       class="form-control"
+                       placeholder="Місто..." />
         </div>
         <div class="col-md-2">
-            <button type="button" class="btn btn-primary w-100" @onclick="ViewModel.LoadListingsCommand.ExecuteAsync">
+            <button type="button"
+                    class="btn btn-primary w-100"
+                    @onclick="ViewModel.LoadListingsCommand.ExecuteAsync">
                 Пошук
             </button>
         </div>
@@ -34,10 +44,9 @@
 </div>
 <hr />
 
-
 @if (ViewModel.IsBusy)
 {
-    <p><em>Завантаження...</em></p>
+    <p><em>Завантаження оголошень...</em></p>
 }
 else if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
 {
@@ -45,7 +54,7 @@ else if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
 }
 else if (!ViewModel.Listings.Any())
 {
-    <p><em>За вашим запитом нічого не знайдено.</em></p>
+    <p><em>За даними фільтрами оголошень не знайдено.</em></p>
 }
 else
 {
@@ -53,17 +62,19 @@ else
         @foreach (var listing in ViewModel.Listings)
         {
             <div class="pet-card">
-                <img src="@(string.IsNullOrEmpty(listing.MainPhotoUrl) ? "/images/default-pet.png" : listing.MainPhotoUrl)" alt="Фото тварини" />
+                <img src="@(string.IsNullOrEmpty(listing.MainPhotoUrl) ? "/images/default-pet.png" : listing.MainPhotoUrl)"
+                     alt="Фото тварини" />
 
-                <button class="favorite-btn" @onclick="() => ViewModel.AddFavoriteCommand.ExecuteAsync(listing.Id)">
-         
+                <button class="favorite-btn"
+                        @onclick="() => ViewModel.ToggleFavoriteCommand.ExecuteAsync(listing.Id)">
+                    @(ViewModel.IsFavorite(listing.Id) ? "В улюблених" : "Додати в улюблені")
                 </button>
 
                 <div class="pet-card-body">
                     <h5>@listing.Breed</h5>
                     <p>@listing.City</p>
-                    <p>Тип: @listing.AnimalType, Вік: @listing.AgeMonths міс.</p>
-                    <a href="/listing/@listing.Id" class="btn btn-primary">Детальніше</a>
+                    <p>Тип: @listing.AnimalType, вік: @listing.AgeMonths міс.</p>
+                    <a href="/listing/@listing.Id" class="btn btn-primary">Деталі</a>
                 </div>
             </div>
         }
@@ -73,17 +84,22 @@ else
 @code {
     protected override async Task OnInitializedAsync()
     {
-        ViewModel.PropertyChanged += (_, _) => StateHasChanged();
+        ViewModel.PropertyChanged += OnViewModelPropertyChanged;
 
-        // Автоматично завантажуємо оголошення при першому вході на сторінку
         if (ViewModel.LoadListingsCommand.CanExecute(null))
         {
             await ViewModel.LoadListingsCommand.ExecuteAsync(null);
         }
     }
 
+    private void OnViewModelPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
     public void Dispose()
     {
-        ViewModel.PropertyChanged -= (_, _) => StateHasChanged();
+        ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
     }
 }
+

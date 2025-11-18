@@ -1,8 +1,10 @@
-﻿using PetSearchHome.BLL.Domain.Enums;
+using PetSearchHome.BLL.Domain.Enums;
+
 namespace PetSearchHome.BLL.DTOs;
+
 public class UserProfileDto
 {
-    public int Id { get; set; } 
+    public int Id { get; set; }
     public string Email { get; set; } = string.Empty;
     public UserType UserType { get; set; }
     public IndividualProfileDto? IndividualProfile { get; set; }
@@ -30,4 +32,3 @@ public class ShelterProfileDto
     public string? LogoUrl { get; set; }
 }
 
-// DTO для відображення профілю користувача.

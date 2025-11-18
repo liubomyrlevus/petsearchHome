@@ -1,8 +1,9 @@
 namespace PetSearchHome.BLL.Domain.Entities;
+
 public class ShelterProfile
 {
     public int Id { get; set; }
-    public int UserId { get; set; } 
+    public int UserId { get; set; }
     public string Name { get; set; } = string.Empty;
     public string? ContactPerson { get; set; }
     public string? Phone { get; set; }
@@ -16,3 +17,4 @@ public class ShelterProfile
 
     public RegisteredUser User { get; set; } = null!;
 }
+

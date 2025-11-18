@@ -1,9 +1,11 @@
-﻿using PetSearchHome.BLL.Domain.Enums;
+using PetSearchHome.BLL.Domain.Enums;
+
 namespace PetSearchHome.BLL.DTOs;
+
 public class ListingDetailsDto
 {
     public int Id { get; set; }
-    public int UserId { get; set; } // ОНОВЛЕНО: int
+    public int UserId { get; set; }
     public string OwnerName { get; set; } = string.Empty;
     public AnimalType AnimalType { get; set; }
     public string? Breed { get; set; }
@@ -20,4 +22,4 @@ public class ListingDetailsDto
     public HealthInfoDto? HealthInfo { get; set; }
     public List<string> PhotoUrls { get; set; } = new List<string>();
 }
-// DTO для повної, детальної сторінки оголошення.
+

@@ -1,12 +1,13 @@
 using PetSearchHome.BLL.Domain.Enums;
 
 namespace PetSearchHome.BLL.Domain.Entities;
+
 public class Report
 {
-    public int Id { get; set; } 
-    public int ReporterId { get; set; } 
+    public int Id { get; set; }
+    public int ReporterId { get; set; }
     public ReportTargetType ReportedType { get; set; }
-    public int ReportedEntityId { get; set; } 
+    public int ReportedEntityId { get; set; }
     public string? Reason { get; set; }
     public string? Description { get; set; }
     public ReportStatus Status { get; set; } = ReportStatus.pending;
@@ -15,3 +16,4 @@ public class Report
 
     public RegisteredUser Reporter { get; set; } = null!;
 }
+

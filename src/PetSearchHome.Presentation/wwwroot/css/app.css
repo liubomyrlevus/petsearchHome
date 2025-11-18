@@ -1,4 +1,4 @@
-﻿html, body {
+html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     background-color: #f4f7fb;
     color: #1f2937;
@@ -36,37 +36,6 @@ h1:focus {
 
 .validation-message {
     color: #e50000;
-}
-
-.loading-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    gap: 1rem;
-    color: #1f3a5f;
-    font-weight: 500;
-    letter-spacing: 0.02em;
-}
-
-.loading-spinner {
-    width: 2.75rem;
-    height: 2.75rem;
-    border-radius: 50%;
-    border: 0.35rem solid rgba(27, 110, 194, 0.2);
-    border-top-color: #1b6ec2;
-    animation: loading-rotate 0.9s linear infinite;
-}
-
-.loading-text {
-    font-size: 1rem;
-}
-
-@keyframes loading-rotate {
-    to {
-        transform: rotate(360deg);
-    }
 }
 
 #blazor-error-ui {
@@ -130,7 +99,6 @@ h1:focus {
     }
 }
 
-<style >
 .pet-catalog-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -142,19 +110,29 @@ h1:focus {
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     overflow: hidden;
+    position: relative;
 }
 
-    .pet-card img {
-        width: 100%;
-        height: 200px;
-        object-fit: cover;
-        background-color: #f0f0f0;
-    }
+.pet-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    background-color: #f0f0f0;
+}
 
 .pet-card-body {
     padding: 1rem;
 }
 
-</style >
-
+.favorite-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background-color: rgba(255,255,255,0.9);
+    border: 1px solid #e11d48;
+    color: #e11d48;
+    padding: 0.25rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+}
 

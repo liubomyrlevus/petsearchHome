@@ -1,8 +1,9 @@
 namespace PetSearchHome.BLL.Domain.Entities;
+
 public class Session
 {
-    public Guid Id { get; set; } 
-    public int UserId { get; set; } 
+    public Guid Id { get; set; }
+    public int UserId { get; set; }
     public string SessionToken { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime ExpiresAt { get; set; }
@@ -11,3 +12,4 @@ public class Session
 
     public RegisteredUser User { get; set; } = null!;
 }
+

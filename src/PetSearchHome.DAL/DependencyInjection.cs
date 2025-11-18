@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PetSearchHome.BLL.Contracts.Persistence;
@@ -13,16 +13,14 @@ public static class DependencyInjection
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(
                 configuration.GetConnectionString("DefaultConnection"),
-
                 npgsqlOptions =>
                 {
                     npgsqlOptions.EnableRetryOnFailure(
-                        maxRetryCount: 5, 
-                        maxRetryDelay: TimeSpan.FromSeconds(10), 
+                        maxRetryCount: 5,
+                        maxRetryDelay: TimeSpan.FromSeconds(10),
                         errorCodesToAdd: null
                     );
                 }
-
             )
         );
 
@@ -39,3 +37,4 @@ public static class DependencyInjection
         return services;
     }
 }
+
