@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using PetSearchHome.BLL.Commands;
 using PetSearchHome.BLL.Contracts.Persistence;
 using PetSearchHome.BLL.Domain.Entities;
@@ -20,15 +20,14 @@ public class UpdateListingCommandHandler : IRequestHandler<UpdateListingCommand>
     public async Task<Unit> Handle(UpdateListingCommand request, CancellationToken cancellationToken)
     {
         var listingToUpdate = await _listingRepository.GetByIdAsync(request.Id, cancellationToken);
+
         if (listingToUpdate == null)
         {
             throw new Exception("Listing not found.");
         }
 
-        // Перевірка прав доступу.
         if (listingToUpdate.UserId != request.UserId)
         {
-            
             throw new Exception("User is not authorized to edit this listing.");
         }
 
@@ -42,12 +41,12 @@ public class UpdateListingCommandHandler : IRequestHandler<UpdateListingCommand>
         listingToUpdate.District = request.District;
         listingToUpdate.Description = request.Description;
         listingToUpdate.SpecialNeeds = request.SpecialNeeds;
-        listingToUpdate.Status = ListingStatus.Pending; 
+        listingToUpdate.Status = request.NewStatus ?? ListingStatus.pending;
         listingToUpdate.UpdatedAt = DateTime.UtcNow;
 
         if (request.HealthInfo != null)
         {
-            listingToUpdate.HealthInfo ??= new HealthInfo(); // Створюємо, якщо не існувало
+            listingToUpdate.HealthInfo ??= new HealthInfo();
             listingToUpdate.HealthInfo.Vaccinations = request.HealthInfo.Vaccinations;
             listingToUpdate.HealthInfo.Sterilized = request.HealthInfo.Sterilized;
             listingToUpdate.HealthInfo.ChronicDiseases = request.HealthInfo.ChronicDiseases;
@@ -58,7 +57,7 @@ public class UpdateListingCommandHandler : IRequestHandler<UpdateListingCommand>
         listingToUpdate.Photos = request.PhotoUrls.Select((url, index) => new ListingPhoto
         {
             Url = url,
-            IsPrimary = (index == 0)
+            IsPrimary = index == 0
         }).ToList();
 
         await _listingRepository.UpdateAsync(listingToUpdate, cancellationToken);

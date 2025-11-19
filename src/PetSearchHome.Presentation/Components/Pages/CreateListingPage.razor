@@ -1,0 +1,174 @@
+@page "/create-listing"
+@inject PetSearchHome.ViewModels.CreateListingViewModel ViewModel
+@implements IDisposable
+@using PetSearchHome.BLL.Domain.Enums
+
+<PageTitle>Створити оголошення</PageTitle>
+
+<div class="page-container">
+    <h2>Створити оголошення</h2>
+    <p class="text-muted">Заповніть інформацію про тварину та умови прилаштування, щоб інші користувачі могли знайти вашого улюбленця.</p>
+
+    <EditForm class="create-listing-form"
+              Model="ViewModel"
+              OnValidSubmit="ViewModel.CreateListingCommand.ExecuteAsync">
+        <DataAnnotationsValidator />
+
+        <div class="form-grid">
+            <div class="form-section">
+                <h4>Основна інформація про тварину</h4>
+
+                <div class="form-field">
+                    <label>Вид тварини</label>
+                    <InputSelect @bind-Value="ViewModel.AnimalType" class="form-select">
+                        <option value="@AnimalType.unknown">Оберіть вид тварини...</option>
+                        <option value="@AnimalType.dog">Собака</option>
+                        <option value="@AnimalType.cat">Кіт / кішка</option>
+                        <option value="@AnimalType.bird">Птах</option>
+                        <option value="@AnimalType.rodent">Гризун</option>
+                        <option value="@AnimalType.reptile">Рептилія</option>
+                        <option value="@AnimalType.other">Інше</option>
+                    </InputSelect>
+                    <ValidationMessage For="@(() => ViewModel.AnimalType)" />
+                </div>
+
+                <div class="form-field">
+                    <label>Порода / різновид</label>
+                    <InputText @bind-Value="ViewModel.Breed" class="form-control" />
+                    <ValidationMessage For="@(() => ViewModel.Breed)" />
+                </div>
+
+                <div class="form-field">
+                    <label>Вік (у місяцях)</label>
+                    <InputNumber @bind-Value="ViewModel.AgeMonths" class="form-control" />
+                    <ValidationMessage For="@(() => ViewModel.AgeMonths)" />
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label>Стать</label>
+                        <InputSelect @bind-Value="ViewModel.Sex" class="form-select">
+                            <option value="">Не вказано</option>
+                            <option value="@AnimalSex.male">Самець</option>
+                            <option value="@AnimalSex.female">Самка</option>
+                        </InputSelect>
+                    </div>
+
+                    <div class="form-field">
+                        <label>Розмір</label>
+                        <InputSelect @bind-Value="ViewModel.Size" class="form-select">
+                            <option value="">Не вказано</option>
+                            <option value="@AnimalSize.small">Малий</option>
+                            <option value="@AnimalSize.medium">Середній</option>
+                            <option value="@AnimalSize.large">Великий</option>
+                            <option value="@AnimalSize.giant">Дуже великий</option>
+                        </InputSelect>
+                    </div>
+                </div>
+
+                <div class="form-field">
+                    <label>Колір / масть</label>
+                    <InputText @bind-Value="ViewModel.Color" class="form-control" />
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h4>Місцезнаходження та фото</h4>
+
+                <div class="form-field">
+                    <label>Місто</label>
+                    <InputText @bind-Value="ViewModel.City" class="form-control" />
+                    <ValidationMessage For="@(() => ViewModel.City)" />
+                </div>
+
+                <div class="form-field">
+                    <label>Район</label>
+                    <InputText @bind-Value="ViewModel.District" class="form-control" />
+                </div>
+
+                <div class="form-field">
+                    <label>Головне фото (URL)</label>
+                    <InputText @bind-Value="ViewModel.MainPhotoUrl" class="form-control" />
+                    <small class="text-muted">Додайте посилання на фото, щоб користувачі краще бачили тварину.</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h4>Опис</h4>
+
+            <div class="form-field">
+                <label>Опис тварини та умов прилаштування</label>
+                <InputTextArea @bind-Value="ViewModel.Description" class="form-control" rows="4" />
+                <ValidationMessage For="@(() => ViewModel.Description)" />
+            </div>
+
+            <div class="form-field">
+                <label>Особливі потреби / зауваження (за наявності)</label>
+                <InputTextArea @bind-Value="ViewModel.SpecialNeeds" class="form-control" rows="3" />
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h4>Медична інформація</h4>
+
+            <div class="form-field">
+                <label>Щеплення</label>
+                <InputTextArea @bind-Value="ViewModel.Vaccinations" class="form-control" rows="2" />
+            </div>
+
+            <div class="form-field checkbox-field">
+                <label>
+                    <InputCheckbox @bind-Value="ViewModel.Sterilized" />
+                    Тварина стерилізована
+                </label>
+            </div>
+
+            <div class="form-field">
+                <label>Хронічні захворювання</label>
+                <InputTextArea @bind-Value="ViewModel.ChronicDiseases" class="form-control" rows="2" />
+            </div>
+
+            <div class="form-field">
+                <label>Історія лікування</label>
+                <InputTextArea @bind-Value="ViewModel.TreatmentHistory" class="form-control" rows="2" />
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
+        {
+            <div class="alert alert-danger">@ViewModel.ErrorMessage</div>
+        }
+
+        <div class="actions">
+            <button type="submit" class="btn btn-primary" disabled="@(!ViewModel.CanSubmit)">
+                @if (ViewModel.IsBusy)
+                {
+                    <span class="spinner-border spinner-border-sm"></span>
+                    <span>Створення оголошення...</span>
+                }
+                else
+                {
+                    <span>Опублікувати оголошення</span>
+                }
+            </button>
+
+            <NavLink class="btn btn-outline-secondary" href="/home">
+                Скасувати
+            </NavLink>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        ViewModel.PropertyChanged += (_, _) => StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        ViewModel.PropertyChanged -= (_, _) => StateHasChanged();
+    }
+}
+

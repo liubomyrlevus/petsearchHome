@@ -1,0 +1,71 @@
+@page "/favorites"
+@inject PetSearchHome.ViewModels.FavoritesViewModel ViewModel
+@implements IDisposable
+
+<PageTitle>Обрані</PageTitle>
+
+<div class="page-container">
+    <header class="page-header">
+        <h1>Обрані оголошення</h1>
+        <p class="text-muted">Тут зберігаються оголошення, які ви додали до обраних.</p>
+    </header>
+
+    @if (ViewModel.IsBusy)
+    {
+        <p class="text-muted"><em>Завантаження обраних оголошень...</em></p>
+    }
+    else if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
+    {
+        <div class="alert alert-danger">@ViewModel.ErrorMessage</div>
+    }
+    else if (!ViewModel.Favorites.Any())
+    {
+        <p class="text-muted"><em>У вас ще немає обраних оголошень.</em></p>
+    }
+    else
+    {
+        <div class="pet-catalog-grid">
+            @foreach (var item in ViewModel.Favorites)
+            {
+                <article class="pet-card">
+                    <img src="@(string.IsNullOrEmpty(item.MainPhotoUrl) ? "/images/default-pet.png" : item.MainPhotoUrl)"
+                         alt="Фото тварини" />
+
+                    <button class="favorite-btn"
+                            @onclick="() => ViewModel.RemoveFavoriteCommand.ExecuteAsync(item.ListingId)">
+                        Прибрати з обраних
+                    </button>
+
+                    <div class="pet-card-body">
+                        <h5>@(item.Breed ?? "Без породи")</h5>
+                        <p>Вид: @item.AnimalType.ToUkrainianLabel()</p>
+                        <a href="/listing/@item.ListingId" class="btn btn-outline-primary w-100">Переглянути</a>
+                    </div>
+                </article>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+
+        if (ViewModel.LoadFavoritesCommand.CanExecute(null))
+        {
+            await ViewModel.LoadFavoritesCommand.ExecuteAsync(null);
+        }
+    }
+
+    private void OnViewModelPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
+    }
+}
+

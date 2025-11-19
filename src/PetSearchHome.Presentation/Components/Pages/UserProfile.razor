@@ -1,0 +1,293 @@
+@page "/profile"
+@page "/profile/{UserId:int}"
+@inject PetSearchHome.ViewModels.UserProfileViewModel ViewModel
+@implements IDisposable
+@using PetSearchHome.BLL.Domain.Enums
+
+<PageTitle>Профіль користувача</PageTitle>
+
+<div class="page-container">
+    <h1>Профіль користувача</h1>
+
+    @if (ViewModel.IsBusy)
+    {
+        <p><em>Завантаження профілю...</em></p>
+    }
+    else if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
+    {
+        <div class="alert alert-danger">@ViewModel.ErrorMessage</div>
+    }
+    else if (ViewModel.Profile is null)
+    {
+        <p><em>Профіль не знайдено.</em></p>
+    }
+    else
+    {
+        <div class="card mb-4">
+            <div class="card-body">
+                <h3 class="card-title">Основна інформація</h3>
+                <p><strong>Email:</strong> @ViewModel.Profile.Email</p>
+                <p>
+                    <strong>Тип користувача:</strong>
+                    @(ViewModel.Profile.UserType == UserType.shelter ? "Притулок" : "Приватна особа")
+                </p>
+
+                @if (ViewModel.IsIndividual && ViewModel.Profile.IndividualProfile is not null)
+                {
+                    <ul class="list-unstyled mb-0">
+                        <li><strong>Ім’я:</strong> @ViewModel.Profile.IndividualProfile.FirstName</li>
+                        <li><strong>Прізвище:</strong> @ViewModel.Profile.IndividualProfile.LastName</li>
+                        <li><strong>Місто:</strong> @ViewModel.Profile.IndividualProfile.City</li>
+                        <li><strong>Район:</strong> @ViewModel.Profile.IndividualProfile.District</li>
+                    </ul>
+                }
+                else if (ViewModel.IsShelter && ViewModel.Profile.ShelterProfile is not null)
+                {
+                    <ul class="list-unstyled mb-0">
+                        <li><strong>Назва притулку:</strong> @ViewModel.Profile.ShelterProfile.Name</li>
+                        <li><strong>Контактна особа:</strong> @ViewModel.Profile.ShelterProfile.ContactPerson</li>
+                        <li><strong>Адреса:</strong> @ViewModel.Profile.ShelterProfile.Address</li>
+                    </ul>
+                }
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h3 class="card-title">Контактні дані</h3>
+                @if (!string.IsNullOrEmpty(ViewModel.SuccessMessage))
+                {
+                    <div class="alert alert-success">@ViewModel.SuccessMessage</div>
+                }
+
+                @if (ViewModel.IsOwnProfile)
+                {
+                    <EditForm Model="ViewModel.ContactForm"
+                              OnValidSubmit="ViewModel.SaveContactsCommand.ExecuteAsync">
+                        <div class="row g-3">
+                            @if (ViewModel.IsIndividual && ViewModel.Profile.IndividualProfile is not null)
+                            {
+                                <div class="col-md-6">
+                                    <label class="form-label">Телефон</label>
+                                    <InputText @bind-Value="ViewModel.ContactForm.Phone" class="form-control" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Місто</label>
+                                    <InputText @bind-Value="ViewModel.ContactForm.City" class="form-control" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Район</label>
+                                    <InputText @bind-Value="ViewModel.ContactForm.District" class="form-control" />
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label">Додаткова інформація</label>
+                                    <InputTextArea @bind-Value="ViewModel.ContactForm.AdditionalInfo" class="form-control" rows="3" />
+                                </div>
+                            }
+                            else if (ViewModel.IsShelter && ViewModel.Profile.ShelterProfile is not null)
+                            {
+                                <div class="col-md-6">
+                                    <label class="form-label">Контактна особа</label>
+                                    <InputText @bind-Value="ViewModel.ContactForm.ContactPerson" class="form-control" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Телефон</label>
+                                    <InputText @bind-Value="ViewModel.ContactForm.Phone" class="form-control" />
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label">Адреса</label>
+                                    <InputText @bind-Value="ViewModel.ContactForm.Address" class="form-control" />
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label">Опис</label>
+                                    <InputTextArea @bind-Value="ViewModel.ContactForm.Description" class="form-control" rows="3" />
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="col-12">
+                                    <p class="text-muted">Немає контактних даних для редагування.</p>
+                                </div>
+                            }
+                        </div>
+
+                        <button type="submit"
+                                class="btn btn-primary mt-3"
+                                disabled="@ViewModel.IsBusy">
+                            Зберегти контакти
+                        </button>
+                    </EditForm>
+                }
+                else
+                {
+                    <div class="row g-3">
+                        @if (ViewModel.IsIndividual && ViewModel.Profile.IndividualProfile is not null)
+                        {
+                            <div class="col-md-6">
+                                <label class="form-label">Телефон</label>
+                                <div class="form-control-plaintext">
+                                    @ViewModel.Profile.IndividualProfile.Phone
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Місто</label>
+                                <div class="form-control-plaintext">
+                                    @ViewModel.Profile.IndividualProfile.City
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Район</label>
+                                <div class="form-control-plaintext">
+                                    @ViewModel.Profile.IndividualProfile.District
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label">Додаткова інформація</label>
+                                <div class="form-control-plaintext">
+                                    @ViewModel.Profile.IndividualProfile.AdditionalInfo
+                                </div>
+                            </div>
+                        }
+                        else if (ViewModel.IsShelter && ViewModel.Profile.ShelterProfile is not null)
+                        {
+                            <div class="col-md-6">
+                                <label class="form-label">Контактна особа</label>
+                                <div class="form-control-plaintext">
+                                    @ViewModel.Profile.ShelterProfile.ContactPerson
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Телефон</label>
+                                <div class="form-control-plaintext">
+                                    @ViewModel.Profile.ShelterProfile.Phone
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label">Адреса</label>
+                                <div class="form-control-plaintext">
+                                    @ViewModel.Profile.ShelterProfile.Address
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label">Опис</label>
+                                <div class="form-control-plaintext">
+                                    @ViewModel.Profile.ShelterProfile.Description
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="col-12">
+                                <p class="text-muted">Контактні дані відсутні.</p>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title">Відгуки</h3>
+
+                @if (!string.IsNullOrEmpty(ViewModel.ReviewErrorMessage))
+                {
+                    <div class="alert alert-danger">@ViewModel.ReviewErrorMessage</div>
+                }
+
+                @if (ViewModel.Reviews == null || ViewModel.Reviews.Count == 0)
+                {
+                    <p class="text-muted"><em>Ще немає відгуків про цього користувача.</em></p>
+                }
+                else
+                {
+                    <ul class="list-unstyled mb-3">
+                        @foreach (var review in ViewModel.Reviews)
+                        {
+                            <li class="mb-3 border-bottom pb-2">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <strong>@review.ReviewerName</strong>
+                                        <span class="text-muted small">
+                                            (@review.CreatedAt.ToLocalTime().ToShortDateString())
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <span class="badge bg-warning text-dark">@review.Rating / 5</span>
+                                    </div>
+                                </div>
+                                @if (!string.IsNullOrWhiteSpace(review.Comment))
+                                {
+                                    <p class="mb-0">@review.Comment</p>
+                                }
+                            </li>
+                        }
+                    </ul>
+                }
+
+                @if (ViewModel.CanLeaveReview)
+                {
+                    <hr />
+                    <h5>Залишити відгук</h5>
+
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Оцінка (1–5)</label>
+                            <input type="number"
+                                   min="1"
+                                   max="5"
+                                   class="form-control"
+                                   @bind="ViewModel.NewReviewRating" />
+                        </div>
+                        <div class="col-md-9">
+                            <label class="form-label">Коментар</label>
+                            <textarea class="form-control"
+                                      rows="3"
+                                      @bind="ViewModel.NewReviewComment"></textarea>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary mt-3"
+                            disabled="@ViewModel.IsReviewBusy"
+                            @onclick="ViewModel.CreateReviewCommand.ExecuteAsync">
+                        @if (ViewModel.IsReviewBusy)
+                        {
+                            <span class="spinner-border spinner-border-sm"></span>
+                            <span>Надсилання відгуку...</span>
+                        }
+                        else
+                        {
+                            <span>Надіслати відгук</span>
+                        }
+                    </button>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int? UserId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+
+        if (ViewModel.LoadProfileCommand.CanExecute(UserId))
+        {
+            await ViewModel.LoadProfileCommand.ExecuteAsync(UserId);
+        }
+    }
+
+    private void OnViewModelPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
+    }
+}
+

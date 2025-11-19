@@ -1,9 +1,9 @@
-﻿using MediatR;
+using MediatR;
 using PetSearchHome.BLL.Contracts.Persistence;
 using PetSearchHome.BLL.DTOs;
+using PetSearchHome.BLL.Domain.Entities;
 using PetSearchHome.BLL.Queries;
 using PetSearchHome.BLL.Services.Authentication;
-using PetSearchHome.BLL.Domain.Entities; 
 
 namespace PetSearchHome.BLL.Handlers;
 
@@ -12,72 +12,79 @@ public class LoginQueryHandler : IRequestHandler<LoginQuery, LoginResultDto>
     private readonly IUserRepository _userRepository;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IJwtTokenGenerator _jwtTokenGenerator;
-    private readonly ISessionRepository _sessionRepository; 
-    private readonly IUnitOfWork _unitOfWork;              
+    private readonly IUnitOfWork _unitOfWork;
 
     public LoginQueryHandler(
         IUserRepository userRepository,
         IPasswordHasher passwordHasher,
         IJwtTokenGenerator jwtTokenGenerator,
-        ISessionRepository sessionRepository,            
-        IUnitOfWork unitOfWork)                           
+        IUnitOfWork unitOfWork)
     {
         _userRepository = userRepository;
         _passwordHasher = passwordHasher;
         _jwtTokenGenerator = jwtTokenGenerator;
-        _sessionRepository = sessionRepository;             
-        _unitOfWork = unitOfWork;                         
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<LoginResultDto> Handle(LoginQuery request, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetByEmailAsync(request.Email, cancellationToken);
-        if (user == null || !user.IsActive)
+
+        if (user == null || !_passwordHasher.Verify(request.Password, user.PasswordHash))
         {
             throw new Exception("Invalid email or password.");
         }
 
-        if (!_passwordHasher.Verify(request.Password, user.PasswordHash))
+        if (!user.IsActive)
         {
-            throw new Exception("Invalid email or password.");
+            throw new Exception("User is inactive.");
         }
 
-        var token = _jwtTokenGenerator.GenerateToken(user);
-
-        var session = new Session
-        {
-            UserId = user.Id,
-            SessionToken = Guid.NewGuid().ToString("N"), 
-            ExpiresAt = DateTime.UtcNow.AddDays(30)      
-        };
-        await _sessionRepository.AddAsync(session, cancellationToken);
+        user.LastLogin = DateTime.UtcNow;
+        await _userRepository.UpdateAsync(user, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var profileDto = new UserProfileDto
+        var token = _jwtTokenGenerator.GenerateToken(user);
+        var profileDto = MapToDto(user);
+
+        return new LoginResultDto
+        {
+            User = profileDto,
+            Token = token
+        };
+    }
+
+    private static UserProfileDto MapToDto(RegisteredUser user)
+    {
+        return new UserProfileDto
         {
             Id = user.Id,
             Email = user.Email,
             UserType = user.UserType,
-            IndividualProfile = user.IndividualProfile != null ? new IndividualProfileDto
-            {
-                FirstName = user.IndividualProfile.FirstName,
-                LastName = user.IndividualProfile.LastName,
-                Phone = user.IndividualProfile.Phone,
-                City = user.IndividualProfile.City,
-                District = user.IndividualProfile.District,
-                PhotoUrl = user.IndividualProfile.PhotoUrl
-            } : null,
-            ShelterProfile = user.ShelterProfile != null ? new ShelterProfileDto
-            {
-                Name = user.ShelterProfile.Name,
-                ContactPerson = user.ShelterProfile.ContactPerson,
-                Phone = user.ShelterProfile.Phone,
-                Address = user.ShelterProfile.Address,
-                LogoUrl = user.ShelterProfile.LogoUrl
-            } : null
+            IsAdmin = user.IsAdmin,
+            IndividualProfile = user.IndividualProfile == null
+                ? null
+                : new IndividualProfileDto
+                {
+                    FirstName = user.IndividualProfile.FirstName,
+                    LastName = user.IndividualProfile.LastName,
+                    Phone = user.IndividualProfile.Phone,
+                    City = user.IndividualProfile.City,
+                    District = user.IndividualProfile.District,
+                    AdditionalInfo = user.IndividualProfile.AdditionalInfo,
+                    PhotoUrl = user.IndividualProfile.PhotoUrl
+                },
+            ShelterProfile = user.ShelterProfile == null
+                ? null
+                : new ShelterProfileDto
+                {
+                    Name = user.ShelterProfile.Name,
+                    ContactPerson = user.ShelterProfile.ContactPerson,
+                    Phone = user.ShelterProfile.Phone,
+                    Address = user.ShelterProfile.Address,
+                    Description = user.ShelterProfile.Description,
+                    LogoUrl = user.ShelterProfile.LogoUrl
+                }
         };
-
-
-        return new LoginResultDto { User = profileDto, Token = token };
     }
 }

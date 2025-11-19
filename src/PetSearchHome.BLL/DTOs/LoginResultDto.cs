@@ -1,5 +1,4 @@
 ﻿namespace PetSearchHome.BLL.DTOs;
-
 public class LoginResultDto
 {
     public bool IsSuccess { get; set; }

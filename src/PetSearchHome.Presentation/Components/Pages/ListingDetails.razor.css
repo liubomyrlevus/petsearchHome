@@ -1,0 +1,25 @@
+.listing-details h2 {
+    margin-bottom: 0.35rem;
+}
+
+.details-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.info-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 12px 24px rgba(15,34,58,0.08);
+}
+
+@media (max-width: 768px) {
+    .listing-details {
+        padding-inline: 0;
+    }
+}

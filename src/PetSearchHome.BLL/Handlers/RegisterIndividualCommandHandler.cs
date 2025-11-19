@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using PetSearchHome.BLL.Commands;
 using PetSearchHome.BLL.Contracts.Persistence;
 using PetSearchHome.BLL.Domain.Entities;
@@ -15,7 +15,11 @@ public class RegisterIndividualCommandHandler : IRequestHandler<RegisterIndividu
     private readonly IJwtTokenGenerator _jwtTokenGenerator;
     private readonly IUnitOfWork _unitOfWork;
 
-    public RegisterIndividualCommandHandler(IUserRepository userRepository, IPasswordHasher passwordHasher, IJwtTokenGenerator jwtTokenGenerator, IUnitOfWork unitOfWork)
+    public RegisterIndividualCommandHandler(
+        IUserRepository userRepository,
+        IPasswordHasher passwordHasher,
+        IJwtTokenGenerator jwtTokenGenerator,
+        IUnitOfWork unitOfWork)
     {
         _userRepository = userRepository;
         _passwordHasher = passwordHasher;
@@ -34,8 +38,7 @@ public class RegisterIndividualCommandHandler : IRequestHandler<RegisterIndividu
         {
             Email = request.Email,
             PasswordHash = _passwordHasher.Hash(request.Password),
-            UserType = UserType.Individual,
-            IsActive = true,
+            UserType = UserType.individual,
             IndividualProfile = new IndividualProfile
             {
                 FirstName = request.FirstName,
@@ -50,23 +53,42 @@ public class RegisterIndividualCommandHandler : IRequestHandler<RegisterIndividu
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         var token = _jwtTokenGenerator.GenerateToken(user);
+        var profileDto = MapToDto(user);
 
-        var userProfileDto = new UserProfileDto
+        return new LoginResultDto { User = profileDto, Token = token };
+    }
+
+    private static UserProfileDto MapToDto(RegisteredUser user)
+    {
+        return new UserProfileDto
         {
             Id = user.Id,
             Email = user.Email,
             UserType = user.UserType,
-            IndividualProfile = new IndividualProfileDto
-            {
-                FirstName = user.IndividualProfile.FirstName,
-                LastName = user.IndividualProfile.LastName,
-                Phone = user.IndividualProfile.Phone,
-                City = user.IndividualProfile.City,
-                District = user.IndividualProfile.District,
-                PhotoUrl = user.IndividualProfile.PhotoUrl
-            }
+            IsAdmin = user.IsAdmin,
+            IndividualProfile = user.IndividualProfile == null
+                ? null
+                : new IndividualProfileDto
+                {
+                    FirstName = user.IndividualProfile.FirstName,
+                    LastName = user.IndividualProfile.LastName,
+                    Phone = user.IndividualProfile.Phone,
+                    City = user.IndividualProfile.City,
+                    District = user.IndividualProfile.District,
+                    AdditionalInfo = user.IndividualProfile.AdditionalInfo,
+                    PhotoUrl = user.IndividualProfile.PhotoUrl
+                },
+            ShelterProfile = user.ShelterProfile == null
+                ? null
+                : new ShelterProfileDto
+                {
+                    Name = user.ShelterProfile.Name,
+                    ContactPerson = user.ShelterProfile.ContactPerson,
+                    Phone = user.ShelterProfile.Phone,
+                    Address = user.ShelterProfile.Address,
+                    Description = user.ShelterProfile.Description,
+                    LogoUrl = user.ShelterProfile.LogoUrl
+                }
         };
-
-        return new LoginResultDto { User = userProfileDto, Token = token };
     }
 }

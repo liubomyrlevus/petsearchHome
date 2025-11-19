@@ -4,16 +4,16 @@ using MediatR;
 using Microsoft.AspNetCore.Components;
 using PetSearchHome.BLL.Queries;
 using PetSearchHome.Presentation.Services;
-using System;
 using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 
-namespace PetSearchHome.ViewModels // ❗ Namespace PetSearchHome.ViewModels
+namespace PetSearchHome.ViewModels;
+
+public partial class LoginViewModel : ObservableValidator
 {
     private readonly IMediator _mediator;
     private readonly NavigationManager _navigationManager;
     private readonly CurrentUserService _currentUserService;
-
-
 
     [ObservableProperty]
     [Required(ErrorMessage = "Поле Email є обов'язковим.")]
@@ -44,9 +44,9 @@ namespace PetSearchHome.ViewModels // ❗ Namespace PetSearchHome.ViewModels
         NavigationManager navigationManager,
         CurrentUserService currentUserService)
     {
-        _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
-        _navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
-        _currentUserService = currentUserService ?? throw new ArgumentNullException(nameof(currentUserService));
+        _mediator = mediator;
+        _navigationManager = navigationManager;
+        _currentUserService = currentUserService;
     }
 
     [RelayCommand]
@@ -66,23 +66,17 @@ namespace PetSearchHome.ViewModels // ❗ Namespace PetSearchHome.ViewModels
         try
         {
             var query = new LoginQuery { Email = Email, Password = Password };
-            var loginResult = await _mediator.Send(query).ConfigureAwait(false);
-            if (loginResult.IsSuccess) // Припускаємо, що ви оновили LoginResultDto
-            {
-                _currentUserService.Login(new UserDto
-                {
-                    Id = loginResult.User.Id,
-                    Email = loginResult.User.Email,
-                    Name = loginResult.User.Email, // Або ім'я з профілю
-                    IsAdmin = loginResult.User.IsAdmin
-                });
+            var loginResult = await _mediator.Send(query);
 
-                _navigationManager.NavigateTo("/home", replace: true);
-            }
-            else
-            {
-                ErrorMessage = loginResult.Error ?? "Невірний логін або пароль.";
-            }
+            _currentUserService.SetUser(
+                loginResult.User.Id,
+                loginResult.User.Email,
+                RememberMe,
+                loginResult.User.IsAdmin);
+
+            // Повне перезавантаження Blazor WebView (аналог Ctrl+R),
+            // щоб меню й сторінки одразу побачили оновлений стан користувача.
+            _navigationManager.NavigateTo("/home", forceLoad: true);
         }
         catch (System.Exception ex)
         {

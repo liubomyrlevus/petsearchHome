@@ -1,27 +1,118 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+@inject PetSearchHome.Presentation.Services.CurrentUserService CurrentUser
+@inject NavigationManager NavigationManager
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">PetSearchHome.Presentation</a>
+        <a class="navbar-brand" href="/">PetSearchHome</a>
     </div>
 </div>
 
 <input type="checkbox" title="Navigation menu" class="navbar-toggler" />
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').checked = false">
     <nav class="flex-column">
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
+            @if (CurrentUser.IsLoggedIn || CurrentUser.IsGuest)
+            {
+                <NavLink class="nav-link" href="/home" Match="NavLinkMatch.All">
+                    <span class="bi bi-grid-nav-menu" aria-hidden="true"></span> Головна
+                </NavLink>
+            }
+            else
+            {
+                <span class="nav-link disabled">
+                    <span class="bi bi-grid-nav-menu" aria-hidden="true"></span> Головна
+                </span>
+            }
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
+            @if (CurrentUser.IsLoggedIn)
+            {
+                <NavLink class="nav-link" href="/create-listing">
+                    <span class="bi bi-plus-circle-nav-menu" aria-hidden="true"></span> Створити оголошення
+                </NavLink>
+            }
+            else
+            {
+                <span class="nav-link disabled">
+                    <span class="bi bi-plus-circle-nav-menu" aria-hidden="true"></span> Створити оголошення
+                </span>
+            }
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
+            @if (CurrentUser.IsLoggedIn)
+            {
+                <NavLink class="nav-link" href="/favorites">
+                    <span class="bi bi-heart-nav-menu" aria-hidden="true"></span> Обрані
+                </NavLink>
+            }
+            else
+            {
+                <span class="nav-link disabled">
+                    <span class="bi bi-heart-nav-menu" aria-hidden="true"></span> Обрані
+                </span>
+            }
         </div>
+        <div class="nav-item px-3">
+            @if (CurrentUser.IsLoggedIn)
+            {
+                <NavLink class="nav-link" href="/my-listings">
+                    <span class="bi bi-list-task-nav-menu" aria-hidden="true"></span> Мої оголошення
+                </NavLink>
+            }
+            else
+            {
+                <span class="nav-link disabled">
+                    <span class="bi bi-list-task-nav-menu" aria-hidden="true"></span> Мої оголошення
+                </span>
+            }
+        </div>
+        <div class="nav-item px-3">
+            @if (CurrentUser.IsLoggedIn)
+            {
+                <NavLink class="nav-link" href="/profile">
+                    <span class="bi bi-person-nav-menu" aria-hidden="true"></span> Профіль
+                </NavLink>
+            }
+            else
+            {
+                <span class="nav-link disabled">
+                    <span class="bi bi-person-nav-menu" aria-hidden="true"></span> Профіль
+                </span>
+            }
+        </div>
+        @if (CurrentUser.IsLoggedIn && CurrentUser.IsAdmin)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/admin">
+                    <span class="bi bi-shield-lock" aria-hidden="true"></span> Адмін-панель
+                </NavLink>
+            </div>
+        }
+
+        @if (CurrentUser.IsLoggedIn || CurrentUser.IsGuest)
+        {
+            <div class="nav-item px-3">
+                <button type="button" class="nav-link btn btn-link" @onclick="Logout">
+                    <span class="bi bi-login-nav-menu" aria-hidden="true"></span> Вийти
+                </button>
+            </div>
+        }
+        else
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/login">
+                    <span class="bi bi-login-nav-menu" aria-hidden="true"></span> Увійти
+                </NavLink>
+            </div>
+        }
     </nav>
 </div>
+
+@code {
+    private void Logout()
+    {
+        CurrentUser.ClearUser();
+        NavigationManager.NavigateTo("/login", forceLoad: true);
+    }
+}

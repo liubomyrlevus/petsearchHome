@@ -1,38 +1,93 @@
-﻿@page "/login"
+@page "/login"
 @page "/"
+@inject ViewModels.LoginViewModel ViewModel
+@inject NavigationManager NavigationManager
+@inject PetSearchHome.Presentation.Services.CurrentUserService CurrentUserService
+@implements IDisposable
 
-<EditForm Model="LoginModel" OnValidSubmit="HandleLoginSubmit">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+<PageTitle>Вхід</PageTitle>
 
-    <h3>Вхід до системи</h3>
+<div class="page-container auth-page">
+    <EditForm class="login-form" Model="ViewModel" OnValidSubmit="ViewModel.LoginCommand.ExecuteAsync">
+        <DataAnnotationsValidator />
 
-    <div>
-        <label for="emailInput">Email</label>
-        <InputText id="emailInput" @bind-Value="LoginModel.Email" type="email" />
-        <ValidationMessage For="@(() => LoginModel.Email)" />
-    </div>
+        <h3>Увійдіть до PetSearchHome</h3>
 
-    <div>
-        <label for="passwordInput">Пароль</label>
-        <InputText id="passwordInput" @bind-Value="LoginModel.Password" type="password" />
-        <ValidationMessage For="@(() => LoginModel.Password)" />
-    </div>
+        <div class="form-field">
+            <label for="emailInput">Email</label>
+            <InputText id="emailInput"
+                       @bind-Value="ViewModel.Email"
+                       type="email"
+                       placeholder="example@gmail.com" />
+            <ValidationMessage For="@(() => ViewModel.Email)" />
+        </div>
 
-    @if (!string.IsNullOrEmpty(ErrorMessage))
-    {
-        <div class="error-message">@ErrorMessage</div>
-    }
+        <div class="form-field">
+            <label for="passwordInput">Пароль</label>
+            <InputText id="passwordInput"
+                       @bind-Value="ViewModel.Password"
+                       type="password"
+                       placeholder="Введіть свій пароль" />
+            <ValidationMessage For="@(() => ViewModel.Password)" />
+        </div>
 
-    <button type="submit">Увійти</button>
-    <button type="button" @onclick="GoToRegister">Зареєструватися</button>
-    <button type="button" @onclick="ContinueAsGuest">Продовжити як гість</button>
+        <div class="form-footer">
+            <label class="remember-me">
+                <input type="checkbox" @bind="ViewModel.RememberMe" />
+                <span>Запам’ятати мене на цьому пристрої</span>
+            </label>
 
-</EditForm>
+            <button type="button" class="link-button" @onclick="ForgotPassword">
+                Забули пароль?
+            </button>
+        </div>
 
+        @if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
+        {
+            <div class="error-message">@ViewModel.ErrorMessage</div>
+        }
+
+        <div class="actions">
+            <button type="submit" class="primary" disabled="@(!ViewModel.CanLogin)">
+                @if (ViewModel.IsBusy)
+                {
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                }
+                else
+                {
+                    <span>Увійти</span>
+                }
+            </button>
+            <button type="button" @onclick="GoToRegister">Зареєструватися</button>
+            <button type="button" @onclick="ContinueAsGuest">Продовжити як гість</button>
+        </div>
+    </EditForm>
+</div>
 
 @code {
-    // Цей блок залишається порожнім.
-    // Вся C#-логіка (LoginModel, HandleLoginSubmit, GoToRegister, ContinueAsGuest)
-    // знаходиться у файлі LoginPage.razor.cs.
+    protected override void OnInitialized()
+    {
+        ViewModel.PropertyChanged += (_, _) => StateHasChanged();
+    }
+
+    private void GoToRegister()
+    {
+        NavigationManager.NavigateTo("/register");
+    }
+
+    private void ForgotPassword()
+    {
+        NavigationManager.NavigateTo("/forgot-password");
+    }
+
+    private void ContinueAsGuest()
+    {
+        CurrentUserService.SetGuest();
+        NavigationManager.NavigateTo("/home", replace: true);
+    }
+
+    public void Dispose()
+    {
+        ViewModel.PropertyChanged -= (_, _) => StateHasChanged();
+    }
 }

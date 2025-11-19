@@ -25,11 +25,13 @@ public sealed class JwtTokenGenerator : IJwtTokenGenerator
 
         var now = DateTime.UtcNow;
 
+        var isAdminEffective = user.IsAdmin;
+
         var claims = new[]
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new Claim(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
-            new Claim("isAdmin", user.IsAdmin ? "1" : "0"),
+            new Claim("isAdmin", isAdminEffective ? "1" : "0"),
             new Claim("userType", user.UserType.ToString()),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };

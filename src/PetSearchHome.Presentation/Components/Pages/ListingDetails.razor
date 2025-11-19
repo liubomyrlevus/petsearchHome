@@ -1,0 +1,169 @@
+@page "/listing/{ListingId:int}"
+@inject PetSearchHome.ViewModels.ListingDetailsViewModel ViewModel
+@implements IDisposable
+
+<PageTitle>Деталі оголошення</PageTitle>
+
+@if (ViewModel.IsBusy)
+{
+    <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Завантаження інформації про оголошення...</div>
+    </div>
+}
+else if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
+{
+    <div class="alert alert-danger">@ViewModel.ErrorMessage</div>
+}
+else if (ViewModel.Listing is null)
+{
+    <p><em>Оголошення не знайдено.</em></p>
+}
+else
+{
+    var listing = ViewModel.Listing;
+
+    <div class="page-container listing-details">
+        <div class="listing-header d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
+            <div>
+                <h2>@(listing.Breed ?? "Без породи")</h2>
+                <p class="text-muted mb-0">
+                    @listing.AnimalType.ToUkrainianLabel(),
+                    @(listing.AgeMonths.HasValue ? $"{listing.AgeMonths} міс." : "вік не вказано")
+                    @if (!string.IsNullOrEmpty(listing.City))
+                    {
+                        <span>- @listing.City</span>
+                    }
+                </p>
+            </div>
+
+            <button class="btn btn-outline-danger"
+                    @onclick="ViewModel.ToggleFavoriteCommand.ExecuteAsync">
+                @(ViewModel.IsFavorite ? "В обраному" : "Додати в обране")
+            </button>
+        </div>
+
+        @if (listing.PhotoUrls?.Count > 0)
+        {
+            <MudCarousel TData="string" Class="mb-4">
+                @foreach (var url in listing.PhotoUrls)
+                {
+                    <MudCarouselItem>
+                        <img src="@url" alt="Фото тварини" style="width:100%;max-height:400px;object-fit:cover;" />
+                    </MudCarouselItem>
+                }
+            </MudCarousel>
+        }
+
+        <div class="row gy-4">
+            <div class="col-lg-8">
+                <section class="mb-4">
+                    <h4>Основна інформація</h4>
+                    <ul class="details-list">
+                        <li>Вид: @listing.AnimalType.ToUkrainianLabel()</li>
+                        @if (!string.IsNullOrEmpty(listing.Breed))
+                        {
+                            <li>Порода / різновид: @listing.Breed</li>
+                        }
+                        @if (listing.Sex.HasValue)
+                        {
+                            <li>Стать: @listing.Sex.ToUkrainianLabel()</li>
+                        }
+                        @if (listing.Size.HasValue)
+                        {
+                            <li>Розмір: @listing.Size.ToUkrainianLabel()</li>
+                        }
+                        @if (!string.IsNullOrEmpty(listing.Color))
+                        {
+                            <li>Колір / масть: @listing.Color</li>
+                        }
+                        @if (!string.IsNullOrEmpty(listing.City))
+                        {
+                            <li>Місцезнаходження: @listing.City @if (!string.IsNullOrEmpty(listing.District)) { <span>(@listing.District)</span>; }</li>
+                        }
+                    </ul>
+                </section>
+
+                <section class="mb-4">
+                    <h4>Опис</h4>
+                    <p>@(string.IsNullOrWhiteSpace(listing.Description) ? "Опис не вказано." : listing.Description)</p>
+                </section>
+
+                @if (!string.IsNullOrWhiteSpace(listing.SpecialNeeds))
+                {
+                    <section class="mb-4">
+                        <h4>Особливі потреби</h4>
+                        <p>@listing.SpecialNeeds</p>
+                    </section>
+                }
+
+                @if (listing.HealthInfo is not null)
+                {
+                    <section class="mb-4">
+                        <h4>Медична інформація</h4>
+                        <ul class="details-list">
+                            @if (!string.IsNullOrWhiteSpace(listing.HealthInfo.Vaccinations))
+                            {
+                                <li>Щеплення: @listing.HealthInfo.Vaccinations</li>
+                            }
+                            @if (listing.HealthInfo.Sterilized.HasValue)
+                            {
+                                <li>Стерилізовано: @(listing.HealthInfo.Sterilized.Value ? "так" : "ні")</li>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(listing.HealthInfo.ChronicDiseases))
+                            {
+                                <li>Хронічні захворювання: @listing.HealthInfo.ChronicDiseases</li>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(listing.HealthInfo.TreatmentHistory))
+                            {
+                                <li>Історія лікування: @listing.HealthInfo.TreatmentHistory</li>
+                            }
+                        </ul>
+                    </section>
+                }
+            </div>
+
+            <div class="col-lg-4">
+                <section class="info-card">
+                    <h4>Власник</h4>
+                    <p class="fw-semibold mb-1">@listing.OwnerName</p>
+                    <NavLink class="btn btn-sm btn-outline-secondary mb-2" href="@($"/profile/{listing.UserId}")">
+                        Переглянути профіль власника
+                    </NavLink>
+                    <small class="text-muted d-block mb-2">
+                        Оголошення створено: @listing.CreatedAt.ToLocalTime().ToShortDateString()<br />
+                        Переглядів: @listing.ViewsCount
+                    </small>
+                </section>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int ListingId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+
+        if (ViewModel.LoadCommand.CanExecute(ListingId))
+        {
+            await ViewModel.LoadCommand.ExecuteAsync(ListingId);
+        }
+    }
+
+    private void OnViewModelPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
+    }
+}
+
+
+

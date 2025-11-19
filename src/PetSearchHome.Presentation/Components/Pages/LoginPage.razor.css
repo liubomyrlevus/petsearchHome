@@ -1,0 +1,121 @@
+.login-form {
+    max-width: 420px;
+    margin: 0 auto;
+    padding: 2rem;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.9);
+    box-shadow: 0 12px 24px rgba(15,34,58,0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.login-form h3 {
+    margin: 0;
+    font-weight: 600;
+}
+
+.form-field label {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-weight: 600;
+}
+
+.form-field input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    border: 1px solid #d0d6e0;
+    background-color: #f7f9fc;
+}
+
+.form-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+}
+
+.remember-me {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.remember-me input {
+    width: auto;
+}
+
+.link-button {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #1b6ec2;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.link-button:hover {
+    color: #15589a;
+}
+
+.actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.actions button {
+    border: none;
+    border-radius: 8px;
+    padding: 0.55rem 1.5rem;
+    cursor: pointer;
+    background-color: #eef2f7;
+    color: #1f3a5f;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.actions button:hover {
+    background-color: #dde4f0;
+}
+
+.actions .primary {
+    background-color: #1b6ec2;
+    color: #fff;
+}
+
+.actions .primary:hover {
+    background-color: #15589a;
+}
+
+.error-message {
+    color: #c62828;
+    font-weight: 500;
+}
+
+.validation-message {
+    color: #c62828;
+    font-size: 0.85rem;
+}
+
+input.input-validation-error {
+    border-color: #c62828;
+    background-color: #ffebee;
+}
+
+@media (max-width: 480px) {
+    .login-form {
+        margin: 0;
+        padding: 1.5rem;
+    }
+
+    .actions {
+        flex-direction: column;
+    }
+
+    .actions button {
+        width: 100%;
+        text-align: center;
+    }
+}
