@@ -2,6 +2,9 @@
 
 public class LoginResultDto
 {
-    public UserProfileDto User { get; set; }
-    public string Token { get; set; } 
+    public bool IsSuccess { get; set; }
+    public string? Error { get; set; }
+
+    public UserProfileDto User { get; set; } = new(); 
+    public string Token { get; set; } = string.Empty;
 }
