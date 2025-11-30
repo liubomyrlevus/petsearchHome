@@ -2,7 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using Microsoft.AspNetCore.Components;
-using PetSearchHome.BLL.Commands;
+using PetSearchHome.BLL.Features.Auth.Commands;
 using PetSearchHome.BLL.DTOs;
 using PetSearchHome.Presentation.Services;
 using System;
@@ -17,14 +17,15 @@ public partial class RegisterViewModel : ObservableValidator
     private readonly NavigationManager _navigationManager;
     private readonly CurrentUserService _currentUserService;
 
+    // ✅ ОНОВЛЕНИЙ КОНСТРУКТОР (Clean Code)
     public RegisterViewModel(
         IMediator mediator,
         NavigationManager navigationManager,
         CurrentUserService currentUserService)
     {
-        _mediator = mediator;
-        _navigationManager = navigationManager;
-        _currentUserService = currentUserService;
+        _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
+        _navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+        _currentUserService = currentUserService ?? throw new ArgumentNullException(nameof(currentUserService));
         _selectedUserType = "Individual";
     }
 
@@ -73,6 +74,7 @@ public partial class RegisterViewModel : ObservableValidator
         {
             LoginResultDto? loginResult = null;
 
+            // Вибір команди залежно від типу користувача
             if (SelectedUserType == "Individual")
             {
                 var command = new RegisterIndividualCommand
@@ -85,8 +87,7 @@ public partial class RegisterViewModel : ObservableValidator
                     City = City,
                     District = District
                 };
-
-                loginResult = await _mediator.Send(command);
+                loginResult = await _mediator.Send(command).ConfigureAwait(false);
             }
             else if (SelectedUserType == "Shelter")
             {
@@ -99,19 +100,29 @@ public partial class RegisterViewModel : ObservableValidator
                     Phone = ShelterPhone,
                     Address = Address
                 };
-
-                loginResult = await _mediator.Send(command);
+                loginResult = await _mediator.Send(command).ConfigureAwait(false);
             }
 
-            if (loginResult is not null)
+            // ✅ ПЕРЕВІРКА РЕЗУЛЬТАТУ
+            if (loginResult != null && loginResult.IsSuccess)
             {
-                _currentUserService.SetUser(
-                    loginResult.User.Id,
-                    loginResult.User.Email,
-                    rememberMe: false,
-                    isAdmin: loginResult.User.IsAdmin);
+                // ✅ ВИКОРИСТАННЯ CurrentUserService.Login (замість SetUser)
+                _currentUserService.Login(new UserDto
+                {
+                    Id = loginResult.User.Id,
+                    Email = loginResult.User.Email,
+                    IsAdmin = loginResult.User.IsAdmin,
+                    // Визначаємо ім'я для відображення
+                    Name = SelectedUserType == "Shelter" ? ShelterName : $"{FirstName} {LastName}"
+                });
 
-                _navigationManager.NavigateTo("/home", forceLoad: true);
+                // Переходимо на головну
+                _navigationManager.NavigateTo("/home", replace: true);
+            }
+            else
+            {
+                // Відображаємо помилку з BLL
+                ErrorMessage = loginResult?.Error ?? "Невідома помилка реєстрації.";
             }
         }
         catch (Exception ex)
