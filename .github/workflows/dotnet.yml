@@ -1,47 +1,32 @@
-name: .NET Build & Test (PostgreSQL)
+name: .NET Build and Test
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ "main", "master" ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ "main", "master" ]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: 12345
-          POSTGRES_DB: petsearchhome
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd="pg_isready -U postgres"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
+    runs-on: windows-latest 
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    - uses: actions/checkout@v3
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 9.0.x 
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 8.0.x
+    - name: Install MAUI Workload
+      run: dotnet workload install maui
 
-      - name: Verify .NET version
-        run: dotnet --info
+    - name: Restore dependencies
+      run: dotnet restore
 
-      - name: Restore dependencies
-        run: dotnet restore ./PetSearchHome.sln
+    - name: Build
+      run: dotnet build --no-restore
 
-      - name: Build solution
-        run: dotnet build ./PetSearchHome.sln --no-restore --configuration Release
-
-      - name: Run tests
-        run: dotnet test ./tests/PetSearchHome.BLL.Tests/PetSearchHome.BLL.Tests.csproj --no-build --verbosity normal
+    - name: Test
+      # Тестуємо тільки проєкт тестів, щоб не намагатися запустити UI-тести MAUI
+      run: dotnet test PetSearchHome.Tests/PetSearchHome.Tests.csproj --no-build --verbosity normal
