@@ -8,6 +8,11 @@ using PetSearchHome.Presentation.Services;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using PetSearchHome.BLL.Commands;
+using PetSearchHome.BLL.Services.Authentication;
+using System.Reflection;
+using MediatR;
 
 namespace PetSearchHome.ViewModels;
 
