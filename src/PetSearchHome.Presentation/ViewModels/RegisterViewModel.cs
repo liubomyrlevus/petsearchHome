@@ -8,11 +8,8 @@ using PetSearchHome.Presentation.Services;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using PetSearchHome.BLL.Commands;
 using PetSearchHome.BLL.Services.Authentication;
-using System.Reflection;
-using MediatR;
 
 namespace PetSearchHome.ViewModels;
 
@@ -22,7 +19,6 @@ public partial class RegisterViewModel : ObservableValidator
     private readonly NavigationManager _navigationManager;
     private readonly CurrentUserService _currentUserService;
 
-    // ✅ ОНОВЛЕНИЙ КОНСТРУКТОР (Clean Code)
     public RegisterViewModel(
         IMediator mediator,
         NavigationManager navigationManager,
@@ -62,7 +58,7 @@ public partial class RegisterViewModel : ObservableValidator
     [ObservableProperty] private bool _isBusy;
 
     [RelayCommand]
-    private async Task RegisterAsync()
+    public async Task RegisterAsync()
     {
         ValidateAllProperties();
         if (HasErrors)

@@ -31,7 +31,7 @@ public class RegisterShelterCommandHandler : IRequestHandler<RegisterShelterComm
     {
         if (await _userRepository.GetByEmailAsync(request.Email, cancellationToken) != null)
         {
-            throw new Exception("Email is already taken.");
+            return new LoginResultDto { IsSuccess = false, Error = "Email is already taken." };
         }
 
         var user = new RegisteredUser
@@ -54,7 +54,7 @@ public class RegisterShelterCommandHandler : IRequestHandler<RegisterShelterComm
         var token = _jwtTokenGenerator.GenerateToken(user);
         var profileDto = MapToDto(user);
 
-        return new LoginResultDto { User = profileDto, Token = token };
+        return new LoginResultDto { IsSuccess = true, User = profileDto, Token = token };
     }
 
     private static UserProfileDto MapToDto(RegisteredUser user)

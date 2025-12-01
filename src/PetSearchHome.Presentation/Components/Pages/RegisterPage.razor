@@ -9,7 +9,7 @@
 
     <div class="card">
         <div class="card-body">
-            <EditForm Model="ViewModel" OnValidSubmit="ViewModel.RegisterCommand.ExecuteAsync">
+            <EditForm Model="ViewModel" OnValidSubmit="HandleValidSubmitAsync">
                 <DataAnnotationsValidator />
 
                 <div class="form-group mb-3">
@@ -104,14 +104,28 @@
 </div>
 
 @code {
+    private System.ComponentModel.PropertyChangedEventHandler? _propertyChangedHandler;
+
+    private async Task HandleValidSubmitAsync()
+    {
+        await ViewModel.RegisterAsync();
+        // Ensure a render after async work completes
+        await InvokeAsync(StateHasChanged);
+    }
+
     protected override void OnInitialized()
     {
-        ViewModel.PropertyChanged += (_, _) => StateHasChanged();
+        // Marshal state updates to the Dispatcher to avoid cross-thread rendering
+        _propertyChangedHandler = async (_, __) => await InvokeAsync(StateHasChanged);
+        ViewModel.PropertyChanged += _propertyChangedHandler;
     }
 
     public void Dispose()
     {
-        ViewModel.PropertyChanged -= (_, _) => StateHasChanged();
+        if (_propertyChangedHandler != null)
+        {
+            ViewModel.PropertyChanged -= _propertyChangedHandler;
+        }
     }
 }
 
