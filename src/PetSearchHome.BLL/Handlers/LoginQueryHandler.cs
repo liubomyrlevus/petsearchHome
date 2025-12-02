@@ -12,43 +12,53 @@ public class LoginQueryHandler : IRequestHandler<LoginQuery, LoginResultDto>
     private readonly IUserRepository _userRepository;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IJwtTokenGenerator _jwtTokenGenerator;
-    private readonly ISessionRepository _sessionRepository; 
+    private readonly ISessionRepository _sessionRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public LoginQueryHandler(
         IUserRepository userRepository,
         IPasswordHasher passwordHasher,
         IJwtTokenGenerator jwtTokenGenerator,
-        ISessionRepository sessionRepository, 
+        ISessionRepository sessionRepository,
         IUnitOfWork unitOfWork)
     {
         _userRepository = userRepository;
         _passwordHasher = passwordHasher;
         _jwtTokenGenerator = jwtTokenGenerator;
-        _sessionRepository = sessionRepository; 
+        _sessionRepository = sessionRepository;
         _unitOfWork = unitOfWork;
     }
 
     public async Task<LoginResultDto> Handle(LoginQuery request, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetByEmailAsync(request.Email, cancellationToken);
-        if (user == null || !user.IsActive || !_passwordHasher.Verify(request.Password, user.PasswordHash))
+
+        // 🔍 Перевірка email/пароля
+        if (user == null || !user.IsActive ||
+            !_passwordHasher.Verify(request.Password, user.PasswordHash))
         {
-            throw new Exception("Invalid email or password.");
+            return new LoginResultDto
+            {
+                IsSuccess = false,
+                Error = "Невірний email або пароль."
+            };
         }
 
-        // 3. Логіка створення сесії
+        // 🔐 Створення сесії
         var session = new Session
         {
             UserId = user.Id,
             SessionToken = Guid.NewGuid().ToString("N"),
             ExpiresAt = DateTime.UtcNow.AddDays(30)
         };
+
         await _sessionRepository.AddAsync(session, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
+        // 🔑 Генерація JWT
         var token = _jwtTokenGenerator.GenerateToken(user);
 
+        // 🧍 Профіль користувача
         var profileDto = new UserProfileDto
         {
             Id = user.Id,
@@ -75,6 +85,12 @@ public class LoginQueryHandler : IRequestHandler<LoginQuery, LoginResultDto>
             } : null
         };
 
-        return new LoginResultDto { User = profileDto, Token = token };
+        // 🎉 Успішний логін
+        return new LoginResultDto
+        {
+            IsSuccess = true,
+            Token = token,
+            User = profileDto
+        };
     }
 }

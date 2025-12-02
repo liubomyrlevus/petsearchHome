@@ -6,4 +6,6 @@ public class LoginResultDto
 
     public UserProfileDto User { get; set; } = new(); 
     public string Token { get; set; } = string.Empty;
+    public bool Success { get; set; }
+    public string? ErrorMessage { get; set; }
 }

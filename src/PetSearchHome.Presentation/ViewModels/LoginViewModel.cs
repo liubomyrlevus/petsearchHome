@@ -68,6 +68,25 @@ public partial class LoginViewModel : ObservableValidator
             var query = new LoginQuery { Email = Email, Password = Password };
             var loginResult = await _mediator.Send(query);
 
+            if (!loginResult.IsSuccess)
+            {
+                ErrorMessage = string.IsNullOrWhiteSpace(loginResult.Error)
+                    ? (string.IsNullOrWhiteSpace(loginResult.ErrorMessage)
+                        ? "Неправильний email або пароль."
+                        : loginResult.ErrorMessage)
+                    : loginResult.Error;
+
+                Password = string.Empty;
+                return;
+            }
+
+            if (loginResult.User is null)
+            {
+                ErrorMessage = "Не вдалося отримати дані користувача.";
+                Password = string.Empty;
+                return;
+            }
+
             _currentUserService.SetUser(
                 loginResult.User.Id,
                 loginResult.User.Email,

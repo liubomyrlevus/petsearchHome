@@ -82,17 +82,18 @@ public class UserRepository : IUserRepository
 
 public class ListingRepository : IListingRepository
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
 
-    // Ми використовуємо прямий контекст, як налаштували в MauiProgram
-    public ListingRepository(ApplicationDbContext context)
+    public ListingRepository(IDbContextFactory<ApplicationDbContext> contextFactory)
     {
-        _context = context;
+        _contextFactory = contextFactory;
     }
 
     public async Task<Listing?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        return await _context.Listings
+        await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
+
+        return await context.Listings
             .Include(l => l.HealthInfo)
             .Include(l => l.Photos)
             .AsNoTracking()
@@ -101,7 +102,9 @@ public class ListingRepository : IListingRepository
 
     public async Task<IReadOnlyList<Listing>> GetByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default)
     {
-        return await _context.Listings
+        await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
+
+        return await context.Listings
             .Include(l => l.Photos)
             .Where(l => ids.Contains(l.Id))
             .AsNoTracking()
@@ -115,7 +118,9 @@ public class ListingRepository : IListingRepository
         ListingStatus? status,
         CancellationToken cancellationToken = default)
     {
-        var query = _context.Listings.AsQueryable();
+        await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
+
+        var query = context.Listings.AsQueryable();
 
         if (status.HasValue)
             query = query.Where(l => l.Status == status.Value);
@@ -138,31 +143,50 @@ public class ListingRepository : IListingRepository
 
     public async Task<int> AddAsync(Listing listing, CancellationToken cancellationToken = default)
     {
-        var entry = await _context.Listings.AddAsync(listing, cancellationToken);
-        // ID буде згенеровано після SaveChangesAsync у UnitOfWork
+        await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
+
+        var entry = await context.Listings.AddAsync(listing, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
+
         return entry.Entity.Id;
     }
 
-    public Task UpdateAsync(Listing listing, CancellationToken cancellationToken = default)
+    public async Task UpdateAsync(Listing listing, CancellationToken cancellationToken = default)
     {
-        _context.Listings.Update(listing);
-        return Task.CompletedTask;
+        await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
+
+        context.Listings.Update(listing);
+        await context.SaveChangesAsync(cancellationToken);
     }
 
     public async Task DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
-        var listing = await _context.Listings.FindAsync(new object[] { id }, cancellationToken);
-        if (listing != null) _context.Listings.Remove(listing);
+        await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
+
+        var listing = await context.Listings.FindAsync(new object[] { id }, cancellationToken);
+        if (listing != null)
+        {
+            context.Listings.Remove(listing);
+            await context.SaveChangesAsync(cancellationToken);
+        }
     }
 
     public async Task<IReadOnlyList<Listing>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await _context.Listings.AsNoTracking().ToListAsync(cancellationToken);
+        await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
+
+        return await context.Listings.AsNoTracking().ToListAsync(cancellationToken);
     }
 
     public async Task<IReadOnlyList<Listing>> GetByOwnerAsync(int userId, CancellationToken cancellationToken = default)
     {
-        return await _context.Listings.Where(l => l.UserId == userId).AsNoTracking().ToListAsync(cancellationToken);
+        await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
+
+        return await context.Listings
+            .Include(l => l.Photos)
+            .Where(l => l.UserId == userId)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
     }
 }
 
