@@ -1,0 +1,32 @@
+name: Frontend Tests (Presentation)
+on:
+  push:
+    branches: [ "main", "develop" ] 
+  pull_request:
+    branches: [ "main", "develop" ] 
+
+jobs:
+  build-and-test:
+    name: Build and Test
+  
+    runs-on: windows-latest 
+
+    steps:
+   
+    - uses: actions/checkout@v4
+
+ 
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+
+    - name: Install MAUI Workload
+      run: dotnet workload install maui
+
+   
+    - name: Restore Dependencies
+      run: dotnet restore tests/PetSearchHome.Presentation.Tests/PetSearchHome.Presentation.Tests.csproj
+
+    - name: Run Tests
+      run: dotnet test tests/PetSearchHome.Presentation.Tests/PetSearchHome.Presentation.Tests.csproj --no-restore --verbosity normal
