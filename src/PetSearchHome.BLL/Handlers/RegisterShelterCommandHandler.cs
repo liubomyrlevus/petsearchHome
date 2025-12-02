@@ -1,8 +1,8 @@
 using MediatR;
 using PetSearchHome.BLL.Commands;
-using PetSearchHome.BLL.Contracts.Persistence;
-using PetSearchHome.BLL.Domain.Entities;
-using PetSearchHome.BLL.Domain.Enums;
+using PetSearchHome.DAL.Contracts.Persistence;
+using PetSearchHome.DAL.Domain.Entities;
+using PetSearchHome.DAL.Domain.Enums;
 using PetSearchHome.BLL.DTOs;
 using PetSearchHome.BLL.Services.Authentication;
 

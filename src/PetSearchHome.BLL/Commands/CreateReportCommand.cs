@@ -1,5 +1,5 @@
 using MediatR;
-using PetSearchHome.BLL.Domain.Enums;
+using PetSearchHome.DAL.Domain.Enums;
 
 namespace PetSearchHome.BLL.Commands;
 

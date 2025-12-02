@@ -1,4 +1,4 @@
-using PetSearchHome.BLL.Domain.Entities;
+using PetSearchHome.DAL.Domain.Entities;
 
 namespace PetSearchHome.BLL.Services.Authentication;
 

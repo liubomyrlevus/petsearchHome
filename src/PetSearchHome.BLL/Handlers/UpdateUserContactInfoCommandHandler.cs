@@ -1,8 +1,8 @@
 using MediatR;
 using PetSearchHome.BLL.Commands;
-using PetSearchHome.BLL.Contracts.Persistence;
+using PetSearchHome.DAL.Contracts.Persistence;
 using PetSearchHome.BLL.DTOs;
-using PetSearchHome.BLL.Domain.Entities;
+using PetSearchHome.DAL.Domain.Entities;
 
 namespace PetSearchHome.BLL.Handlers;
 

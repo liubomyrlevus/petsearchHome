@@ -18,8 +18,4 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.1" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\PetSearchHome.BLL\PetSearchHome.BLL.csproj" />
-  </ItemGroup>
-
 </Project>

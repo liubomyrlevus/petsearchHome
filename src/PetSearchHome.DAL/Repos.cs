@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using PetSearchHome.BLL.Contracts.Persistence;
-using PetSearchHome.BLL.Domain.Entities;
-using PetSearchHome.BLL.Domain.Enums;
+using PetSearchHome.DAL.Contracts.Persistence;
+using PetSearchHome.DAL.Domain.Entities;
+using PetSearchHome.DAL.Domain.Enums;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;

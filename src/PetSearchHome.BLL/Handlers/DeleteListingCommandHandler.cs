@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using PetSearchHome.BLL.Commands;
-using PetSearchHome.BLL.Contracts.Persistence;
+using PetSearchHome.DAL.Contracts.Persistence;
 namespace PetSearchHome.BLL.Handlers;
 public class DeleteListingCommandHandler : IRequestHandler<DeleteListingCommand>
 {

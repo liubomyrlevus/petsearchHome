@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using PetSearchHome.BLL.Contracts.Persistence;
+using PetSearchHome.DAL.Contracts.Persistence;
 using PetSearchHome.DAL.Repositories;
 
 namespace PetSearchHome.DAL;

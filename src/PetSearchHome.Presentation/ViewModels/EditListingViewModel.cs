@@ -3,7 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using Microsoft.AspNetCore.Components;
 using PetSearchHome.BLL.Commands;
-using PetSearchHome.BLL.Domain.Enums;
+using PetSearchHome.DAL.Domain.Enums;
 using PetSearchHome.BLL.DTOs;
 using PetSearchHome.BLL.Queries;
 using PetSearchHome.Presentation.Services;

@@ -1,8 +1,8 @@
 ﻿using MediatR;
-using PetSearchHome.BLL.Contracts.Persistence;
+using PetSearchHome.DAL.Contracts.Persistence;
 using PetSearchHome.BLL.DTOs;
 using PetSearchHome.BLL.Queries;
-using PetSearchHome.BLL.Domain.Enums;
+using PetSearchHome.DAL.Domain.Enums;
 namespace PetSearchHome.BLL.Handlers;
 public class GetReviewsForUserQueryHandler : IRequestHandler<GetReviewsForUserQuery, IReadOnlyList<ReviewDto>>
 {

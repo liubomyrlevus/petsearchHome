@@ -1,9 +1,9 @@
 ﻿using MediatR;
-using PetSearchHome.BLL.Contracts.Persistence;
+using PetSearchHome.DAL.Contracts.Persistence;
 using PetSearchHome.BLL.DTOs;
 using PetSearchHome.BLL.Queries;
-using PetSearchHome.BLL.Domain.Enums;
-using PetSearchHome.BLL.Domain.Entities; 
+using PetSearchHome.DAL.Domain.Enums;
+using PetSearchHome.DAL.Domain.Entities; 
 
 namespace PetSearchHome.BLL.Handlers;
 public class GetUserConversationsQueryHandler : IRequestHandler<GetUserConversationsQuery, IReadOnlyList<ConversationPreviewDto>>

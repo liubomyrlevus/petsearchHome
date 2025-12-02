@@ -1,8 +1,8 @@
 ﻿using MediatR;
 using PetSearchHome.BLL.Commands;
-using PetSearchHome.BLL.Contracts.Persistence;
-using PetSearchHome.BLL.Domain.Entities;
-using PetSearchHome.BLL.Domain.Enums;
+using PetSearchHome.DAL.Contracts.Persistence;
+using PetSearchHome.DAL.Domain.Entities;
+using PetSearchHome.DAL.Domain.Enums;
 namespace PetSearchHome.BLL.Handlers;
 public class CreateListingCommandHandler : IRequestHandler<CreateListingCommand, int>
 {

@@ -2,7 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using PetSearchHome.BLL.Commands;
-using PetSearchHome.BLL.Domain.Enums;
+using PetSearchHome.DAL.Domain.Enums;
 using PetSearchHome.BLL.DTOs;
 using PetSearchHome.Presentation.Services;
 using PetSearchHome.BLL.Queries;

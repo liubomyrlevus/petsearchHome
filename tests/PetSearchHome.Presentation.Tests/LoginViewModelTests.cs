@@ -1,9 +1,8 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Components;
 using Moq;
-using PetSearchHome.BLL.DTOs; // Для LoginResultDto
-using PetSearchHome.BLL.Features.Auth.Commands.Login;
-using PetSearchHome.BLL.Queries;
+using PetSearchHome.BLL.DTOs;
+using PetSearchHome.BLL.Queries; // ⚠️ Переконайся, що тут саме той LoginQuery, що у ViewModel
 using PetSearchHome.Presentation.Services;
 using PetSearchHome.ViewModels;
 using System;
@@ -15,18 +14,27 @@ namespace PetSearchHome.Presentation.Tests
 {
     public class LoginViewModelTests
     {
-        // ✅ ТЕСТ 1: Перевірка Clean Code (Викид винятку в конструкторі)
+        // ✅ ТЕСТ 1: Перевірка Clean Code (Всі параметри конструктора)
         [Fact]
-        public void Constructor_Should_ThrowArgumentNullException_When_MediatorIsNull()
+        public void Constructor_Should_ThrowArgumentNullException_When_AnyDependencyIsNull()
         {
             // Arrange
-            IMediator nullMediator = null;
+            var mockMediator = new Mock<IMediator>();
             var mockNav = new Mock<NavigationManager>();
             var mockUser = new Mock<CurrentUserService>();
 
             // Act & Assert
+            // 1. Перевірка Mediator
             Assert.Throws<ArgumentNullException>(() =>
-                new LoginViewModel(nullMediator, mockNav.Object, mockUser.Object));
+                new LoginViewModel(null, mockNav.Object, mockUser.Object));
+
+            // 2. Перевірка NavigationManager
+            Assert.Throws<ArgumentNullException>(() =>
+                new LoginViewModel(mockMediator.Object, null, mockUser.Object));
+
+            // 3. Перевірка CurrentUserService
+            Assert.Throws<ArgumentNullException>(() =>
+                new LoginViewModel(mockMediator.Object, mockNav.Object, null));
         }
 
         // ✅ ТЕСТ 2: Успішний вхід
@@ -35,15 +43,15 @@ namespace PetSearchHome.Presentation.Tests
         {
             // Arrange
             var mockMediator = new Mock<IMediator>();
-            var mockNav = new Mock<NavigationManager>(); // NavigationManager важко мокати, але для тесту пройде
+            var mockNav = new Mock<NavigationManager>();
             var mockUser = new Mock<CurrentUserService>();
 
-            // Налаштовуємо Mediator: "Поверни успіх"
+            // Налаштовуємо успішну відповідь від BLL
             mockMediator.Setup(m => m.Send(It.IsAny<LoginQuery>(), It.IsAny<CancellationToken>()))
                         .ReturnsAsync(new LoginResultDto
                         {
                             IsSuccess = true,
-                            User = new UserProfileDto { Email = "test@test.com" }
+                            User = new UserProfileDto { Email = "test@test.com", Id = 1, IsAdmin = false }
                         });
 
             var viewModel = new LoginViewModel(mockMediator.Object, mockNav.Object, mockUser.Object)
@@ -56,11 +64,44 @@ namespace PetSearchHome.Presentation.Tests
             await viewModel.LoginCommand.ExecuteAsync(null);
 
             // Assert
-            // Перевіряємо, що метод Login у сервісі був викликаний
+            // Перевіряємо, що ми викликали сервіс для збереження юзера
             mockUser.Verify(u => u.Login(It.IsAny<UserDto>()), Times.Once);
         }
 
-        // ✅ ТЕСТ 3: Обробка помилок (Вимога тімліда про винятки)
+        // ✅ ТЕСТ 3: Логічна помилка (Невірний пароль) - ЦЬОГО НЕ ВИСТАЧАЛО
+        [Fact]
+        public async Task LoginCommand_Should_SetErrorMessage_When_LoginFailed_WrongPassword()
+        {
+            // Arrange
+            var mockMediator = new Mock<IMediator>();
+            var mockNav = new Mock<NavigationManager>();
+            var mockUser = new Mock<CurrentUserService>();
+
+            // Налаштовуємо НЕуспішну відповідь (IsSuccess = false)
+            mockMediator.Setup(m => m.Send(It.IsAny<LoginQuery>(), It.IsAny<CancellationToken>()))
+                        .ReturnsAsync(new LoginResultDto
+                        {
+                            IsSuccess = false,
+                            Error = "Невірний пароль"
+                        });
+
+            var viewModel = new LoginViewModel(mockMediator.Object, mockNav.Object, mockUser.Object)
+            {
+                Email = "test@test.com",
+                Password = "wrong_password"
+            };
+
+            // Act
+            await viewModel.LoginCommand.ExecuteAsync(null);
+
+            // Assert
+            // Перевіряємо, що повідомлення про помилку з'явилося у ViewModel
+            Assert.Equal("Невірний пароль", viewModel.ErrorMessage);
+            // Перевіряємо, що вхід НЕ відбувся
+            mockUser.Verify(u => u.Login(It.IsAny<UserDto>()), Times.Never);
+        }
+
+        // ✅ ТЕСТ 4: Технічна помилка (Exception)
         [Fact]
         public async Task LoginCommand_Should_SetErrorMessage_When_ExceptionOccurs()
         {
@@ -69,7 +110,7 @@ namespace PetSearchHome.Presentation.Tests
             var mockNav = new Mock<NavigationManager>();
             var mockUser = new Mock<CurrentUserService>();
 
-            // Налаштовуємо Mediator: "Викинь помилку!"
+            // Симулюємо "падіння" бази даних
             mockMediator.Setup(m => m.Send(It.IsAny<LoginQuery>(), It.IsAny<CancellationToken>()))
                         .ThrowsAsync(new Exception("Database Error"));
 

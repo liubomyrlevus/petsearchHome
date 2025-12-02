@@ -1,5 +1,5 @@
 using MediatR;
-using PetSearchHome.BLL.Contracts.Persistence;
+using PetSearchHome.DAL.Contracts.Persistence;
 using PetSearchHome.BLL.Features.Auth.DTOs;
 using PetSearchHome.BLL.Services.Authentication;
 

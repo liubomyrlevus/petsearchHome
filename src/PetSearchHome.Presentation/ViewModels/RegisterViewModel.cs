@@ -56,6 +56,14 @@ public partial class RegisterViewModel : ObservableValidator
 
     [ObservableProperty] private string _errorMessage = string.Empty;
     [ObservableProperty] private bool _isBusy;
+    [ObservableProperty]
+    [Required(ErrorMessage = "Підтвердіть пароль.")]
+    [property: Compare(nameof(Password), ErrorMessage = "Паролі не співпадають.")]
+    private string _confirmPassword = string.Empty;
+
+    [ObservableProperty]
+    [Required(ErrorMessage = "Введіть ім'я.")]
+    private string _fullName = string.Empty;
 
     [RelayCommand]
     public async Task RegisterAsync()

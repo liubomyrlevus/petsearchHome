@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using PetSearchHome.BLL.Commands;
-using PetSearchHome.BLL.Contracts.Persistence;
+using PetSearchHome.DAL.Contracts.Persistence;
 namespace PetSearchHome.BLL.Handlers;
 public class UpdateReportStatusCommandHandler : IRequestHandler<UpdateReportStatusCommand>
 {
@@ -12,7 +12,7 @@ public class UpdateReportStatusCommandHandler : IRequestHandler<UpdateReportStat
     public async Task<Unit> Handle(UpdateReportStatusCommand request, CancellationToken cancellationToken)
     {
         var moderator = await _userRepository.GetByIdAsync(request.ModeratorId, cancellationToken);
-        var isAdminEffective = moderator != null && (moderator.IsAdmin || moderator.UserType == Domain.Enums.UserType.shelter);
+        var isAdminEffective = moderator != null && (moderator.IsAdmin || moderator.UserType == UserType.shelter);
         if (!isAdminEffective)
         {
             throw new Exception("User is not authorized to moderate reports.");
@@ -20,7 +20,7 @@ public class UpdateReportStatusCommandHandler : IRequestHandler<UpdateReportStat
         var report = await _reportRepository.GetByIdAsync(request.ReportId, cancellationToken);
         if (report == null) { throw new Exception("Report not found."); }
         report.Status = request.NewStatus;
-        if (request.NewStatus == Domain.Enums.ReportStatus.confirmed || request.NewStatus == Domain.Enums.ReportStatus.rejected)
+        if (request.NewStatus == ReportStatus.confirmed || request.NewStatus == ReportStatus.rejected)
         {
             report.ResolvedAt = DateTime.UtcNow;
         }

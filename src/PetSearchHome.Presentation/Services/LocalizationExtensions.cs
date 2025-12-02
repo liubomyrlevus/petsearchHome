@@ -1,5 +1,5 @@
 using System;
-using PetSearchHome.BLL.Domain.Enums;
+using PetSearchHome.DAL.Domain.Enums;
 
 namespace PetSearchHome.Presentation.Services;
 

@@ -2,9 +2,9 @@
 using Xunit;
 using PetSearchHome.BLL.Handlers;
 using PetSearchHome.BLL.Queries;
-using PetSearchHome.BLL.Contracts.Persistence;
+using PetSearchHome.DAL.Contracts.Persistence;
 using PetSearchHome.BLL.Services.Authentication;
-using PetSearchHome.BLL.Domain.Entities;
+using PetSearchHome.DAL.Domain.Entities;
 using System.Threading;
 using System.Threading.Tasks;
 using System;

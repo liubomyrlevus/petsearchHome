@@ -1,12 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using PetSearchHome.BLL.Domain.Entities;
-using PetSearchHome.BLL.Domain.Enums;
+using PetSearchHome.DAL.Domain.Entities;
+using PetSearchHome.DAL.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Npgsql;
+using PetSearchHome.DAL.Domain.Entities;
+using PetSearchHome.DAL.Domain.Enums;
 
 namespace PetSearchHome.DAL;
 
@@ -119,18 +121,38 @@ public class ApplicationDbContext : DbContext
             entity.ToTable("listings");
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Id).HasColumnName("listing_id").UseIdentityByDefaultColumn();
+            entity.Property(e => e.AnimalType)
+                .HasColumnName("animal_type")
+                .HasConversion(
+                    v => v.ToString().ToLower(), 
+                    v => (AnimalType)Enum.Parse(typeof(AnimalType), v, true)); 
+
+            entity.Property(e => e.Sex)
+                .HasColumnName("sex")
+                .HasConversion(
+                    v => v.ToString().ToLower(),
+                    v => (AnimalSex)Enum.Parse(typeof(AnimalSex), v, true));
+
+            entity.Property(e => e.Size)
+                .HasColumnName("size")
+                .HasConversion(
+                    v => v.ToString().ToLower(),
+                    v => (AnimalSize)Enum.Parse(typeof(AnimalSize), v, true));
+
+            entity.Property(e => e.Status)
+                .HasColumnName("status")
+                .HasConversion(
+                    v => v.ToString().ToLower(),
+                    v => (ListingStatus)Enum.Parse(typeof(ListingStatus), v, true));
             entity.Property(e => e.UserId).HasColumnName("user_id");
-            entity.Property(e => e.AnimalType).HasColumnName("animal_type").HasConversion<string>();
+           
             entity.Property(e => e.Breed).HasColumnName("breed");
             entity.Property(e => e.AgeMonths).HasColumnName("age_months");
-            entity.Property(e => e.Sex).HasColumnName("sex").HasConversion<string>();
-            entity.Property(e => e.Size).HasColumnName("size").HasConversion<string>();
             entity.Property(e => e.Color).HasColumnName("color");
             entity.Property(e => e.City).HasColumnName("city");
             entity.Property(e => e.District).HasColumnName("district");
             entity.Property(e => e.Description).HasColumnName("description");
             entity.Property(e => e.SpecialNeeds).HasColumnName("special_needs");
-            entity.Property(e => e.Status).HasColumnName("status").HasConversion<string>();
             entity.Property(e => e.ViewsCount).HasColumnName("views_count");
             entity.Property(e => e.CreatedAt).HasColumnName("created_at").HasDefaultValueSql("NOW()");
             entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
