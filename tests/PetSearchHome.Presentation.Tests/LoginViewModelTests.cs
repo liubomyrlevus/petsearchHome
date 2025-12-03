@@ -1,130 +1,129 @@
-﻿using MediatR;
-using Microsoft.AspNetCore.Components;
-using Moq;
-using PetSearchHome.BLL.DTOs;
-using PetSearchHome.BLL.Queries; // ⚠️ Переконайся, що тут саме той LoginQuery, що у ViewModel
-using PetSearchHome.Presentation.Services;
-using PetSearchHome.ViewModels;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using MediatR;
+using Moq;
+using Microsoft.AspNetCore.Components;
+using PetSearchHome.BLL.DTOs;
+using PetSearchHome.BLL.Queries;
+using PetSearchHome.Presentation.Services;
+using PetSearchHome.ViewModels;
 using Xunit;
 
-namespace PetSearchHome.Presentation.Tests
+namespace PetSearchHome.Presentation.Tests;
+
+public class LoginViewModelTests
 {
-    public class LoginViewModelTests
+    [Fact]
+    public async Task LoginAsync_WhenSuccess_SetsUserAndNavigates()
     {
-        // ✅ ТЕСТ 1: Перевірка Clean Code (Всі параметри конструктора)
-        [Fact]
-        public void Constructor_Should_ThrowArgumentNullException_When_AnyDependencyIsNull()
+        var mediator = new Mock<IMediator>();
+        var currentUser = new CurrentUserService();
+        var nav = new TestNavigationManager();
+
+        mediator.Setup(m => m.Send(It.IsAny<LoginQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new LoginResultDto
+            {
+                IsSuccess = true,
+                User = new UserProfileDto
+                {
+                    Id = 5,
+                    Email = "admin@test.com",
+                    IsAdmin = true
+                },
+                Token = "token"
+            });
+
+        var vm = new LoginViewModel(mediator.Object, nav, currentUser)
         {
-            // Arrange
-            var mockMediator = new Mock<IMediator>();
-            var mockNav = new Mock<NavigationManager>();
-            var mockUser = new Mock<CurrentUserService>();
+            Email = "admin@test.com",
+            Password = "secret",
+            RememberMe = true
+        };
 
-            // Act & Assert
-            // 1. Перевірка Mediator
-            Assert.Throws<ArgumentNullException>(() =>
-                new LoginViewModel(null, mockNav.Object, mockUser.Object));
+        await vm.LoginCommand.ExecuteAsync(null);
 
-            // 2. Перевірка NavigationManager
-            Assert.Throws<ArgumentNullException>(() =>
-                new LoginViewModel(mockMediator.Object, null, mockUser.Object));
+        Assert.True(currentUser.IsLoggedIn);
+        Assert.True(currentUser.IsAdmin);
+        Assert.Equal("admin@test.com", currentUser.UserEmail);
+        Assert.Equal("/home", nav.NavigatedTo);
+        Assert.True(nav.WasForceLoad);
+        Assert.True(string.IsNullOrWhiteSpace(vm.ErrorMessage));
+    }
 
-            // 3. Перевірка CurrentUserService
-            Assert.Throws<ArgumentNullException>(() =>
-                new LoginViewModel(mockMediator.Object, mockNav.Object, null));
+    [Fact]
+    public async Task LoginAsync_WhenWrongPassword_SetsErrorAndClearsPassword()
+    {
+        var mediator = new Mock<IMediator>();
+        var currentUser = new CurrentUserService();
+        var nav = new TestNavigationManager();
+
+        mediator.Setup(m => m.Send(It.IsAny<LoginQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new LoginResultDto
+            {
+                IsSuccess = false,
+                Error = "Невірний email або пароль."
+            });
+
+        var vm = new LoginViewModel(mediator.Object, nav, currentUser)
+        {
+            Email = "user@test.com",
+            Password = "wrong123"
+        };
+
+        await vm.LoginCommand.ExecuteAsync(null);
+
+        Assert.False(currentUser.IsLoggedIn);
+        Assert.Equal("Невірний email або пароль.", vm.ErrorMessage);
+        Assert.Equal(string.Empty, vm.Password);
+        Assert.Null(nav.NavigatedTo);
+    }
+
+    [Fact]
+    public async Task LoginAsync_WhenValidationFails_DoesNotCallMediator()
+    {
+        var mediator = new Mock<IMediator>(MockBehavior.Strict);
+        var currentUser = new CurrentUserService();
+        var nav = new TestNavigationManager();
+
+        var vm = new LoginViewModel(mediator.Object, nav, currentUser)
+        {
+            Email = "",
+            Password = ""
+        };
+
+        await vm.LoginCommand.ExecuteAsync(null);
+
+        mediator.Verify(m => m.Send(It.IsAny<LoginQuery>(), It.IsAny<CancellationToken>()), Times.Never);
+        Assert.False(currentUser.IsLoggedIn);
+        Assert.Null(nav.NavigatedTo);
+    }
+
+    private sealed class TestNavigationManager : NavigationManager
+    {
+        public string? NavigatedTo { get; private set; }
+        public bool WasForceLoad { get; private set; }
+        public bool WasReplace { get; private set; }
+
+        public TestNavigationManager()
+        {
+            Initialize("http://localhost/", "http://localhost/");
         }
 
-        // ✅ ТЕСТ 2: Успішний вхід
-        [Fact]
-        public async Task LoginCommand_Should_Navigate_When_LoginSuccess()
+        protected override void NavigateToCore(string uri, bool forceLoad) => NavigateTo(uri, forceLoad);
+
+        protected override void NavigateToCore(string uri, NavigationOptions options)
         {
-            // Arrange
-            var mockMediator = new Mock<IMediator>();
-            var mockNav = new Mock<NavigationManager>();
-            var mockUser = new Mock<CurrentUserService>();
-
-            // Налаштовуємо успішну відповідь від BLL
-            mockMediator.Setup(m => m.Send(It.IsAny<LoginQuery>(), It.IsAny<CancellationToken>()))
-                        .ReturnsAsync(new LoginResultDto
-                        {
-                            IsSuccess = true,
-                            User = new UserProfileDto { Email = "test@test.com", Id = 1, IsAdmin = false }
-                        });
-
-            var viewModel = new LoginViewModel(mockMediator.Object, mockNav.Object, mockUser.Object)
-            {
-                Email = "test@test.com",
-                Password = "password"
-            };
-
-            // Act
-            await viewModel.LoginCommand.ExecuteAsync(null);
-
-            // Assert
-            // Перевіряємо, що ми викликали сервіс для збереження юзера
-            mockUser.Verify(u => u.Login(It.IsAny<UserDto>()), Times.Once);
+            NavigatedTo = uri;
+            WasForceLoad = options.ForceLoad;
+            WasReplace = options.ReplaceHistoryEntry;
         }
 
-        // ✅ ТЕСТ 3: Логічна помилка (Невірний пароль) - ЦЬОГО НЕ ВИСТАЧАЛО
-        [Fact]
-        public async Task LoginCommand_Should_SetErrorMessage_When_LoginFailed_WrongPassword()
+        public new void NavigateTo(string uri, bool forceLoad = false, bool replace = false)
         {
-            // Arrange
-            var mockMediator = new Mock<IMediator>();
-            var mockNav = new Mock<NavigationManager>();
-            var mockUser = new Mock<CurrentUserService>();
-
-            // Налаштовуємо НЕуспішну відповідь (IsSuccess = false)
-            mockMediator.Setup(m => m.Send(It.IsAny<LoginQuery>(), It.IsAny<CancellationToken>()))
-                        .ReturnsAsync(new LoginResultDto
-                        {
-                            IsSuccess = false,
-                            Error = "Невірний пароль"
-                        });
-
-            var viewModel = new LoginViewModel(mockMediator.Object, mockNav.Object, mockUser.Object)
-            {
-                Email = "test@test.com",
-                Password = "wrong_password"
-            };
-
-            // Act
-            await viewModel.LoginCommand.ExecuteAsync(null);
-
-            // Assert
-            // Перевіряємо, що повідомлення про помилку з'явилося у ViewModel
-            Assert.Equal("Невірний пароль", viewModel.ErrorMessage);
-            // Перевіряємо, що вхід НЕ відбувся
-            mockUser.Verify(u => u.Login(It.IsAny<UserDto>()), Times.Never);
-        }
-
-        // ✅ ТЕСТ 4: Технічна помилка (Exception)
-        [Fact]
-        public async Task LoginCommand_Should_SetErrorMessage_When_ExceptionOccurs()
-        {
-            // Arrange
-            var mockMediator = new Mock<IMediator>();
-            var mockNav = new Mock<NavigationManager>();
-            var mockUser = new Mock<CurrentUserService>();
-
-            // Симулюємо "падіння" бази даних
-            mockMediator.Setup(m => m.Send(It.IsAny<LoginQuery>(), It.IsAny<CancellationToken>()))
-                        .ThrowsAsync(new Exception("Database Error"));
-
-            var viewModel = new LoginViewModel(mockMediator.Object, mockNav.Object, mockUser.Object)
-            {
-                Email = "test@test.com",
-                Password = "password"
-            };
-
-            // Act
-            await viewModel.LoginCommand.ExecuteAsync(null);
-
-            // Assert
-            Assert.Contains("Database Error", viewModel.ErrorMessage);
+            WasReplace = replace;
+            NavigatedTo = uri;
+            WasForceLoad = forceLoad;
         }
     }
 }

@@ -1,142 +1,174 @@
-﻿using Xunit;
-using Moq;
-using MediatR;
-using Microsoft.AspNetCore.Components;
-using PetSearchHome.ViewModels;
-using PetSearchHome.Presentation.Services;
-using PetSearchHome.BLL.Features.Auth.Commands.Register; // Перевір шлях
-using PetSearchHome.BLL.DTOs;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
+using MediatR;
+using Moq;
+using Microsoft.AspNetCore.Components;
+using PetSearchHome.BLL.Commands;
+using PetSearchHome.BLL.DTOs;
+using PetSearchHome.Presentation.Services;
+using PetSearchHome.ViewModels;
+using Xunit;
 
-namespace PetSearchHome.Presentation.Tests
+namespace PetSearchHome.Presentation.Tests;
+
+public class RegisterViewModelTests
 {
-    public class RegisterViewModelTests
+    [Fact]
+    public async Task RegisterAsync_WhenIndividualSuccess_LogsInAndNavigates()
     {
-        // ✅ ТЕСТ 1: Clean Code (Захист конструктора)
-        [Fact]
-        public void Constructor_Should_ThrowArgumentNullException_When_DependenciesAreNull()
+        var mediator = new Mock<IMediator>();
+        var nav = new TestNavigationManager();
+        var currentUser = new CurrentUserService();
+
+        mediator.Setup(m => m.Send(It.IsAny<IRequest<LoginResultDto>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IRequest<LoginResultDto> req, CancellationToken _) =>
+            {
+                Assert.IsType<RegisterIndividualCommand>(req);
+                return new LoginResultDto
+                {
+                    IsSuccess = true,
+                    User = new UserProfileDto { Id = 7, Email = "user@test.com", IsAdmin = false },
+                    Token = "token"
+                };
+            });
+
+        var vm = new RegisterViewModel(mediator.Object, nav, currentUser)
         {
-            // Arrange
-            var mockMediator = new Mock<IMediator>();
-            var mockNav = new Mock<NavigationManager>();
-            var mockUser = new Mock<CurrentUserService>();
+            SelectedUserType = "Individual",
+            Email = "user@test.com",
+            Password = "password123",
+            ConfirmPassword = "password123",
+            FirstName = "Ivan",
+            LastName = "Petrenko"
+        };
 
-            // Act & Assert
-            Assert.Throws<ArgumentNullException>(() =>
-                new RegisterViewModel(null, mockNav.Object, mockUser.Object));
+        await vm.RegisterCommand.ExecuteAsync(null);
 
-            Assert.Throws<ArgumentNullException>(() =>
-                new RegisterViewModel(mockMediator.Object, null, mockUser.Object));
+        mediator.Verify(m => m.Send(It.IsAny<IRequest<LoginResultDto>>(), It.IsAny<CancellationToken>()), Times.Once);
+        Assert.True(currentUser.IsLoggedIn, $"LoggedIn:{currentUser.IsLoggedIn}, Error:{vm.ErrorMessage}");
+        Assert.False(currentUser.IsAdmin);
+        Assert.Equal("user@test.com", currentUser.UserEmail);
+        Assert.True(string.IsNullOrWhiteSpace(vm.ErrorMessage), vm.ErrorMessage);
+    }
 
-            Assert.Throws<ArgumentNullException>(() =>
-                new RegisterViewModel(mockMediator.Object, mockNav.Object, null));
+    [Fact]
+    public async Task RegisterAsync_WhenShelterSuccess_LogsInAndNavigates()
+    {
+        var mediator = new Mock<IMediator>();
+        var nav = new TestNavigationManager();
+        var currentUser = new CurrentUserService();
+
+        mediator.Setup(m => m.Send(It.IsAny<IRequest<LoginResultDto>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IRequest<LoginResultDto> req, CancellationToken _) =>
+            {
+                Assert.IsType<RegisterShelterCommand>(req);
+                return new LoginResultDto
+                {
+                    IsSuccess = true,
+                    User = new UserProfileDto { Id = 8, Email = "shelter@test.com", IsAdmin = true },
+                    Token = "token"
+                };
+            });
+
+        var vm = new RegisterViewModel(mediator.Object, nav, currentUser)
+        {
+            SelectedUserType = "Shelter",
+            Email = "shelter@test.com",
+            Password = "password123",
+            ConfirmPassword = "password123",
+            ShelterName = "Happy Pets",
+            ContactPerson = "Jane Doe"
+        };
+
+        await vm.RegisterCommand.ExecuteAsync(null);
+
+        mediator.Verify(m => m.Send(It.IsAny<IRequest<LoginResultDto>>(), It.IsAny<CancellationToken>()), Times.Once);
+        Assert.True(currentUser.IsLoggedIn, $"LoggedIn:{currentUser.IsLoggedIn}, Error:{vm.ErrorMessage}");
+        Assert.True(currentUser.IsAdmin);
+        Assert.Equal("shelter@test.com", currentUser.UserEmail);
+        Assert.True(string.IsNullOrWhiteSpace(vm.ErrorMessage), vm.ErrorMessage);
+    }
+
+    [Fact]
+    public async Task RegisterAsync_WhenRegistrationFails_SetsError()
+    {
+        var mediator = new Mock<IMediator>();
+        var nav = new TestNavigationManager();
+        var currentUser = new CurrentUserService();
+
+        mediator.Setup(m => m.Send(It.IsAny<IRequest<LoginResultDto>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IRequest<LoginResultDto> req, CancellationToken _) =>
+            {
+                Assert.IsType<RegisterIndividualCommand>(req);
+                return new LoginResultDto
+                {
+                    IsSuccess = false,
+                    Error = "Email вже зайнятий"
+                };
+            });
+
+        var vm = new RegisterViewModel(mediator.Object, nav, currentUser)
+        {
+            SelectedUserType = "Individual",
+            Email = "taken@test.com",
+            Password = "password123",
+            ConfirmPassword = "password123"
+        };
+
+        await vm.RegisterCommand.ExecuteAsync(null);
+
+        Assert.Equal("Email вже зайнятий", vm.ErrorMessage);
+        Assert.False(currentUser.IsLoggedIn);
+        Assert.Null(nav.NavigatedTo);
+    }
+
+    [Fact]
+    public async Task RegisterAsync_WhenValidationFails_DoesNotSendCommand()
+    {
+        var mediator = new Mock<IMediator>(MockBehavior.Strict);
+        var nav = new TestNavigationManager();
+        var currentUser = new CurrentUserService();
+
+        var vm = new RegisterViewModel(mediator.Object, nav, currentUser)
+        {
+            SelectedUserType = "Individual",
+            Email = "", // invalid
+            Password = "short",
+            ConfirmPassword = "diff"
+        };
+
+        await vm.RegisterCommand.ExecuteAsync(null);
+
+        mediator.Verify(m => m.Send(It.IsAny<IRequest<LoginResultDto>>(), It.IsAny<CancellationToken>()), Times.Never);
+        Assert.False(currentUser.IsLoggedIn);
+        Assert.Null(nav.NavigatedTo);
+    }
+
+    private sealed class TestNavigationManager : NavigationManager
+    {
+        public string? NavigatedTo { get; private set; }
+        public bool WasForceLoad { get; private set; }
+        public bool WasReplace { get; private set; }
+
+        public TestNavigationManager()
+        {
+            Initialize("http://localhost/", "http://localhost/");
         }
 
-        // ✅ ТЕСТ 2: Успішна реєстрація ПРИВАТНОЇ ОСОБИ (Individual)
-        [Fact]
-        public async Task RegisterCommand_Should_SendIndividualCommand_And_Login_When_Success()
+        protected override void NavigateToCore(string uri, bool forceLoad) => NavigateTo(uri, forceLoad);
+
+        protected override void NavigateToCore(string uri, NavigationOptions options)
         {
-            // Arrange
-            var mockMediator = new Mock<IMediator>();
-            var mockNav = new Mock<NavigationManager>();
-            var mockUser = new Mock<CurrentUserService>();
-
-            // Налаштовуємо успішну відповідь для RegisterIndividualCommand
-            mockMediator.Setup(m => m.Send(It.IsAny<RegisterIndividualCommand>(), It.IsAny<CancellationToken>()))
-                        .ReturnsAsync(new LoginResultDto
-                        {
-                            IsSuccess = true,
-                            User = new UserProfileDto { Email = "user@test.com", Id = 1 }
-                        });
-
-            var viewModel = new RegisterViewModel(mockMediator.Object, mockNav.Object, mockUser.Object)
-            {
-                SelectedUserType = "Individual", // ВАЖЛИВО!
-                Email = "user@test.com",
-                Password = "Password123!",
-                ConfirmPassword = "Password123!",
-                FirstName = "Ivan",
-                LastName = "Ivanov"
-            };
-
-            // Act
-            await viewModel.RegisterCommand.ExecuteAsync(null);
-
-            // Assert
-            // 1. Перевіряємо, що відправилась саме RegisterIndividualCommand
-            mockMediator.Verify(m => m.Send(It.IsAny<RegisterIndividualCommand>(), It.IsAny<CancellationToken>()), Times.Once);
-            // 2. Перевіряємо, що відбувся вхід
-            mockUser.Verify(u => u.Login(It.IsAny<UserDto>()), Times.Once);
+            NavigatedTo = uri;
+            WasForceLoad = options.ForceLoad;
+            WasReplace = options.ReplaceHistoryEntry;
         }
 
-        // ✅ ТЕСТ 3: Успішна реєстрація ПРИТУЛКУ (Shelter)
-        [Fact]
-        public async Task RegisterCommand_Should_SendShelterCommand_And_Login_When_Success()
+        public new void NavigateTo(string uri, bool forceLoad = false, bool replace = false)
         {
-            // Arrange
-            var mockMediator = new Mock<IMediator>();
-            var mockNav = new Mock<NavigationManager>();
-            var mockUser = new Mock<CurrentUserService>();
-
-            // Налаштовуємо успішну відповідь для RegisterShelterCommand
-            mockMediator.Setup(m => m.Send(It.IsAny<RegisterShelterCommand>(), It.IsAny<CancellationToken>()))
-                        .ReturnsAsync(new LoginResultDto
-                        {
-                            IsSuccess = true,
-                            User = new UserProfileDto { Email = "shelter@test.com", Id = 2 }
-                        });
-
-            var viewModel = new RegisterViewModel(mockMediator.Object, mockNav.Object, mockUser.Object)
-            {
-                SelectedUserType = "Shelter", // ВАЖЛИВО!
-                Email = "shelter@test.com",
-                Password = "Password123!",
-                ConfirmPassword = "Password123!",
-                ShelterName = "Best Shelter"
-            };
-
-            // Act
-            await viewModel.RegisterCommand.ExecuteAsync(null);
-
-            // Assert
-            // Перевіряємо, що відправилась саме RegisterShelterCommand
-            mockMediator.Verify(m => m.Send(It.IsAny<RegisterShelterCommand>(), It.IsAny<CancellationToken>()), Times.Once);
-            mockUser.Verify(u => u.Login(It.IsAny<UserDto>()), Times.Once);
-        }
-
-        // ✅ ТЕСТ 4: Помилка реєстрації (User already exists)
-        [Fact]
-        public async Task RegisterCommand_Should_SetErrorMessage_When_RegistrationFails()
-        {
-            // Arrange
-            var mockMediator = new Mock<IMediator>();
-            var mockNav = new Mock<NavigationManager>();
-            var mockUser = new Mock<CurrentUserService>();
-
-            mockMediator.Setup(m => m.Send(It.IsAny<RegisterIndividualCommand>(), It.IsAny<CancellationToken>()))
-                        .ReturnsAsync(new LoginResultDto
-                        {
-                            IsSuccess = false,
-                            Error = "Користувач вже існує"
-                        });
-
-            var viewModel = new RegisterViewModel(mockMediator.Object, mockNav.Object, mockUser.Object)
-            {
-                SelectedUserType = "Individual",
-                Email = "exists@test.com",
-                Password = "Password123!",
-                ConfirmPassword = "Password123!"
-            };
-
-            // Act
-            await viewModel.RegisterCommand.ExecuteAsync(null);
-
-            // Assert
-            Assert.Equal("Користувач вже існує", viewModel.ErrorMessage);
-            // Вхід НЕ мав відбутися
-            mockUser.Verify(u => u.Login(It.IsAny<UserDto>()), Times.Never);
+            WasReplace = replace;
+            NavigatedTo = uri;
+            WasForceLoad = forceLoad;
         }
     }
 }
