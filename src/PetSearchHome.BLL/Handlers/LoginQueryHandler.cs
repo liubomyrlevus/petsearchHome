@@ -64,6 +64,7 @@ public class LoginQueryHandler : IRequestHandler<LoginQuery, LoginResultDto>
             Id = user.Id,
             Email = user.Email,
             UserType = user.UserType,
+            IsAdmin = user.IsAdmin,
             IndividualProfile = user.IndividualProfile != null ? new IndividualProfileDto
             {
                 FirstName = user.IndividualProfile.FirstName,

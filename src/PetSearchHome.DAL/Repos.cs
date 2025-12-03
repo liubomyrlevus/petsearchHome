@@ -155,6 +155,17 @@ public class ListingRepository : IListingRepository
     {
         await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
+        // Ensure timestamps are stored with UTC kind to avoid timezone errors on PostgreSQL
+        if (listing.CreatedAt.Kind == DateTimeKind.Unspecified)
+        {
+            listing.CreatedAt = DateTime.SpecifyKind(listing.CreatedAt, DateTimeKind.Utc);
+        }
+
+        if (listing.UpdatedAt.HasValue && listing.UpdatedAt.Value.Kind == DateTimeKind.Unspecified)
+        {
+            listing.UpdatedAt = DateTime.SpecifyKind(listing.UpdatedAt.Value, DateTimeKind.Utc);
+        }
+
         context.Listings.Update(listing);
         await context.SaveChangesAsync(cancellationToken);
     }

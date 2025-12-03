@@ -33,6 +33,11 @@
                     <InputText @bind-Value="ViewModel.Password" type="password" class="form-control" />
                     <ValidationMessage For="@(() => ViewModel.Password)" />
                 </div>
+                <div class="form-group mb-2">
+                    <label class="form-label">Підтвердження паролю</label>
+                    <InputText @bind-Value="ViewModel.ConfirmPassword" type="password" class="form-control" />
+                    <ValidationMessage For="@(() => ViewModel.ConfirmPassword)" />
+                </div>
 
                 <hr />
 

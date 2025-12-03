@@ -8,6 +8,7 @@ using PetSearchHome.DAL.Domain.Entities;
 using System.Threading;
 using System.Threading.Tasks;
 using System;
+using PetSearchHome.DAL.Domain.Enums;
 
 namespace PetSearchHome.Tests;
 
@@ -37,7 +38,7 @@ public class LoginTests
     }
 
     [Fact]
-    public async Task Handle_Should_Throw_Exception_When_Password_Is_Invalid()
+    public async Task Handle_Should_Return_Error_When_Password_Is_Invalid()
     {
         var query = new LoginQuery { Email = "user@test.com", Password = "wrongpassword" };
         var user = new RegisteredUser { Id = 1, Email = "user@test.com", PasswordHash = "real_hash", IsActive = true };
@@ -48,10 +49,44 @@ public class LoginTests
         _hasherMock.Setup(h => h.Verify(query.Password, user.PasswordHash))
             .Returns(false); 
 
+        var result = await _handler.Handle(query, CancellationToken.None);
 
-        var exception = await Assert.ThrowsAsync<Exception>(() =>
-            _handler.Handle(query, CancellationToken.None));
+        Assert.False(result.IsSuccess);
+        Assert.Equal("Невірний email або пароль.", result.Error);
+        _sessionRepoMock.Verify(s => s.AddAsync(It.IsAny<Session>(), It.IsAny<CancellationToken>()), Times.Never);
+        _uowMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
 
-        Assert.Equal("Invalid email or password.", exception.Message);
+    [Fact]
+    public async Task Handle_Should_Return_User_And_Create_Session_On_Success()
+    {
+        var query = new LoginQuery { Email = "admin@test.com", Password = "secret" };
+        var user = new RegisteredUser
+        {
+            Id = 10,
+            Email = query.Email,
+            PasswordHash = "hashed",
+            IsActive = true,
+            UserType = UserType.individual
+        };
+
+        _userRepoMock.Setup(r => r.GetByEmailAsync(query.Email, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(user);
+        _hasherMock.Setup(h => h.Verify(query.Password, user.PasswordHash)).Returns(true);
+        _tokenGenMock.Setup(t => t.GenerateToken(user)).Returns("jwt-token");
+
+        var result = await _handler.Handle(query, CancellationToken.None);
+
+        Assert.NotNull(result);
+        Assert.True(result.IsSuccess);
+        Assert.Equal(user.Id, result.User.Id);
+        Assert.Equal("jwt-token", result.Token);
+
+        _sessionRepoMock.Verify(s => s.AddAsync(
+            It.Is<Session>(sess => sess.UserId == user.Id && !string.IsNullOrWhiteSpace(sess.SessionToken)),
+            It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        _uowMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 }

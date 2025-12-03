@@ -8,6 +8,7 @@ using PetSearchHome.DAL.Domain.Entities;
 using System.Threading;
 using System.Threading.Tasks;
 using System;
+using PetSearchHome.DAL.Domain.Enums;
 
 namespace PetSearchHome.Tests;
 
@@ -28,7 +29,7 @@ public class RegisterIndividualTests
         _tokenMock = new Mock<IJwtTokenGenerator>();
         _uowMock = new Mock<IUnitOfWork>();
 
-        
+
         _handler = new RegisterIndividualCommandHandler(
             _userRepoMock.Object,
             _hasherMock.Object,
@@ -58,7 +59,11 @@ public class RegisterIndividualTests
         var result = await _handler.Handle(command, CancellationToken.None);
 
         Assert.NotNull(result);
+        Assert.True(result.IsSuccess);
         Assert.Equal("fake_token", result.Token);
+        Assert.Equal(command.Email, result.User.Email);
+        Assert.False(result.User.IsAdmin);
+        Assert.Equal(UserType.individual, result.User.UserType);
 
         _userRepoMock.Verify(repo => repo.AddAsync(It.IsAny<RegisteredUser>(), It.IsAny<CancellationToken>()), Times.Once);
 
@@ -73,11 +78,12 @@ public class RegisterIndividualTests
         _userRepoMock.Setup(repo => repo.GetByEmailAsync(command.Email, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RegisteredUser { Email = command.Email });
 
-        var exception = await Assert.ThrowsAsync<Exception>(() =>
-            _handler.Handle(command, CancellationToken.None));
+        var result = await _handler.Handle(command, CancellationToken.None);
 
-        Assert.Equal("Email is already taken.", exception.Message);
+        Assert.False(result.IsSuccess);
+        Assert.Equal("Email is already taken.", result.Error);
 
         _userRepoMock.Verify(repo => repo.AddAsync(It.IsAny<RegisteredUser>(), It.IsAny<CancellationToken>()), Times.Never);
+        _uowMock.Verify(uow => uow.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 }
