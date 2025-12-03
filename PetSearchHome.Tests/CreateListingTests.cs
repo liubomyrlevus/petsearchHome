@@ -1,4 +1,4 @@
-﻿using Moq;
+using Moq;
 using Xunit;
 using PetSearchHome.BLL.Handlers;
 using PetSearchHome.BLL.Commands;
@@ -36,7 +36,7 @@ public class CreateListingTests
         };
 
         _listingRepoMock.Setup(r => r.AddAsync(It.IsAny<Listing>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(10); // Імітуємо, що база повернула ID 10
+            .ReturnsAsync(10); 
 
 
         var result = await _handler.Handle(command, CancellationToken.None);

@@ -1,4 +1,4 @@
-﻿using Moq;
+using Moq;
 using Xunit;
 using PetSearchHome.BLL.Handlers;
 using PetSearchHome.BLL.Commands;
@@ -27,7 +27,7 @@ public class ReviewTests
     public async Task CreateReview_Should_Throw_If_Self_Review()
     {
         var handler = new CreateReviewCommandHandler(_reviewRepoMock.Object, _userRepoMock.Object, _uowMock.Object);
-        var command = new CreateReviewCommand { ReviewerId = 1, ReviewedId = 1, Rating = 5 }; // Сам собі
+        var command = new CreateReviewCommand { ReviewerId = 1, ReviewedId = 1, Rating = 5 }; 
 
         await Assert.ThrowsAsync<Exception>(() => handler.Handle(command, CancellationToken.None));
     }
