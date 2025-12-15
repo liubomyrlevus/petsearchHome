@@ -6,7 +6,7 @@
 <PageTitle>Редагування оголошення</PageTitle>
 
 <div class="page-container">
-    <h2>Редагування оголошення</h2>
+    <h2>Редагувати оголошення</h2>
 
     @if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
     {
@@ -15,7 +15,7 @@
 
     @if (ViewModel.IsBusy && ViewModel.ListingId == 0)
     {
-        <p><em>Завантаження даних оголошення...</em></p>
+        <p><em>Завантажуємо дані оголошення...</em></p>
     }
     else if (ViewModel.ListingId == 0)
     {
@@ -30,7 +30,7 @@
 
             <div class="form-grid">
                 <div class="form-section">
-                    <h4>Основна інформація про тварину</h4>
+                    <h4>Основні дані</h4>
 
                     <div class="form-field">
                         <label>Тип тварини</label>
@@ -46,7 +46,7 @@
                     </div>
 
                     <div class="form-field">
-                        <label>Порода / різновид</label>
+                        <label>Порода / назва</label>
                         <InputText @bind-Value="ViewModel.Breed" class="form-control" />
                     </div>
 
@@ -69,7 +69,7 @@
                             <label>Розмір</label>
                             <InputSelect @bind-Value="ViewModel.Size" class="form-select">
                                 <option value="@AnimalSize.unknown">Не вказано</option>
-                                <option value="@AnimalSize.small">Маленький</option>
+                                <option value="@AnimalSize.small">Малий</option>
                                 <option value="@AnimalSize.medium">Середній</option>
                                 <option value="@AnimalSize.large">Великий</option>
                                 <option value="@AnimalSize.giant">Дуже великий</option>
@@ -78,13 +78,13 @@
                     </div>
 
                     <div class="form-field">
-                        <label>Колір / масть</label>
+                        <label>Колір</label>
                         <InputText @bind-Value="ViewModel.Color" class="form-control" />
                     </div>
                 </div>
 
                 <div class="form-section">
-                    <h4>Місцезнаходження та фото</h4>
+                    <h4>Локація та фото</h4>
 
                     <div class="form-field">
                         <label>Місто</label>
@@ -107,18 +107,18 @@
                 <h4>Опис</h4>
 
                 <div class="form-field">
-                    <label>Опис тварини та умов прилаштування</label>
+                    <label>Короткий опис</label>
                     <InputTextArea @bind-Value="ViewModel.Description" class="form-control" rows="4" />
                 </div>
 
                 <div class="form-field">
-                    <label>Особливі потреби / зауваження</label>
+                    <label>Особливості або потреби</label>
                     <InputTextArea @bind-Value="ViewModel.SpecialNeeds" class="form-control" rows="3" />
                 </div>
             </div>
 
             <div class="form-section">
-                <h4>Медична інформація</h4>
+                <h4>Медичні дані</h4>
 
                 <div class="form-field">
                     <label>Щеплення</label>
@@ -128,7 +128,7 @@
                 <div class="form-field checkbox-field">
                     <label>
                         <InputCheckbox @bind-Value="ViewModel.Sterilized" />
-                        Тварина стерилізована
+                        Стерилізовано
                     </label>
                 </div>
 
@@ -148,7 +148,7 @@
                     @if (ViewModel.IsBusy)
                     {
                         <span class="spinner-border spinner-border-sm"></span>
-                        <span>Збереження змін...</span>
+                        <span>Оновлюємо...</span>
                     }
                     else
                     {
@@ -157,7 +157,7 @@
                 </button>
 
                 <NavLink class="btn btn-outline-secondary" href="/my-listings">
-                    Скасувати
+                    Повернутися
                 </NavLink>
             </div>
         </EditForm>
@@ -188,4 +188,3 @@
         ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
     }
 }
-

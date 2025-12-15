@@ -2,9 +2,10 @@
     width: 100%;
     margin-top: 1.5rem;
     padding: clamp(1.25rem, 2vw, 2rem);
-    border-radius: 16px;
-    background: rgba(255,255,255,0.95);
-    box-shadow: 0 12px 24px rgba(15,34,58,0.08);
+    border-radius: var(--radius);
+    background: linear-gradient(145deg, rgba(255,255,255,0.96), rgba(255,255,255,0.9));
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
@@ -40,8 +41,8 @@
 .form-field textarea {
     width: 100%;
     padding: 0.5rem 0.75rem;
-    border-radius: 8px;
-    border: 1px solid #d0d6e0;
+    border-radius: 10px;
+    border: 1px solid var(--border);
     background-color: #f7f9fc;
 }
 

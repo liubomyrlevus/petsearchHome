@@ -11,7 +11,7 @@
 
     @if (ViewModel.IsBusy)
     {
-        <p><em>Завантаження профілю...</em></p>
+        <p><em>Завантажуємо профіль...</em></p>
     }
     else if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
     {
@@ -23,19 +23,19 @@
     }
     else
     {
-        <div class="card mb-4">
+        <div class="card mb-4 surface-card">
             <div class="card-body">
                 <h3 class="card-title">Основна інформація</h3>
                 <p><strong>Email:</strong> @ViewModel.Profile.Email</p>
                 <p>
-                    <strong>Тип користувача:</strong>
-                    @(ViewModel.Profile.UserType == UserType.shelter ? "Притулок" : "Приватна особа")
+                    <strong>Тип облікового запису:</strong>
+                    @(ViewModel.Profile.UserType == UserType.shelter ? "Притулок" : "Індивідуальний користувач")
                 </p>
 
                 @if (ViewModel.IsIndividual && ViewModel.Profile.IndividualProfile is not null)
                 {
                     <ul class="list-unstyled mb-0">
-                        <li><strong>Ім’я:</strong> @ViewModel.Profile.IndividualProfile.FirstName</li>
+                        <li><strong>Імʼя:</strong> @ViewModel.Profile.IndividualProfile.FirstName</li>
                         <li><strong>Прізвище:</strong> @ViewModel.Profile.IndividualProfile.LastName</li>
                         <li><strong>Місто:</strong> @ViewModel.Profile.IndividualProfile.City</li>
                         <li><strong>Район:</strong> @ViewModel.Profile.IndividualProfile.District</li>
@@ -52,9 +52,9 @@
             </div>
         </div>
 
-        <div class="card mb-4">
+        <div class="card mb-4 surface-card">
             <div class="card-body">
-                <h3 class="card-title">Контактні дані</h3>
+                <h3 class="card-title">Контакти</h3>
                 @if (!string.IsNullOrEmpty(ViewModel.SuccessMessage))
                 {
                     <div class="alert alert-success">@ViewModel.SuccessMessage</div>
@@ -106,7 +106,7 @@
                             else
                             {
                                 <div class="col-12">
-                                    <p class="text-muted">Немає контактних даних для редагування.</p>
+                                    <p class="text-muted">Контактні поля недоступні.</p>
                                 </div>
                             }
                         </div>
@@ -114,7 +114,7 @@
                         <button type="submit"
                                 class="btn btn-primary mt-3"
                                 disabled="@ViewModel.IsBusy">
-                            Зберегти контакти
+                            Зберегти
                         </button>
                     </EditForm>
                 }
@@ -178,7 +178,7 @@
                         else
                         {
                             <div class="col-12">
-                                <p class="text-muted">Контактні дані відсутні.</p>
+                                <p class="text-muted">Дані недоступні.</p>
                             </div>
                         }
                     </div>
@@ -186,7 +186,7 @@
             </div>
         </div>
 
-        <div class="card">
+        <div class="card surface-card">
             <div class="card-body">
                 <h3 class="card-title">Відгуки</h3>
 
@@ -197,7 +197,7 @@
 
                 @if (ViewModel.Reviews == null || ViewModel.Reviews.Count == 0)
                 {
-                    <p class="text-muted"><em>Ще немає відгуків про цього користувача.</em></p>
+                    <p class="text-muted"><em>Ще немає залишених відгуків.</em></p>
                 }
                 else
                 {
@@ -253,11 +253,11 @@
                         @if (ViewModel.IsReviewBusy)
                         {
                             <span class="spinner-border spinner-border-sm"></span>
-                            <span>Надсилання відгуку...</span>
+                            <span>Надсилаємо відгук...</span>
                         }
                         else
                         {
-                            <span>Надіслати відгук</span>
+                            <span>Опублікувати</span>
                         }
                     </button>
                 }
@@ -290,4 +290,3 @@
         ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
     }
 }
-

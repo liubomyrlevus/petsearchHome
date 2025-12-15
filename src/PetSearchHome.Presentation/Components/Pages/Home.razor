@@ -7,21 +7,21 @@
 
 <div class="page-container home-page">
     <header class="page-header">
-        <h1>Допоможіть тваринам знайти дім</h1>
-        <p>PetSearchHome допомагає волонтерам, притулкам та власникам тварин знаходити надійних господарів для хвостатих друзів.</p>
+        <h1>Знайдіть нового друга поруч із вами</h1>
+        <p>PetSearchHome допомагає швидко відшукати або прилаштувати улюбленця. Фільтруйте за видом, містом чи ключовими словами, додавайте оголошення до обраного та звʼязуйтесь із власниками без зайвих кроків.</p>
     </header>
 
     <section class="filter-form card-panel">
         <div class="row g-2 align-items-end">
             <div class="col-md-5">
-                <label class="form-label fw-semibold">Пошук за ключовими словами</label>
+                <label class="form-label fw-semibold">Пошук за назвою або описом</label>
                 <InputText @bind-Value="ViewModel.SearchTerm"
                            @onchange="ViewModel.LoadListingsCommand.ExecuteAsync"
                            class="form-control"
-                           placeholder="Порода, різновид або особливості..." />
+                           placeholder="Собака, киця, добрий характер, активна..." />
             </div>
             <div class="col-md-3">
-                <label class="form-label fw-semibold">Вид тварини</label>
+                <label class="form-label fw-semibold">Тип тварини</label>
                 <InputSelect @bind-Value="ViewModel.SelectedAnimalType"
                              @onchange="ViewModel.LoadListingsCommand.ExecuteAsync"
                              class="form-select">
@@ -39,13 +39,13 @@
                 <InputText @bind-Value="ViewModel.City"
                            @onchange="ViewModel.LoadListingsCommand.ExecuteAsync"
                            class="form-control"
-                           placeholder="Напр., Київ" />
+                           placeholder="Київ, Львів..." />
             </div>
             <div class="col-md-2 d-grid">
                 <button type="button"
                         class="btn btn-primary"
                         @onclick="ViewModel.LoadListingsCommand.ExecuteAsync">
-                    Знайти
+                    Оновити список
                 </button>
             </div>
         </div>
@@ -53,7 +53,7 @@
 
     @if (ViewModel.IsBusy)
     {
-        <p class="text-muted"><em>Завантаження оголошень...</em></p>
+        <p class="text-muted"><em>Завантажуємо підбірку оголошень...</em></p>
     }
     else if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
     {
@@ -61,7 +61,7 @@
     }
     else if (!ViewModel.Listings.Any())
     {
-        <p class="text-muted"><em>Оголошень за вказаними параметрами не знайдено. Спробуйте змінити умови пошуку.</em></p>
+        <p class="text-muted"><em>Немає оголошень за заданими критеріями. Спробуйте розширити фільтри або додати власне оголошення.</em></p>
     }
     else
     {
@@ -82,7 +82,7 @@
                             <h5>@(listing.Breed ?? "Без породи")</h5>
                             <p class="text-muted">@listing.City</p>
                             <p>Вид: @listing.AnimalType.ToUkrainianLabel(), вік: @FormatAge(listing.AgeMonths).</p>
-                            <a href="/listing/@listing.Id" class="btn btn-outline-primary w-100">Детальніше</a>
+                            <a href="/listing/@listing.Id" class="btn btn-outline-primary w-100">Переглянути</a>
                         </div>
                     </article>
                 }
@@ -115,10 +115,9 @@
     private static string FormatAge(int? months) =>
         months switch
         {
-            null => "Не вказано",
-            1 => "1 місяць",
-            >= 2 and <= 4 => $"{months} місяці",
-            _ => $"{months} місяців"
+            null => "не вказано",
+            1 => "1 міс.",
+            >= 2 and <= 4 => $"{months} міс.",
+            _ => $"{months} міс."
         };
 }
-

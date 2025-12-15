@@ -5,17 +5,17 @@
 <PageTitle>Реєстрація</PageTitle>
 
 <div class="page-container">
-    <h3>Створити обліковий запис</h3>
+    <h3>Створіть обліковий запис PetSearchHome</h3>
 
-    <div class="card">
+    <div class="card surface-card">
         <div class="card-body">
             <EditForm Model="ViewModel" OnValidSubmit="HandleValidSubmitAsync">
                 <DataAnnotationsValidator />
 
                 <div class="form-group mb-3">
-                    <label class="form-label">Тип користувача</label>
+                    <label class="form-label">Я реєструюсь як</label>
                     <InputSelect @bind-Value="ViewModel.SelectedUserType" class="form-select">
-                        <option value="Individual">Приватна особа</option>
+                        <option value="Individual">Окрема людина</option>
                         <option value="Shelter">Притулок</option>
                     </InputSelect>
                 </div>
@@ -34,7 +34,7 @@
                     <ValidationMessage For="@(() => ViewModel.Password)" />
                 </div>
                 <div class="form-group mb-2">
-                    <label class="form-label">Підтвердження паролю</label>
+                    <label class="form-label">Підтвердження пароля</label>
                     <InputText @bind-Value="ViewModel.ConfirmPassword" type="password" class="form-control" />
                     <ValidationMessage For="@(() => ViewModel.ConfirmPassword)" />
                 </div>
@@ -43,9 +43,9 @@
 
                 @if (ViewModel.SelectedUserType == "Individual")
                 {
-                    <h5>Дані приватної особи</h5>
+                    <h5>Особисті дані</h5>
                     <div class="form-group mb-2">
-                        <label class="form-label">Ім’я</label>
+                        <label class="form-label">Імʼя</label>
                         <InputText @bind-Value="ViewModel.FirstName" class="form-control" />
                     </div>
                     <div class="form-group mb-2">
@@ -96,7 +96,7 @@
                     @if (ViewModel.IsBusy)
                     {
                         <span class="spinner-border spinner-border-sm"></span>
-                        <span>Створення облікового запису...</span>
+                        <span>Створюємо профіль...</span>
                     }
                     else
                     {
@@ -114,13 +114,11 @@
     private async Task HandleValidSubmitAsync()
     {
         await ViewModel.RegisterAsync();
-        // Ensure a render after async work completes
         await InvokeAsync(StateHasChanged);
     }
 
     protected override void OnInitialized()
     {
-        // Marshal state updates to the Dispatcher to avoid cross-thread rendering
         _propertyChangedHandler = async (_, __) => await InvokeAsync(StateHasChanged);
         ViewModel.PropertyChanged += _propertyChangedHandler;
     }
@@ -133,4 +131,3 @@
         }
     }
 }
-
