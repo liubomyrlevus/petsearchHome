@@ -11,7 +11,7 @@
   <HasBeginStepCommandLineTruststorePassword>false</HasBeginStepCommandLineTruststorePassword>
   <SonarQubeHostUrl>http://localhost:9000</SonarQubeHostUrl>
   <SonarQubeVersion>9.9.8.100196</SonarQubeVersion>
-  <SonarProjectKey>blazor-clean-code</SonarProjectKey>
+  <SonarProjectKey>blazor-clean-code2</SonarProjectKey>
   <AdditionalConfig>
     <ConfigSetting Id="BuildUri" />
     <ConfigSetting Id="TfsUri" />
