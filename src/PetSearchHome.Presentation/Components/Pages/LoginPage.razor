@@ -2,7 +2,6 @@
 @page "/"
 @inject ViewModels.LoginViewModel ViewModel
 @inject NavigationManager NavigationManager
-@inject PetSearchHome.Presentation.Services.CurrentUserService CurrentUserService
 @implements IDisposable
 
 <PageTitle>Вхід</PageTitle>
@@ -11,7 +10,7 @@
     <EditForm class="login-form" Model="ViewModel" OnValidSubmit="ViewModel.LoginCommand.ExecuteAsync">
         <DataAnnotationsValidator />
 
-        <h3>Увійдіть до PetSearchHome</h3>
+        <h3>Ласкаво просимо до PetSearchHome</h3>
 
         <div class="form-field">
             <label for="emailInput">Email</label>
@@ -27,19 +26,12 @@
             <InputText id="passwordInput"
                        @bind-Value="ViewModel.Password"
                        type="password"
-                       placeholder="Введіть свій пароль" />
+                       placeholder="Введіть ваш пароль" />
             <ValidationMessage For="@(() => ViewModel.Password)" />
         </div>
 
         <div class="form-footer">
-            <label class="remember-me">
-                <input type="checkbox" @bind="ViewModel.RememberMe" />
-                <span>Запам’ятати мене на цьому пристрої</span>
-            </label>
-
-            <button type="button" class="link-button" @onclick="ForgotPassword">
-                Забули пароль?
-            </button>
+            <span class="text-muted small">Введіть свої дані, щоб продовжити</span>
         </div>
 
         @if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
@@ -59,15 +51,17 @@
                 }
             </button>
             <button type="button" @onclick="GoToRegister">Зареєструватися</button>
-            <button type="button" @onclick="ContinueAsGuest">Продовжити як гість</button>
         </div>
     </EditForm>
 </div>
 
 @code {
+    private System.ComponentModel.PropertyChangedEventHandler? _handler;
+
     protected override void OnInitialized()
     {
-        ViewModel.PropertyChanged += (_, _) => StateHasChanged();
+        _handler = (_, _) => InvokeAsync(StateHasChanged);
+        ViewModel.PropertyChanged += _handler;
     }
 
     private void GoToRegister()
@@ -75,19 +69,11 @@
         NavigationManager.NavigateTo("/register");
     }
 
-    private void ForgotPassword()
-    {
-        NavigationManager.NavigateTo("/forgot-password");
-    }
-
-    private void ContinueAsGuest()
-    {
-        CurrentUserService.SetGuest();
-        NavigationManager.NavigateTo("/home", replace: true);
-    }
-
     public void Dispose()
     {
-        ViewModel.PropertyChanged -= (_, _) => StateHasChanged();
+        if (_handler is not null)
+        {
+            ViewModel.PropertyChanged -= _handler;
+        }
     }
 }

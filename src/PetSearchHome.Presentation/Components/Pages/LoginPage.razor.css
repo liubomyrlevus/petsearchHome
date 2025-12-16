@@ -1,10 +1,9 @@
 .login-form {
-    max-width: 420px;
-    margin: 0 auto;
+    width: 100%;
     padding: 2rem;
-    border-radius: 16px;
-    background: rgba(255,255,255,0.9);
-    box-shadow: 0 12px 24px rgba(15,34,58,0.08);
+    border-radius: var(--radius);
+    background: linear-gradient(160deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9));
+    box-shadow: var(--shadow);
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
@@ -32,32 +31,9 @@
 .form-footer {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
+    gap: 0.5rem;
     font-size: 0.9rem;
-}
-
-.remember-me {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-}
-
-.remember-me input {
-    width: auto;
-}
-
-.link-button {
-    background: none;
-    border: none;
-    padding: 0;
-    color: #1b6ec2;
-    cursor: pointer;
-    text-decoration: underline;
-}
-
-.link-button:hover {
-    color: #15589a;
+    color: var(--muted);
 }
 
 .actions {
@@ -68,25 +44,26 @@
 
 .actions button {
     border: none;
-    border-radius: 8px;
-    padding: 0.55rem 1.5rem;
+    border-radius: 10px;
+    padding: 0.6rem 1.6rem;
     cursor: pointer;
     background-color: #eef2f7;
-    color: #1f3a5f;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    color: #0f172a;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.12s ease;
 }
 
 .actions button:hover {
     background-color: #dde4f0;
+    transform: translateY(-1px);
 }
 
 .actions .primary {
-    background-color: #1b6ec2;
+    background-color: var(--accent);
     color: #fff;
 }
 
 .actions .primary:hover {
-    background-color: #15589a;
+    background-color: var(--accent-strong);
 }
 
 .error-message {

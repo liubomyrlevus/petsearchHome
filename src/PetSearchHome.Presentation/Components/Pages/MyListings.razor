@@ -10,7 +10,7 @@
 
     @if (ViewModel.IsBusy)
     {
-        <p><em>Завантаження ваших оголошень...</em></p>
+        <p><em>Завантажуємо ваші оголошення...</em></p>
     }
     else
     {
@@ -26,16 +26,16 @@
 
         if (!ViewModel.Listings.Any())
         {
-            <p class="text-muted"><em>У вас ще немає створених оголошень.</em></p>
+            <p class="text-muted"><em>Поки немає опублікованих оголошень.</em></p>
         }
         else
         {
-            <div class="table-responsive">
+            <div class="table-responsive surface-card">
                 <table class="table table-striped align-middle">
                     <thead>
                         <tr>
                             <th style="width: 120px;">Фото</th>
-                            <th>Порода / різновид</th>
+                            <th>Порода / назва</th>
                             <th>Місто</th>
                             <th>Статус</th>
                             <th class="text-end">Дії</th>
@@ -96,4 +96,3 @@
         ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
     }
 }
-

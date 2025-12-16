@@ -2,17 +2,17 @@
 @inject PetSearchHome.ViewModels.FavoritesViewModel ViewModel
 @implements IDisposable
 
-<PageTitle>Обрані</PageTitle>
+<PageTitle>Обране</PageTitle>
 
 <div class="page-container">
     <header class="page-header">
         <h1>Обрані оголошення</h1>
-        <p class="text-muted">Тут зберігаються оголошення, які ви додали до обраних.</p>
+        <p class="text-muted">Тут зберігаються оголошення, які вам сподобалися. Переглядайте, коли будете готові зробити наступний крок.</p>
     </header>
 
     @if (ViewModel.IsBusy)
     {
-        <p class="text-muted"><em>Завантаження обраних оголошень...</em></p>
+        <p class="text-muted"><em>Завантажуємо список обраних...</em></p>
     }
     else if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
     {
@@ -20,7 +20,7 @@
     }
     else if (!ViewModel.Favorites.Any())
     {
-        <p class="text-muted"><em>У вас ще немає обраних оголошень.</em></p>
+        <p class="text-muted"><em>Ще немає збережених оголошень.</em></p>
     }
     else
     {
@@ -33,7 +33,7 @@
 
                     <button class="favorite-btn"
                             @onclick="() => ViewModel.RemoveFavoriteCommand.ExecuteAsync(item.ListingId)">
-                        Прибрати з обраних
+                        Прибрати з обраного
                     </button>
 
                     <div class="pet-card-body">
@@ -68,4 +68,3 @@
         ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
     }
 }
-

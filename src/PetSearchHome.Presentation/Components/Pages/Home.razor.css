@@ -10,10 +10,9 @@
 }
 
 .home-page .card-panel {
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 16px;
-    padding: 1.25rem;
-    box-shadow: 0 12px 28px rgba(15, 34, 58, 0.08);
+    border: 1px solid var(--border);
+    background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(255,255,255,0.9));
+    box-shadow: var(--shadow);
 }
 
 .home-page .filter-form label {
@@ -23,8 +22,7 @@
 
 .home-page .filter-form .form-control,
 .home-page .filter-form .form-select {
-    border-radius: 10px;
-    border-color: #d0d6e0;
+    border-radius: 12px;
 }
 
 .catalog-section {
