@@ -10,6 +10,9 @@ using PetSearchHome.DAL;
 using PetSearchHome.Presentation.Components.Pages;
 using PetSearchHome.Presentation.Services;
 using PetSearchHome.ViewModels;
+using Serilog;
+using Microsoft.Maui.Storage;
+using System.IO;
 
 namespace PetSearchHome.Presentation;
 
@@ -23,9 +26,9 @@ public static class MauiProgram
         ConfigureFonts(builder);
         ConfigureConfiguration(builder);
 
-        ConfigureServices(builder.Services, builder.Configuration);
-
         ConfigureLogging(builder);
+
+        ConfigureServices(builder.Services, builder.Configuration);
 
         return builder.Build();
     }
@@ -100,6 +103,35 @@ public static class MauiProgram
 
     private static void ConfigureLogging(MauiAppBuilder builder)
     {
+        var logDir = Path.Combine(FileSystem.AppDataDirectory, "Logs");
+        Directory.CreateDirectory(logDir);
+        var logFile = Path.Combine(logDir, "app-.log");
+
+        var loggerConfiguration = new LoggerConfiguration()
+            .Enrich.FromLogContext()
+            .Enrich.WithEnvironmentUserName()
+            .Enrich.WithMachineName()
+            .Enrich.WithProcessId()
+            .Enrich.WithThreadId()
+            .WriteTo.File(
+                path: logFile,
+                rollingInterval: RollingInterval.Day,
+                retainedFileCountLimit: 7,
+                shared: true,
+                restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information)
+            .WriteTo.Debug();
+
+#if DEBUG
+        loggerConfiguration.MinimumLevel.Debug();
+#else
+        loggerConfiguration.MinimumLevel.Information();
+#endif
+
+        Log.Logger = loggerConfiguration.CreateLogger();
+
+        builder.Logging.ClearProviders();
+        builder.Logging.AddSerilog(Log.Logger, dispose: true);
+
 #if DEBUG
         builder.Logging.AddDebug();
 #endif

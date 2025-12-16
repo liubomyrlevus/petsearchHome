@@ -10,6 +10,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace PetSearchHome.ViewModels;
 
@@ -17,16 +18,18 @@ public partial class MyListingsViewModel : ObservableObject
 {
     private readonly IMediator _mediator;
     private readonly CurrentUserService _currentUserService;
+    private readonly ILogger<MyListingsViewModel> _logger;
 
     [ObservableProperty] private ObservableCollection<ListingCardDto> _listings = new();
     [ObservableProperty] private bool _isBusy;
     [ObservableProperty] private string _errorMessage = string.Empty;
     [ObservableProperty] private string _infoMessage = string.Empty;
 
-    public MyListingsViewModel(IMediator mediator, CurrentUserService currentUserService)
+    public MyListingsViewModel(IMediator mediator, CurrentUserService currentUserService, ILogger<MyListingsViewModel> logger)
     {
         _mediator = mediator;
         _currentUserService = currentUserService;
+        _logger = logger;
     }
 
     [RelayCommand]
@@ -40,6 +43,7 @@ public partial class MyListingsViewModel : ObservableObject
         if (!_currentUserService.IsLoggedIn)
         {
             ErrorMessage = "Щоб переглянути власні оголошення, увійдіть до системи.";
+            _logger.LogWarning("Load my listings attempted without login");
             return;
         }
 
@@ -47,6 +51,7 @@ public partial class MyListingsViewModel : ObservableObject
 
         try
         {
+            _logger.LogInformation("Loading my listings for UserId {UserId}", _currentUserService.UserId);
             var listings = await _mediator.Send(new SearchListingsQuery
             {
                 UserId = _currentUserService.UserId!.Value,
@@ -54,9 +59,11 @@ public partial class MyListingsViewModel : ObservableObject
             });
 
             Listings = new ObservableCollection<ListingCardDto>(listings);
+            _logger.LogInformation("Loaded {Count} listings for UserId {UserId}", Listings.Count, _currentUserService.UserId);
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Error loading my listings for UserId {UserId}", _currentUserService.UserId);
             ErrorMessage = ex.Message;
         }
         finally
@@ -71,6 +78,7 @@ public partial class MyListingsViewModel : ObservableObject
         if (!_currentUserService.IsLoggedIn)
         {
             ErrorMessage = "Спершу авторизуйтеся, щоб керувати оголошеннями.";
+            _logger.LogWarning("Delete listing attempted without login for ListingId {ListingId}", listingId);
             return;
         }
 
@@ -79,6 +87,7 @@ public partial class MyListingsViewModel : ObservableObject
 
         try
         {
+            _logger.LogInformation("Deleting listing {ListingId} by UserId {UserId}", listingId, _currentUserService.UserId);
             await _mediator.Send(new DeleteListingCommand
             {
                 ListingId = listingId,
@@ -95,6 +104,7 @@ public partial class MyListingsViewModel : ObservableObject
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Error deleting listing {ListingId} by UserId {UserId}", listingId, _currentUserService.UserId);
             ErrorMessage = ex.Message;
         }
     }

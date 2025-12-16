@@ -1,4 +1,4 @@
-﻿using Moq;
+using Moq;
 using Xunit;
 using PetSearchHome.BLL.Handlers;
 using PetSearchHome.BLL.Queries;
@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System;
 using PetSearchHome.DAL.Domain.Enums;
+using Microsoft.Extensions.Logging;
 
 namespace PetSearchHome.Tests;
 
@@ -20,6 +21,7 @@ public class LoginTests
     private readonly Mock<ISessionRepository> _sessionRepoMock;
     private readonly Mock<IUnitOfWork> _uowMock;
     private readonly LoginQueryHandler _handler;
+    private readonly Mock<ILogger<LoginQueryHandler>> _loggerMock;
 
     public LoginTests()
     {
@@ -28,13 +30,15 @@ public class LoginTests
         _tokenGenMock = new Mock<IJwtTokenGenerator>();
         _sessionRepoMock = new Mock<ISessionRepository>();
         _uowMock = new Mock<IUnitOfWork>();
+        _loggerMock = new Mock<ILogger<LoginQueryHandler>>();
 
         _handler = new LoginQueryHandler(
             _userRepoMock.Object,
             _hasherMock.Object,
             _tokenGenMock.Object,
             _sessionRepoMock.Object,
-            _uowMock.Object);
+            _uowMock.Object,
+            _loggerMock.Object);
     }
 
     [Fact]

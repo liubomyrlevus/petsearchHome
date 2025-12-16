@@ -10,6 +10,7 @@ using PetSearchHome.Presentation.Services;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace PetSearchHome.ViewModels;
 
@@ -18,6 +19,7 @@ public partial class EditListingViewModel : ObservableValidator
     private readonly IMediator _mediator;
     private readonly NavigationManager _navigationManager;
     private readonly CurrentUserService _currentUserService;
+    private readonly ILogger<EditListingViewModel> _logger;
 
     [ObservableProperty]
     private int _listingId;
@@ -83,11 +85,13 @@ public partial class EditListingViewModel : ObservableValidator
     public EditListingViewModel(
         IMediator mediator,
         NavigationManager navigationManager,
-        CurrentUserService currentUserService)
+        CurrentUserService currentUserService,
+        ILogger<EditListingViewModel> logger)
     {
         _mediator = mediator;
         _navigationManager = navigationManager;
         _currentUserService = currentUserService;
+        _logger = logger;
     }
 
     [RelayCommand]
@@ -103,6 +107,7 @@ public partial class EditListingViewModel : ObservableValidator
         if (!_currentUserService.IsLoggedIn)
         {
             ErrorMessage = "Щоб редагувати оголошення, увійдіть у систему.";
+            _logger.LogWarning("Edit listing load attempted without login for ListingId {ListingId}", listingId);
             return;
         }
 
@@ -110,6 +115,7 @@ public partial class EditListingViewModel : ObservableValidator
 
         try
         {
+            _logger.LogInformation("Loading listing {ListingId} for edit by UserId {UserId}", listingId, _currentUserService.UserId);
             ListingId = listingId;
 
             var listing = await _mediator.Send(new GetListingDetailsQuery { Id = listingId });
@@ -117,6 +123,7 @@ public partial class EditListingViewModel : ObservableValidator
             if (listing.UserId != _currentUserService.UserId)
             {
                 ErrorMessage = "Ви не маєте права редагувати це оголошення.";
+                _logger.LogWarning("UserId {UserId} unauthorized to edit ListingId {ListingId}", _currentUserService.UserId, listingId);
                 return;
             }
 
@@ -140,9 +147,11 @@ public partial class EditListingViewModel : ObservableValidator
             }
 
             MainPhotoUrl = listing.PhotoUrls.Count > 0 ? listing.PhotoUrls[0] : null;
+            _logger.LogInformation("Listing {ListingId} loaded for edit", listingId);
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Error loading listing {ListingId} for edit", listingId);
             ErrorMessage = ex.Message;
         }
         finally
@@ -159,12 +168,14 @@ public partial class EditListingViewModel : ObservableValidator
         if (!_currentUserService.IsLoggedIn)
         {
             ErrorMessage = "Щоб редагувати оголошення, увійдіть у систему.";
+            _logger.LogWarning("Edit listing update attempted without login for ListingId {ListingId}", ListingId);
             return;
         }
 
         if (ListingId <= 0)
         {
             ErrorMessage = "Оголошення не знайдено.";
+            _logger.LogWarning("Update listing called with invalid ListingId {ListingId}", ListingId);
             return;
         }
 
@@ -177,6 +188,7 @@ public partial class EditListingViewModel : ObservableValidator
 
         try
         {
+            _logger.LogInformation("Updating listing {ListingId} by UserId {UserId}", ListingId, _currentUserService.UserId);
             var command = new UpdateListingCommand
             {
                 Id = ListingId,
@@ -205,10 +217,12 @@ public partial class EditListingViewModel : ObservableValidator
 
             await _mediator.Send(command);
 
+            _logger.LogInformation("Listing {ListingId} updated successfully", ListingId);
             _navigationManager.NavigateTo($"/listing/{ListingId}", replace: true);
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Error updating listing {ListingId}", ListingId);
             ErrorMessage = ex.Message;
         }
         finally

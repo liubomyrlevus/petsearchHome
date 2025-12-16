@@ -9,6 +9,7 @@ using PetSearchHome.Presentation.Services;
 using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace PetSearchHome.ViewModels;
 
@@ -16,6 +17,7 @@ public partial class UserProfileViewModel : ObservableObject
 {
     private readonly IMediator _mediator;
     private readonly CurrentUserService _currentUserService;
+    private readonly ILogger<UserProfileViewModel> _logger;
 
     [ObservableProperty] private UserProfileDto? _profile;
     [ObservableProperty] private ContactFormModel _contactForm = new();
@@ -23,7 +25,7 @@ public partial class UserProfileViewModel : ObservableObject
     [ObservableProperty] private string _errorMessage = string.Empty;
     [ObservableProperty] private string _successMessage = string.Empty;
     [ObservableProperty] private ObservableCollection<ReviewDto> _reviews = new();
-    [ObservableProperty] private int _newReviewRating = 5;
+    [ObservableProperty] private int _newReviewRating =5;
     [ObservableProperty] private string _newReviewComment = string.Empty;
     [ObservableProperty] private string _reviewErrorMessage = string.Empty;
     [ObservableProperty] private bool _isReviewBusy;
@@ -39,10 +41,11 @@ public partial class UserProfileViewModel : ObservableObject
         _currentUserService.IsLoggedIn &&
         _currentUserService.UserId != Profile.Id;
 
-    public UserProfileViewModel(IMediator mediator, CurrentUserService currentUserService)
+    public UserProfileViewModel(IMediator mediator, CurrentUserService currentUserService, ILogger<UserProfileViewModel> logger)
     {
         _mediator = mediator;
         _currentUserService = currentUserService;
+        _logger = logger;
     }
 
     partial void OnProfileChanged(UserProfileDto? value)
@@ -64,7 +67,8 @@ public partial class UserProfileViewModel : ObservableObject
 
         if (!userId.HasValue && !_currentUserService.IsLoggedIn)
         {
-            ErrorMessage = "�c�?�+ ����?��?�>�?�?�?�'�� ���?�?�\"�-�>�?, ���?�'�?�?����?���'��?�?.";
+            ErrorMessage = "Щоб переглянути профіль, увійдіть у систему.";
+            _logger.LogWarning("LoadProfile attempted without login");
             return;
         }
 
@@ -73,6 +77,7 @@ public partial class UserProfileViewModel : ObservableObject
         try
         {
             var targetUserId = userId ?? _currentUserService.UserId!.Value;
+            _logger.LogInformation("Loading profile for UserId {TargetUserId}", targetUserId);
 
             var profile = await _mediator.Send(new GetUserProfileQuery
             {
@@ -88,9 +93,11 @@ public partial class UserProfileViewModel : ObservableObject
             });
 
             Reviews = new ObservableCollection<ReviewDto>(reviews);
+            _logger.LogInformation("Profile loaded for UserId {TargetUserId} with {ReviewCount} reviews", targetUserId, Reviews.Count);
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Error loading profile for UserId {UserId}", userId);
             ErrorMessage = ex.Message;
         }
         finally
@@ -104,7 +111,8 @@ public partial class UserProfileViewModel : ObservableObject
     {
         if (Profile == null)
         {
-            ErrorMessage = "�\"���?�- ���?�?�\"�-�>�? �?�-�?�?�?�'�?�-.";
+            ErrorMessage = "Профіль не завантажено.";
+            _logger.LogWarning("SaveContacts called with null Profile");
             return;
         }
 
@@ -113,6 +121,7 @@ public partial class UserProfileViewModel : ObservableObject
 
         try
         {
+            _logger.LogInformation("Updating contacts for UserId {UserId}", Profile.Id);
             var command = new UpdateUserContactInfoCommand
             {
                 UserId = Profile.Id
@@ -143,10 +152,12 @@ public partial class UserProfileViewModel : ObservableObject
 
             Profile = updatedProfile;
             ContactForm = CreateContactForm(updatedProfile);
-            SuccessMessage = "�?�?�?�'����'�� �?�?���-�?�?�? ���+��?����?�?.";
+            SuccessMessage = "Контактні дані оновлено.";
+            _logger.LogInformation("Contacts updated for UserId {UserId}", Profile.Id);
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Error updating contacts for UserId {UserId}", Profile.Id);
             ErrorMessage = ex.Message;
         }
     }
@@ -157,24 +168,28 @@ public partial class UserProfileViewModel : ObservableObject
         if (Profile is null)
         {
             ReviewErrorMessage = "Профіль користувача не завантажено.";
+            _logger.LogWarning("CreateReview called with null Profile");
             return;
         }
 
         if (!_currentUserService.IsLoggedIn)
         {
             ReviewErrorMessage = "Щоб залишити відгук, увійдіть у систему.";
+            _logger.LogWarning("CreateReview attempted without login for ReviewedId {ReviewedId}", Profile.Id);
             return;
         }
 
         if (_currentUserService.UserId == Profile.Id)
         {
             ReviewErrorMessage = "Не можна залишати відгук про власний профіль.";
+            _logger.LogWarning("User {UserId} attempted to review own profile", _currentUserService.UserId);
             return;
         }
 
-        if (NewReviewRating < 1 || NewReviewRating > 5)
+        if (NewReviewRating <1 || NewReviewRating >5)
         {
-            ReviewErrorMessage = "Оцінка має бути від 1 до 5.";
+            ReviewErrorMessage = "Оцінка має бути від1 до5.";
+            _logger.LogWarning("Invalid review rating {Rating} by UserId {UserId}", NewReviewRating, _currentUserService.UserId);
             return;
         }
 
@@ -188,6 +203,7 @@ public partial class UserProfileViewModel : ObservableObject
 
         try
         {
+            _logger.LogInformation("Creating review: ReviewerId {ReviewerId} -> ReviewedId {ReviewedId} Rating {Rating}", _currentUserService.UserId, Profile.Id, NewReviewRating);
             var command = new CreateReviewCommand
             {
                 ReviewerId = _currentUserService.UserId!.Value,
@@ -200,9 +216,11 @@ public partial class UserProfileViewModel : ObservableObject
 
             Reviews.Insert(0, createdReview);
             NewReviewComment = string.Empty;
+            _logger.LogInformation("Review created: Id {ReviewId}", createdReview.Id);
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Error creating review by UserId {UserId} for ReviewedId {ReviewedId}", _currentUserService.UserId, Profile.Id);
             ReviewErrorMessage = ex.Message;
         }
         finally

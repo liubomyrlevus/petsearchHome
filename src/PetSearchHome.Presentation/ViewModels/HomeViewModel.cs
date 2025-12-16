@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace PetSearchHome.ViewModels;
 
@@ -18,6 +19,7 @@ public partial class HomeViewModel : ObservableValidator
 {
     private readonly IMediator _mediator;
     private readonly CurrentUserService _currentUserService;
+    private readonly ILogger<HomeViewModel> _logger;
     private HashSet<int> _favoriteListingIds = new();
 
     [ObservableProperty] private string _searchTerm = string.Empty;
@@ -27,10 +29,11 @@ public partial class HomeViewModel : ObservableValidator
     [ObservableProperty] private bool _isBusy;
     [ObservableProperty] private string _errorMessage = string.Empty;
 
-    public HomeViewModel(IMediator mediator, CurrentUserService currentUserService)
+    public HomeViewModel(IMediator mediator, CurrentUserService currentUserService, ILogger<HomeViewModel> logger)
     {
         _mediator = mediator;
         _currentUserService = currentUserService;
+        _logger = logger;
     }
 
     [RelayCommand]
@@ -39,6 +42,7 @@ public partial class HomeViewModel : ObservableValidator
         if (IsBusy) return;
         IsBusy = true;
         ErrorMessage = string.Empty;
+        _logger.LogInformation("Loading listings with Search={Search}, Type={Type}, City={City}", SearchTerm, SelectedAnimalType, City);
 
         try
         {
@@ -57,10 +61,12 @@ public partial class HomeViewModel : ObservableValidator
                 Listings.Add(listing);
             }
 
+            _logger.LogInformation("Loaded {Count} listings", Listings.Count);
             await LoadFavoritesInternalAsync();
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Error loading listings");
             ErrorMessage = $"Не вдалося завантажити оголошення: {ex.Message}";
         }
         finally
@@ -77,6 +83,7 @@ public partial class HomeViewModel : ObservableValidator
         if (!_currentUserService.IsLoggedIn)
         {
             ErrorMessage = "Щоб працювати з обраним, спочатку увійдіть у систему.";
+            _logger.LogWarning("Toggle favorite attempted without login for ListingId {ListingId}", listingId);
             return;
         }
 
@@ -93,6 +100,7 @@ public partial class HomeViewModel : ObservableValidator
                 };
                 await _mediator.Send(command);
                 _favoriteListingIds.Remove(listingId);
+                _logger.LogInformation("Removed ListingId {ListingId} from favorites for UserId {UserId}", listingId, userId);
             }
             else
             {
@@ -103,10 +111,12 @@ public partial class HomeViewModel : ObservableValidator
                 };
                 await _mediator.Send(command);
                 _favoriteListingIds.Add(listingId);
+                _logger.LogInformation("Added ListingId {ListingId} to favorites for UserId {UserId}", listingId, userId);
             }
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Error toggling favorite ListingId {ListingId}", listingId);
             ErrorMessage = $"Сталася помилка: {ex.Message}";
         }
     }
@@ -127,10 +137,11 @@ public partial class HomeViewModel : ObservableValidator
             });
 
             _favoriteListingIds = new HashSet<int>(favorites.Select(f => f.ListingId));
+            _logger.LogInformation("Loaded favorites: {Count}", _favoriteListingIds.Count);
         }
-        catch
+        catch (Exception ex)
         {
-            // Ігноруємо помилки завантаження списку обраного, щоб не блокувати основну сторінку.
+            _logger.LogWarning(ex, "Failed to load favorites, continuing without favorites");
         }
     }
 }

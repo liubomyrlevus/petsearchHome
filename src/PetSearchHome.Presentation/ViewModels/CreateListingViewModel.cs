@@ -8,6 +8,7 @@ using PetSearchHome.BLL.DTOs;
 using PetSearchHome.Presentation.Services;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace PetSearchHome.ViewModels;
 
@@ -16,6 +17,7 @@ public partial class CreateListingViewModel : ObservableValidator
     private readonly IMediator _mediator;
     private readonly NavigationManager _navigationManager;
     private readonly CurrentUserService _currentUserService;
+    private readonly ILogger<CreateListingViewModel> _logger;
 
     [ObservableProperty]
     [Required(ErrorMessage = "Поле «Тип тварини» є обов'язковим.")]
@@ -84,11 +86,13 @@ public partial class CreateListingViewModel : ObservableValidator
     public CreateListingViewModel(
         IMediator mediator,
         NavigationManager navigationManager,
-        CurrentUserService currentUserService)
+        CurrentUserService currentUserService,
+        ILogger<CreateListingViewModel> logger)
     {
         _mediator = mediator;
         _navigationManager = navigationManager;
         _currentUserService = currentUserService;
+        _logger = logger;
     }
 
     [RelayCommand]
@@ -99,12 +103,14 @@ public partial class CreateListingViewModel : ObservableValidator
         if (!_currentUserService.IsLoggedIn)
         {
             ErrorMessage = "Увійдіть, щоб створити оголошення.";
+            _logger.LogWarning("Create listing attempted without login");
             return;
         }
 
         ValidateAllProperties();
         if (HasErrors)
         {
+            _logger.LogWarning("Create listing validation failed for UserId {UserId}", _currentUserService.UserId);
             return;
         }
 
@@ -113,6 +119,7 @@ public partial class CreateListingViewModel : ObservableValidator
 
         try
         {
+            _logger.LogInformation("Creating listing for UserId {UserId}, AnimalType {AnimalType}", _currentUserService.UserId, AnimalType);
             var command = new CreateListingCommand
             {
                 UserId = _currentUserService.UserId!.Value,
@@ -140,11 +147,12 @@ public partial class CreateListingViewModel : ObservableValidator
 
             var listingId = await _mediator.Send(command);
 
-            // Після створення оголошення повертаємо користувача на головну сторінку.
+            _logger.LogInformation("Listing {ListingId} created successfully", listingId);
             _navigationManager.NavigateTo($"/listing/{listingId}", replace: true);
         }
         catch (System.Exception ex)
         {
+            _logger.LogError(ex, "Error creating listing for UserId {UserId}", _currentUserService.UserId);
             ErrorMessage = ex.Message;
         }
         finally
