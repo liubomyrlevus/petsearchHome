@@ -8,6 +8,10 @@
     <RestoreSources>https://api.nuget.org/v3/index.json</RestoreSources>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <CodeAnalysisRuleSet>SonarQube.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+
   <ItemGroup>
     <!-- PostgreSQL + EF Core ORM -->
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
