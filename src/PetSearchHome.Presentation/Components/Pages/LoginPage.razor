@@ -2,66 +2,185 @@
 @page "/"
 @inject ViewModels.LoginViewModel ViewModel
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
 @implements IDisposable
 
 <PageTitle>Вхід</PageTitle>
 
+<div id="cursor-laser" class="laser-glow"></div>
+
+<img id="cat-paw-left" class="cat-paw-img" src="images/cat-paw.png" alt="Cat Paw Left" />
+<img id="cat-paw-right" class="cat-paw-img" src="images/cat-paw.png" alt="Cat Paw Right" />
+
 <div class="page-container auth-page">
-    <EditForm class="login-form" Model="ViewModel" OnValidSubmit="ViewModel.LoginCommand.ExecuteAsync">
+
+    <div class="cat-wrapper">
+        <div id="the-cat" class="cat-body-styled">
+            <div class="cat-ears-styled">
+                <div class="ear-s left"></div>
+                <div class="ear-s right"></div>
+            </div>
+            <div class="cat-face-styled">
+                <div class="eye-s left">
+                    <div class="pupil-s"></div>
+                </div>
+                <div class="eye-s right">
+                    <div class="pupil-s"></div>
+                </div>
+                <div class="nose-s"></div>
+            </div>
+        </div>
+    </div>
+
+    <EditForm class="login-form sleek-form" Model="ViewModel" OnValidSubmit="HandleValidSubmit">
         <DataAnnotationsValidator />
 
-        <h3>Ласкаво просимо до PetSearchHome</h3>
+        <h3>З поверненням!</h3>
+        <p class="text-muted text-center mb-4">Ваші улюбленці чекають.</p>
 
-        <div class="form-field">
-            <label for="emailInput">Email</label>
-            <InputText id="emailInput"
-                       @bind-Value="ViewModel.Email"
-                       type="email"
-                       placeholder="example@gmail.com" />
-            <ValidationMessage For="@(() => ViewModel.Email)" />
+        <div class="form-floating mb-3">
+            <InputText id="emailInput" class="form-control" @bind-Value="ViewModel.Email" placeholder="name@example.com" />
+            <label for="emailInput">Email адреса</label>
+            <ValidationMessage For="@(() => ViewModel.Email)" class="text-danger small" />
         </div>
 
-        <div class="form-field">
+        <div class="form-floating mb-4">
+            <InputText id="passwordInput" class="form-control" @bind-Value="ViewModel.Password" type="password" placeholder="Пароль" />
             <label for="passwordInput">Пароль</label>
-            <InputText id="passwordInput"
-                       @bind-Value="ViewModel.Password"
-                       type="password"
-                       placeholder="Введіть ваш пароль" />
-            <ValidationMessage For="@(() => ViewModel.Password)" />
-        </div>
-
-        <div class="form-footer">
-            <span class="text-muted small">Введіть свої дані, щоб продовжити</span>
+            <ValidationMessage For="@(() => ViewModel.Password)" class="text-danger small" />
         </div>
 
         @if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
         {
-            <div class="error-message">@ViewModel.ErrorMessage</div>
+            <div class="alert alert-danger py-2 small">@ViewModel.ErrorMessage</div>
         }
 
-        <div class="actions">
-            <button type="submit" class="primary" disabled="@(!ViewModel.CanLogin)">
+        <div class="d-grid gap-2">
+            <button id="loginBtn" type="submit" class="btn btn-primary btn-lg thunder-btn"
+                    disabled="@(!ViewModel.CanLogin)"
+                    @onclick="@(async (e) => await AnimatePaw(e))">
                 @if (ViewModel.IsBusy)
                 {
-                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    <span>Вхід...</span>
                 }
                 else
                 {
                     <span>Увійти</span>
                 }
             </button>
-            <button type="button" @onclick="GoToRegister">Зареєструватися</button>
+
+            <button id="registerBtn" type="button" class="btn btn-outline-secondary"
+                    @onclick="@(async (e) => { await AnimatePaw(e); GoToRegister(); })">
+                Створити акаунт
+            </button>
         </div>
     </EditForm>
 </div>
 
+
+<script>
+    window.lastPawUsed = 'right';
+
+    window.trackMouse = () => {
+        const laser = document.getElementById('cursor-laser');
+        const pawLeft = document.getElementById('cat-paw-left');
+        const pawRight = document.getElementById('cat-paw-right');
+
+        if (laser && laser.parentElement !== document.body) document.body.appendChild(laser);
+        if (pawLeft && pawLeft.parentElement !== document.body) document.body.appendChild(pawLeft);
+        if (pawRight && pawRight.parentElement !== document.body) document.body.appendChild(pawRight);
+
+        document.addEventListener('mousemove', (e) => {
+            if(laser) {
+                laser.style.left = e.clientX + 'px';
+                laser.style.top = e.clientY + 'px';
+            }
+            const eyes = document.querySelectorAll('.eye-s');
+            eyes.forEach(eye => {
+                const rect = eye.getBoundingClientRect();
+                const angle = Math.atan2(e.clientY - (rect.top + rect.height / 2), e.clientX - (rect.left + rect.width / 2));
+                eye.querySelector('.pupil-s').style.transform = `translate(-50%, -50%) translate(${Math.cos(angle) * 6}px, ${Math.sin(angle) * 6}px)`;
+            });
+        });
+    };
+
+    // приймає координати кліку
+    window.animatePawToCoordinates = (clickX, clickY) => {
+        const pawToUseStr = window.lastPawUsed === 'right' ? 'left' : 'right';
+        const pawId = 'cat-paw-' + pawToUseStr;
+        window.lastPawUsed = pawToUseStr;
+
+        const paw = document.getElementById(pawId);
+        const cat = document.getElementById('the-cat');
+
+        if(paw && cat) {
+            const catRect = cat.getBoundingClientRect();
+
+            // Центр кота
+            const originX = catRect.left + catRect.width / 2;
+            const originY = catRect.top + 60; 
+
+            paw.style.display = 'block';
+            paw.style.transition = 'none';
+            paw.style.left = (originX) + 'px'; 
+            paw.style.top = (originY) + 'px';  
+
+            // кут до мишки
+            const deltaX = clickX - originX;
+            const deltaY = clickY - originY;
+            const angleDeg = (Math.atan2(deltaY, deltaX) * 180 / Math.PI) + 90;
+
+            paw.style.transform = `translate(-50%, 0) rotate(${angleDeg}deg)`;
+
+            setTimeout(() => {
+                paw.style.transition = 'top 0.15s ease-out, height 0.15s ease-out';
+
+                paw.style.transition = 'all 0.15s cubic-bezier(0.19, 1, 0.22, 1)';
+                paw.style.top = clickY + 'px';
+                paw.style.left = clickX + 'px';
+
+                setTimeout(() => {
+                    paw.style.transition = 'all 0.2s ease-in';
+                    paw.style.top = originY + 'px';
+                    paw.style.left = originX + 'px';
+
+                    setTimeout(() => {
+                        paw.style.display = 'none';
+                    }, 200);
+                }, 150);
+            }, 20);
+        }
+    };
+</script>
+
 @code {
     private System.ComponentModel.PropertyChangedEventHandler? _handler;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("trackMouse", null);
+        }
+    }
 
     protected override void OnInitialized()
     {
         _handler = (_, _) => InvokeAsync(StateHasChanged);
         ViewModel.PropertyChanged += _handler;
+    }
+
+    private async Task AnimatePaw(MouseEventArgs e)
+    {
+        await JSRuntime.InvokeVoidAsync("animatePawToCoordinates", e.ClientX, e.ClientY);
+        await Task.Delay(350);
+    }
+
+    private async Task HandleValidSubmit()
+    {
+       
+        await ViewModel.LoginCommand.ExecuteAsync(null);
     }
 
     private void GoToRegister()
