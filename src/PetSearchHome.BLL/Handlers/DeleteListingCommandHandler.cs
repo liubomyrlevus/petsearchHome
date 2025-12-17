@@ -12,7 +12,10 @@ public class DeleteListingCommandHandler : IRequestHandler<DeleteListingCommand>
     {
         var listingToDelete = await _listingRepository.GetByIdAsync(request.ListingId, cancellationToken);
         if (listingToDelete == null) { return Unit.Value; }
-        if (listingToDelete.UserId != request.UserId) { throw new Exception("User is not authorized to delete this listing."); }
+        if (!request.IsAdmin && listingToDelete.UserId != request.UserId)
+        {
+            throw new Exception("User is not authorized to delete this listing.");
+        }
         await _listingRepository.DeleteAsync(request.ListingId, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return Unit.Value;

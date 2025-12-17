@@ -18,7 +18,9 @@ public partial class AdminPanelViewModel : ObservableObject
  private readonly IMediator _mediator;
     private readonly CurrentUserService _currentUserService;
 
-  [ObservableProperty] private ObservableCollection<ListingModerationDto> _listingsForModeration = new();
+    [ObservableProperty] private ObservableCollection<ListingModerationDto> _listingsForModeration = new();
+    [ObservableProperty] private ObservableCollection<ListingCardDto> _publishedListings = new();
+    [ObservableProperty] private ObservableCollection<UserSummaryDto> _users = new();
     [ObservableProperty] private ObservableCollection<ReportDto> _reports = new();
     [ObservableProperty] private bool _isBusy;
     [ObservableProperty] private string _errorMessage = string.Empty;
@@ -79,6 +81,121 @@ catch (Exception ex)
   finally
         {
             IsBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task LoadPublishedListingsAsync()
+    {
+        if (!IsAdmin)
+        {
+            ErrorMessage = "Доступ мають лише адміністратори.";
+            return;
+        }
+
+        if (IsBusy) return;
+        IsBusy = true;
+        ErrorMessage = string.Empty;
+
+        try
+        {
+            var listings = await _mediator.Send(new SearchListingsQuery
+            {
+                Status = ListingStatus.active
+            });
+
+            PublishedListings = new ObservableCollection<ListingCardDto>(listings);
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task DeletePublishedListingAsync(int listingId)
+    {
+        if (!IsAdmin || !_currentUserService.UserId.HasValue)
+        {
+            ErrorMessage = "Доступ мають лише адміністратори.";
+            return;
+        }
+
+        try
+        {
+            await _mediator.Send(new DeleteListingCommand
+            {
+                ListingId = listingId,
+                UserId = _currentUserService.UserId.Value,
+                IsAdmin = true
+            });
+
+            var listing = PublishedListings.FirstOrDefault(l => l.Id == listingId);
+            if (listing != null)
+            {
+                PublishedListings.Remove(listing);
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+    }
+
+    [RelayCommand]
+    private async Task LoadUsersAsync()
+    {
+        if (!IsAdmin)
+        {
+            ErrorMessage = "Доступ мають лише адміністратори.";
+            return;
+        }
+
+        if (IsBusy) return;
+        IsBusy = true;
+        ErrorMessage = string.Empty;
+
+        try
+        {
+            var users = await _mediator.Send(new GetAllUsersQuery());
+            Users = new ObservableCollection<UserSummaryDto>(users);
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task DeleteUserAsync(int userId)
+    {
+        if (!IsAdmin)
+        {
+            ErrorMessage = "Доступ мають лише адміністратори.";
+            return;
+        }
+
+        try
+        {
+            await _mediator.Send(new DeleteUserCommand { UserId = userId });
+
+            var user = Users.FirstOrDefault(u => u.Id == userId);
+            if (user != null)
+            {
+                Users.Remove(user);
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
         }
     }
 

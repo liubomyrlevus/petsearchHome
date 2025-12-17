@@ -78,6 +78,27 @@ public class UserRepository : IUserRepository
         _context.Users.Update(user);
         await _context.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task<IReadOnlyList<RegisteredUser>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        await using var _context = await _contextFactory.CreateDbContextAsync(cancellationToken);
+        return await _context.Users
+            .Include(u => u.IndividualProfile)
+            .Include(u => u.ShelterProfile)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task DeleteAsync(int id, CancellationToken cancellationToken = default)
+    {
+        await using var _context = await _contextFactory.CreateDbContextAsync(cancellationToken);
+        var user = await _context.Users.FindAsync(new object[] { id }, cancellationToken);
+        if (user != null)
+        {
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+    }
 }
 
 public class ListingRepository : IListingRepository

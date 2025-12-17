@@ -162,6 +162,111 @@
                     </div>
                 }
             </MudTabPanel>
+
+            <MudTabPanel Text="Опубліковані">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4>Опубліковані оголошення</h4>
+                    <button class="btn btn-outline-primary"
+                            @onclick="ViewModel.LoadPublishedListingsCommand.ExecuteAsync">
+                        Оновити
+                    </button>
+                </div>
+
+                @if (!ViewModel.PublishedListings.Any())
+                {
+                    <p class="text-muted"><em>Поки немає опублікованих оголошень.</em></p>
+                }
+                else
+                {
+                    <div class="table-responsive surface-card">
+                        <table class="table table-striped align-middle">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Тип</th>
+                                    <th>Порода</th>
+                                    <th>Місто</th>
+                                    <th>Статус</th>
+                                    <th class="text-end">Дії</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var listing in ViewModel.PublishedListings)
+                                {
+                                    <tr>
+                                        <td>@listing.Id</td>
+                                        <td>@listing.AnimalType.ToUkrainianLabel()</td>
+                                        <td>@(string.IsNullOrEmpty(listing.Breed) ? "Без породи" : listing.Breed)</td>
+                                        <td>@listing.City</td>
+                                        <td>@listing.Status.ToUkrainianLabel()</td>
+                                        <td class="text-end">
+                                            <a class="btn btn-sm btn-outline-secondary me-2" href="/listing/@listing.Id">Переглянути</a>
+                                            <button class="btn btn-sm btn-danger"
+                                                    @onclick="() => ViewModel.DeletePublishedListingCommand.ExecuteAsync(listing.Id)"
+                                                    disabled="@ViewModel.IsBusy">
+                                                Видалити
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </MudTabPanel>
+
+            <MudTabPanel Text="Користувачі">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4>Список користувачів</h4>
+                    <button class="btn btn-outline-primary"
+                            @onclick="ViewModel.LoadUsersCommand.ExecuteAsync">
+                        Оновити
+                    </button>
+                </div>
+
+                @if (!ViewModel.Users.Any())
+                {
+                    <p class="text-muted"><em>Користувачів не знайдено.</em></p>
+                }
+                else
+                {
+                    <div class="table-responsive surface-card">
+                        <table class="table table-striped align-middle">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Email</th>
+                                    <th>Тип</th>
+                                    <th>Адмін</th>
+                                    <th>Активний</th>
+                                    <th>Створено</th>
+                                    <th class="text-end">Дії</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var user in ViewModel.Users)
+                                {
+                                    <tr>
+                                        <td>@user.Id</td>
+                                        <td>@user.Email</td>
+                                        <td>@user.UserType</td>
+                                        <td>@(user.IsAdmin ? "Так" : "Ні")</td>
+                                        <td>@(user.IsActive ? "Так" : "Ні")</td>
+                                        <td>@user.CreatedAt.ToLocalTime().ToShortDateString()</td>
+                                        <td class="text-end">
+                                            <button class="btn btn-sm btn-danger"
+                                                    @onclick="() => ViewModel.DeleteUserCommand.ExecuteAsync(user.Id)"
+                                                    disabled="@ViewModel.IsBusy">
+                                                Видалити
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </MudTabPanel>
         </MudTabs>
     }
 </div>
@@ -181,6 +286,16 @@
             if (ViewModel.LoadReportsCommand.CanExecute(null))
             {
                 await ViewModel.LoadReportsCommand.ExecuteAsync(null);
+            }
+
+            if (ViewModel.LoadPublishedListingsCommand.CanExecute(null))
+            {
+                await ViewModel.LoadPublishedListingsCommand.ExecuteAsync(null);
+            }
+
+            if (ViewModel.LoadUsersCommand.CanExecute(null))
+            {
+                await ViewModel.LoadUsersCommand.ExecuteAsync(null);
             }
         }
     }
