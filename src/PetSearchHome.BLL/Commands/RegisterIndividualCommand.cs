@@ -1,8 +1,6 @@
 ﻿using MediatR;
 using PetSearchHome.BLL.DTOs;
-
 namespace PetSearchHome.BLL.Commands;
-
 public class RegisterIndividualCommand : IRequest<LoginResultDto>
 {
     public string Email { get; set; } = string.Empty;

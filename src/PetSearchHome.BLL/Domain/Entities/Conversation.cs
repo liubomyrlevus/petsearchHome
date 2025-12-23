@@ -1,19 +1,16 @@
-using System;
-using System.Collections.Generic;
 namespace PetSearchHome.BLL.Domain.Entities;
 
 public class Conversation
 {
-    public Guid Id { get; set; }
-
-    public Guid User1Id { get; set; }
-
-    public Guid User2Id { get; set; }
-
+    public int Id { get; set; }
+    public int User1Id { get; set; }
+    public int User2Id { get; set; }
     public int? ListingId { get; set; }
-
     public DateTime LastMessageAt { get; set; } = DateTime.UtcNow;
 
- 
-    public List<Message> Messages { get; set; } = new List<Message>();
+    public RegisteredUser User1 { get; set; } = null!;
+    public RegisteredUser User2 { get; set; } = null!;
+    public Listing? Listing { get; set; }
+    public ICollection<Message> Messages { get; set; } = new List<Message>();
 }
+

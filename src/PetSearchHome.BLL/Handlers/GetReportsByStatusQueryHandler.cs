@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using PetSearchHome.BLL.Contracts.Persistence;
 using PetSearchHome.BLL.DTOs;
 using PetSearchHome.BLL.Queries;
@@ -24,11 +24,12 @@ public class GetReportsByStatusQueryHandler : IRequestHandler<GetReportsByStatus
         foreach (var report in reports)
         {
             var reporter = await _userRepository.GetByIdAsync(report.ReporterId, cancellationToken);
+
             result.Add(new ReportDto
             {
                 Id = report.Id,
                 ReporterId = report.ReporterId,
-                ReporterInfo = reporter?.Email ?? "Unknown User", 
+                ReporterInfo = reporter?.Email ?? "Unknown User",
                 ReportedType = report.ReportedType,
                 ReportedEntityId = report.ReportedEntityId,
                 Reason = report.Reason,
@@ -42,3 +43,4 @@ public class GetReportsByStatusQueryHandler : IRequestHandler<GetReportsByStatus
         return result;
     }
 }
+
